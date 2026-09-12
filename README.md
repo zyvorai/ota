@@ -176,6 +176,14 @@ credentials, or exploitable production details in a public issue.
 
 ## License
 
-Original Zyvor OTA source is Apache-2.0. Vendored dependencies retain their own
-licenses. RAUC is an external runtime dependency and is not relicensed by this
-repository. See `LICENSE`, `NOTICE`, and `THIRD_PARTY_NOTICES.md`.
+### Open source (Apache-2.0)
+
+This repository is licensed under the [Apache License, Version 2.0](LICENSE).
+You may use, modify, and run it for personal, lab, and commercial production
+use at no charge, subject to Apache-2.0 (preserve notices / NOTICE where required).
+Original Zyvor OTA source is Apache-2.0. Vendored dependencies retain their own licenses. RAUC is an external runtime dependency and is not relicensed by this project.
+
+### Enterprise
+
+Production support, SLAs, and Zyvor Enterprise products are licensed separately.
+Contact [sales@zyvor.dev](mailto:sales@zyvor.dev) or see [zyvor.dev](https://zyvor.dev).
