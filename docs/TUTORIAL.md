@@ -57,7 +57,7 @@ cat > agent.json <<JSON
 JSON
 ```
 
-Every field here is documented in the [User Guide](USER-GUIDE.md#configuration-reference).
+Every field here is documented in the [User Guide](USER-GUIDE.md#configuration-reference-agentjson).
 
 ## 3. Start an artifact server and the daemon
 
@@ -189,6 +189,6 @@ rm -rf /tmp/zyvor-ota-tutorial
 ## Next steps
 
 - [User Guide](USER-GUIDE.md) — every CLI subcommand and config field in one place.
-- [Device deployment](../README.md#device-deployment) — the same lifecycle against a real board with the RAUC backend.
-- [Remote smoke-deploy](../deploy/README.md) — run this same simulator lifecycle as an installed systemd service on another host over SSH.
+- [Device deployment](https://github.com/zyvorai/ota#device-deployment) — the same lifecycle against a real board with the RAUC backend.
+- [Remote smoke-deploy](https://github.com/zyvorai/ota/blob/main/deploy/README.md) — run this same simulator lifecycle as an installed systemd service on another host over SSH.
 - [Operations](OPERATIONS.md) — the runbook for `NeedsRecovery`, trust rotation, and journal limits once this isn't a toy workspace anymore.

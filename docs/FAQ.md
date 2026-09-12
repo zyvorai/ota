@@ -8,9 +8,9 @@ better starting point.
 
 **Is it really free?** Yes. Apache-2.0 — use, modify, and run it for
 personal, lab, and commercial production use at no charge, subject to
-preserving notices (see [`NOTICE`](../NOTICE)). RAUC (an external runtime
+preserving notices (see [`NOTICE`](https://github.com/zyvorai/ota/blob/main/NOTICE)). RAUC (an external runtime
 dependency) is not relicensed by this project — check its own license
-separately. See the README's [License](../README.md#license) section.
+separately. See the README's [License](https://github.com/zyvorai/ota#license) section.
 
 **What does "Enterprise" mean here?** Production support, SLAs, and
 Zyvor's other commercial products are licensed separately from this
@@ -21,7 +21,7 @@ requires it.
 
 **What if I find a bug?** Open a GitHub issue.
 
-**What if I find a security vulnerability?** See [`SECURITY.md`](../SECURITY.md)
+**What if I find a security vulnerability?** See [`SECURITY.md`](https://github.com/zyvorai/ota/blob/main/SECURITY.md)
 for private reporting instructions and the documented threat model — note
 its own text says private reporting requires the repository's private
 vulnerability reporting feature to be enabled by the maintainers first.
@@ -50,7 +50,7 @@ question you need to verify, not something to assume from this repo alone.
 **How are updates verified?** Ed25519-signed release envelopes with pinned
 trust keys and SHA-256 content verification — RAUC is only ever handed a
 bundle after signature verification passes. See
-[`docs/ARCHITECTURE.md`](ARCHITECTURE.md) and [`SECURITY.md`](../SECURITY.md)
+[`docs/ARCHITECTURE.md`](ARCHITECTURE.md) and [`SECURITY.md`](https://github.com/zyvorai/ota/blob/main/SECURITY.md)
 for the full threat model, including explicit non-claims (e.g. the on-disk
 anti-replay high-water mark is *not* a TPM/RPMB hardware counter — read the
 threat model before assuming a stronger guarantee than is actually made).

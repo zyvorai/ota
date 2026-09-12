@@ -1,0 +1,56 @@
+site_name: Zyvor OTA
+site_description: Signed, recoverable device OS updates for the Zyvor Platform.
+site_url: https://zyvorai.github.io/ota/
+repo_url: https://github.com/zyvorai/ota
+repo_name: zyvorai/ota
+edit_uri: edit/main/docs/
+docs_dir: docs
+site_dir: site
+theme:
+  name: material
+  logo: material/update
+  favicon: material/update
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: deep orange
+      accent: orange
+      toggle: {icon: material/brightness-7, name: Switch to dark mode}
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: deep orange
+      accent: orange
+      toggle: {icon: material/brightness-4, name: Switch to light mode}
+  features: [navigation.tabs, navigation.sections, navigation.top, navigation.footer, content.code.copy, search.suggest, search.highlight, toc.follow]
+plugins: [search]
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - {name: mermaid, class: mermaid, format: !!python/name:pymdownx.superfences.fence_code_format }
+  - pymdownx.tabbed: {alternate_style: true}
+  - pymdownx.tasklist: {custom_checkbox: true}
+  - tables
+  - toc: {permalink: true}
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Tutorial: TUTORIAL.md
+      - User Guide: USER-GUIDE.md
+  - Reference:
+      - Architecture: ARCHITECTURE.md
+      - Fleet Adapter Contract: FLEET.md
+      - Device Integration: DEVICE-INTEGRATION.md
+  - Operations:
+      - Operator Runbook: OPERATIONS.md
+      - Troubleshooting: TROUBLESHOOTING.md
+  - Project:
+      - FAQ: FAQ.md
+      - Verification Report: TEST-REPORT.md
+      - Release Process: RELEASING.md
+extra:
+  social:
+    - {icon: fontawesome/brands/github, link: https://github.com/zyvorai/ota}
