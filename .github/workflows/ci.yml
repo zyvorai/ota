@@ -26,11 +26,11 @@ jobs:
       - run: make dist
       - name: Source SBOM
         run: python3 scripts/sbom.py
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: test-coverage
           path: coverage.out
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: linux-builds
           path: dist/
