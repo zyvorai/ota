@@ -26,8 +26,44 @@ tests. Physical board qualification is a separate release gate. See
 Fleet decides **which devices and when**. OTA verifies and installs a device OS
 release. RAUC writes the inactive slot and integrates with the board bootloader.
 
+## Is this for you?
+
+Zyvor OTA is a small, single-purpose, open-source (Apache-2.0) **device-side**
+update agent: it verifies a signed release and installs it via RAUC's A/B slot
+mechanism, with automatic health-check-gated rollback. It is not a fleet
+dashboard, not a targeting/rollout controller, and not a general configuration
+manager — Zyvor Fleet (or whatever system you point it at) decides which
+devices get which release and when; OTA only ever verifies and installs.
+
+| | **Zyvor OTA** | Mender | SWUpdate | balena | Roll-your-own (dpkg/apt + scripts) |
+|---|---|---|---|---|---|
+| Scope | Signed A/B install agent only | Agent + optional management server | Embedded update framework (daemon only) | Full fleet + container-based OS update, via balenaCloud | Whatever you script |
+| Update mechanism | RAUC-managed A/B slots | A/B or single-partition | A/B, single-copy, or custom | balenaOS + container layer swap | Package manager, no atomicity guarantee |
+| Rollback | Automatic, health-check gated, with an explicit `NeedsRecovery` interlock for ambiguous crashes | Automatic (A/B mode) | Depends on integration | Automatic (balenaOS) | Usually none |
+| License | Apache-2.0 | Apache-2.0 core + commercial Enterprise | GPL-2.0 | Apache-2.0 agent + proprietary balenaCloud | N/A |
+| Fleet/targeting | Separate concern — a proposed Fleet contract exists (`docs/FLEET.md`), not yet confirmed integrated with any specific fleet product | Mender server (open or hosted) | Not included — typically paired with hawkBit or a custom backend | balenaCloud (proprietary) | You build it |
+
+*(General characterizations as of writing — verify current licensing/features
+against each project's own docs. Eclipse hawkBit and Uptane are not included
+as direct rows: hawkBit is primarily a fleet/backend component comparable to
+Fleet+OTA combined, and Uptane is a security framework some of the above
+implement, not a competing product — Zyvor OTA does not currently claim
+Uptane conformance.)*
+
+**Maturity, stated honestly**: this is **v0.1.0, an engineering preview** —
+a working agent, CLi, RAUC adapter, simulator and automated tests exist, but
+physical board qualification is a separate, not-yet-completed release gate
+(see [verification evidence](docs/TEST-REPORT.md)). If you need something
+qualified on real hardware today, evaluate accordingly.
+
+New here? [`docs/FAQ.md`](docs/FAQ.md) covers licensing, support, and
+production-readiness questions; [`docs/TROUBLESHOOTING.md`](docs/TROUBLESHOOTING.md)
+covers real operational issues with their documented fix.
+
 ## Contents
 
+- [Is this for you?](#is-this-for-you)
+- [FAQ](docs/FAQ.md) · [Troubleshooting](docs/TROUBLESHOOTING.md)
 - [Tutorial: your first simulator update](docs/TUTORIAL.md)
 - [User guide: CLI and config reference](docs/USER-GUIDE.md)
 - [Run the complete simulator demonstration](#run-the-complete-simulator-demonstration)
