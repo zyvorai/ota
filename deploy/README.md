@@ -45,6 +45,56 @@ See `scripts/deploy-remote.sh --help` for all profiles/flags
 (`--quick`, `--verify-only`, `--preflight-only`, `--uninstall`, `--dry-run`,
 `--fleet hosts.txt`).
 
+## Worked example against a fresh VM
+
+Prerequisites on the target: a Linux host reachable over SSH with an
+already-authorized key (`ssh-copy-id user@host`; password auth works via
+`sshpass` but is deprecated — see `--help`), passwordless `sudo` if not
+logging in as root, and `systemd`. Nothing else needs to be preinstalled —
+`--key` full profile installs Go, `dbus-daemon`, and `gcc` itself.
+
+```sh
+scripts/deploy-remote.sh HOST USER --key
+```
+
+This runs, in order: rsync the source to `~/.deployments/zyvor-ota` on the
+host; install system packages; install a pinned Go toolchain if the host's
+doesn't match; run `make check` (test, race, vet, build) and `make demo`
+(`scripts/e2e.py`'s full commit/rollback/replay cycle) as a build gate
+identical to CI; install the binaries, a dedicated `zyvor-ota-demo` system
+user, and both systemd units (picking a free loopback port for the artifact
+server rather than assuming one is free — the host may already run other
+services); then run `scripts/selftest.sh`, which checks both units are
+active, queries the operator socket, and runs one more real signed job cycle
+against the now-installed daemon. A representative pass looks like:
+
+```
+=== zyvor-ota-demo services ===
+  [pass] zyvor-ota-demo-artifacts.service active
+  [pass] zyvor-otad-demo.service active
+
+=== Operator socket ===
+  [pass] agent socket present: /run/zyvor-ota-demo/agent.sock
+  [pass] status: {"active":null,"backend":"simulator","device_id":"...","event_sequence":9,"high_sequence":...,"pending_events":0,"version":"0.1.0"}
+
+=== Live signed job cycle ===
+  [pass] live job cycle ok: selftest-... install -> reboot -> health -> commit -> ack -> gc
+
+Results: 5 passed, 0 failed
+```
+
+Useful follow-ups against the same host:
+
+```sh
+scripts/deploy-remote.sh HOST USER --key --verify-only   # re-run selftest without rebuilding
+scripts/deploy-remote.sh HOST USER --key --uninstall     # remove the demo service/binaries/user/keys
+```
+
+`--uninstall` removes everything it installed (units, `/usr/local/bin/zyvor-ota*`,
+`/etc/zyvor-ota-demo`, `/var/lib/zyvor-ota-demo`, the `zyvor-ota-demo` user, and
+the rsynced staging directory) and leaves every other service on a shared host
+untouched.
+
 ## What this does *not* do
 
 - It does not qualify reboot/rollback/power-loss behavior on real hardware —

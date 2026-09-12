@@ -1,11 +1,22 @@
+<div align="center">
+<img src="docs/assets/readme/zyvor-logo.svg" alt="Zyvor" width="72" height="72"/>
+
 # Zyvor OTA
 
-Signed, recoverable device OS updates for the Zyvor Platform.
+### Signed, recoverable device OS updates for the Zyvor Platform.
+
+[Tutorial](docs/TUTORIAL.md) · [User Guide](docs/USER-GUIDE.md) · [Architecture](docs/ARCHITECTURE.md) · [Operations](docs/OPERATIONS.md)
 
 [![CI](https://github.com/zyvorai/ota/actions/workflows/ci.yml/badge.svg)](https://github.com/zyvorai/ota/actions/workflows/ci.yml)
 [![Release](https://github.com/zyvorai/ota/actions/workflows/release.yml/badge.svg)](https://github.com/zyvorai/ota/actions/workflows/release.yml)
 [![Go Reference](https://img.shields.io/badge/go-1.27.1-00ADD8?logo=go&logoColor=white)](go.mod)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+
+<br/>
+
+<img src="docs/assets/readme/ota-lifecycle.svg" alt="Fleet assigns a signed release; the agent verifies it, installs to the inactive A/B slot, reboots, checks health, then commits or rolls back automatically. An ambiguous crash instead leaves the job needing operator recovery." width="880"/>
+
+</div>
 
 **v0.1.0 — engineering preview, Apache-2.0.** This repository contains a working
 Go agent and CLI, a native RAUC D-Bus adapter, an isolated simulator, and automated
@@ -17,6 +28,8 @@ release. RAUC writes the inactive slot and integrates with the board bootloader.
 
 ## Contents
 
+- [Tutorial: your first simulator update](docs/TUTORIAL.md)
+- [User guide: CLI and config reference](docs/USER-GUIDE.md)
 - [Run the complete simulator demonstration](#run-the-complete-simulator-demonstration)
 - [Implemented](#implemented)
 - [Scope and support matrix](#scope-and-support-matrix)
@@ -143,9 +156,10 @@ make deploy-remote H=HOST U=USER
 | `scripts/` | Daemon E2E test, release checksums, and remote deploy/selftest |
 | `docs/` | Architecture, security, recovery, device qualification and test evidence |
 
-See [architecture](docs/ARCHITECTURE.md), [Fleet contract](docs/FLEET.md), and
-[operations](docs/OPERATIONS.md). There is intentionally no second fleet dashboard
-or competing application rollout controller in this repository.
+See [architecture](docs/ARCHITECTURE.md), [Fleet contract](docs/FLEET.md),
+[operations](docs/OPERATIONS.md), the [tutorial](docs/TUTORIAL.md), and the
+[user guide](docs/USER-GUIDE.md). There is intentionally no second fleet
+dashboard or competing application rollout controller in this repository.
 
 ## Contributing
 
