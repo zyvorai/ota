@@ -1,0 +1,173 @@
+openapi: 3.1.0
+info:
+  title: Zyvor OTA local operator API
+  version: 0.1.0
+  description: >-
+    Served over a mode-0600 Unix socket. Filesystem permissions authorize the
+    operator. Loopback HTTP is available only with the simulator backend.
+servers:
+  - url: http://unix
+paths:
+  /v1/status:
+    get:
+      operationId: status
+      responses:
+        '200':
+          description: Agent version, device ID, active job, accepted sequence and event counters
+          content:
+            application/json:
+              schema:
+                type: object
+  /v1/jobs/{id}:
+    get:
+      operationId: getJob
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Retained job, signed assignment, release and current state
+        '404':
+          description: Job not found
+  /v1/assignments:
+    post:
+      operationId: submitAssignment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Assignment'
+      responses:
+        '202':
+          description: Accepted or identical retained job
+        '400':
+          description: Invalid JSON or body exceeds 256 KiB
+        '409':
+          description: Invalid signature/policy, replay, conflict or busy engine; retry unchanged assignment when busy
+  /v1/events:
+    get:
+      operationId: getEvents
+      responses:
+        '200':
+          description: Ordered unacknowledged events; empty outbox can serialize as null
+          content:
+            application/json:
+              schema:
+                type: [array, 'null']
+                items:
+                  $ref: '#/components/schemas/Event'
+  /v1/events/ack:
+    post:
+      operationId: acknowledgeEvents
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [sequence]
+              properties:
+                sequence:
+                  type: integer
+                  minimum: 0
+      responses:
+        '200':
+          description: Acknowledged contiguous events through sequence
+        '400':
+          description: Invalid body
+        '409':
+          description: Future acknowledgment or persistence error
+  /v1/reboot:
+    post:
+      operationId: requestReboot
+      responses:
+        '200':
+          description: Reboot intent persisted and request accepted
+        '409':
+          description: Wrong state, outside window, busy backend or denied reboot
+  /v1/recover-abort:
+    post:
+      operationId: recoverAbort
+      responses:
+        '200':
+          description: Ambiguous target marked bad and previous slot restored
+        '409':
+          description: Requires NeedsRecovery, idle backend and original booted slot
+  /v1/gc:
+    post:
+      operationId: cleanCache
+      responses:
+        '200':
+          description: Cache removed
+        '409':
+          description: Active job, busy engine or storage error
+  /metrics:
+    get:
+      operationId: metrics
+      responses:
+        '200':
+          description: Prometheus text exposition
+          content:
+            text/plain:
+              schema:
+                type: string
+components:
+  schemas:
+    Envelope:
+      type: object
+      additionalProperties: false
+      required: [key_id, payload, signature]
+      properties:
+        key_id:
+          type: string
+        payload:
+          type: string
+          contentEncoding: base64
+          description: Exact JSON bytes of the release.schema.json document
+        signature:
+          type: string
+          contentEncoding: base64
+          description: Ed25519 signature over those exact payload bytes
+    Assignment:
+      type: object
+      additionalProperties: false
+      required: [job_id, device_id, release, not_before, deadline]
+      properties:
+        job_id:
+          type: string
+          pattern: '^[a-zA-Z0-9][a-zA-Z0-9._-]{0,95}$'
+        device_id:
+          type: string
+        release:
+          $ref: '#/components/schemas/Envelope'
+        not_before:
+          type: string
+          format: date-time
+        deadline:
+          type: string
+          format: date-time
+        auto_reboot:
+          type: boolean
+          default: false
+    Event:
+      type: object
+      required: [sequence, job_id, state, time]
+      properties:
+        sequence:
+          type: integer
+          minimum: 1
+        job_id:
+          type: string
+        state:
+          type: string
+          enum: [accepted, downloading, verified, installing, awaiting_reboot, checking_health, committing, committed, rollback_pending, rolled_back, failed, needs_recovery]
+        error:
+          type: string
+        time:
+          type: string
+          format: date-time

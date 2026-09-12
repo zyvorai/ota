@@ -1,0 +1,8 @@
+/bin/
+/dist/
+/coverage.out
+*.key
+*.pem
+*.part
+__pycache__/
+.DS_Store

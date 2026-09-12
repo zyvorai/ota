@@ -1,0 +1,2 @@
+PASS: workflow YAML, OpenAPI YAML and example/schema JSON parse successfully.
+A full OpenAPI/JSON-Schema conformance validator was not available.

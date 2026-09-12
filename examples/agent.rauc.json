@@ -1,0 +1,28 @@
+{
+  "device_id": "minewing-pune-001",
+  "compatible": "REPLACE_BOARD_REVISION",
+  "state_dir": "/var/lib/zyvor-ota",
+  "socket": "/run/zyvor-ota/agent.sock",
+  "backend": "rauc",
+  "allow_device_writes": true,
+  "trust_keys": {
+    "production-1": "REPLACE_WITH_BASE64_ED25519_PUBLIC_KEY"
+  },
+  "download_hosts": [
+    "updates.example.com"
+  ],
+  "max_artifact_bytes": 4294967296,
+  "reserve_bytes": 268435456,
+  "health_timeout_seconds": 180,
+  "health_stable_seconds": 30,
+  "checks": [
+    {
+      "kind": "systemd",
+      "target": "zyvor-device-agent.service"
+    },
+    {
+      "kind": "http",
+      "target": "http://127.0.0.1:9091/healthz"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+[Unit]
+Description=Loopback static artifact server for zyvor-ota remote smoke-deploy
+Documentation=https://github.com/zyvorai/ota/blob/main/deploy/README.md
+After=network.target
+
+[Service]
+# Port 8090 is a placeholder: scripts/deploy-remote.sh substitutes it for a
+# free loopback port picked at install time, since the target host may
+# already have other services bound to fixed ports.
+Type=simple
+User=zyvor-ota-demo
+Group=zyvor-ota-demo
+WorkingDirectory=/var/lib/zyvor-ota-demo/artifacts
+ExecStart=/usr/bin/python3 -m http.server 8090 --bind 127.0.0.1 --directory /var/lib/zyvor-ota-demo/artifacts
+Restart=on-failure
+RestartSec=5s
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictNamespaces=true
+LockPersonality=true
+CapabilityBoundingSet=
+RestrictAddressFamilies=AF_INET AF_INET6
+ReadOnlyPaths=/var/lib/zyvor-ota-demo/artifacts
+
+[Install]
+WantedBy=multi-user.target

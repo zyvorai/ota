@@ -1,0 +1,34 @@
+name: Build signed release artifacts
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: read
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.1'
+      - run: make check
+      - run: make demo
+      - run: make dist
+      - run: python3 scripts/sbom.py
+      - name: Copy source SBOM and checksum distribution
+        run: |
+          cp sbom.spdx.json dist/source-sbom.spdx.json
+          python3 scripts/checksums.py dist
+      - uses: sigstore/cosign-installer@v3
+      - name: Sign checksums using this workflow identity
+        run: cosign sign-blob --yes --bundle dist/SHA256SUMS.sigstore.json dist/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: zyvor-ota-${{ github.ref_name }}
+          path: dist/
+          if-no-files-found: error

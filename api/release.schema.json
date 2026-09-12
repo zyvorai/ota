@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Zyvor OTA signed release payload v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "id",
+    "sequence",
+    "compatible",
+    "backend",
+    "version",
+    "expires",
+    "artifact"
+  ],
+  "properties": {
+    "schema": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._-]{0,95}$"
+    },
+    "sequence": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "compatible": {
+      "type": "string"
+    },
+    "backend": {
+      "enum": [
+        "rauc",
+        "simulator"
+      ]
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._-]{0,95}$"
+    },
+    "expires": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "sbom_sha256": {
+      "type": "string",
+      "pattern": "^([a-f0-9]{64})?$"
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "url",
+        "size",
+        "sha256"
+      ],
+      "properties": {
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1099511627776
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    }
+  }
+}

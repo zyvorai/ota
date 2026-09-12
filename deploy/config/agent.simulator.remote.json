@@ -1,0 +1,24 @@
+{
+  "device_id": "REPLACE_WITH_HOSTNAME",
+  "compatible": "smoke-deploy",
+  "state_dir": "/var/lib/zyvor-ota-demo",
+  "socket": "/run/zyvor-ota-demo/agent.sock",
+  "backend": "simulator",
+  "allow_device_writes": false,
+  "trust_keys": {
+    "demo": "REPLACE_WITH_GENERATED_PUBLIC_KEY"
+  },
+  "download_hosts": [
+    "127.0.0.1:8090"
+  ],
+  "max_artifact_bytes": 1048576,
+  "reserve_bytes": 1048576,
+  "health_timeout_seconds": 30,
+  "health_stable_seconds": 2,
+  "checks": [
+    {
+      "kind": "file",
+      "target": "/etc/os-release"
+    }
+  ]
+}

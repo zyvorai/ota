@@ -1,0 +1,9 @@
+// Install into /etc/polkit-1/rules.d through the qualified board image.
+// Respect shutdown inhibitors; do not grant reboot-ignore-inhibit.
+polkit.addRule(function(action, subject) {
+    if (subject.user === "zyvor-ota" &&
+        (action.id === "org.freedesktop.login1.reboot" ||
+         action.id === "org.freedesktop.login1.reboot-multiple-sessions")) {
+        return polkit.Result.YES;
+    }
+});

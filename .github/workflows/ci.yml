@@ -1,0 +1,45 @@
+name: CI
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.1'
+          cache: true
+      - name: Formatting
+        run: test -z "$(gofmt -l cmd internal)"
+      - name: Unit, protocol and race tests
+        run: |
+          command -v dbus-daemon
+          go test -race -coverprofile=coverage.out ./...
+      - run: go vet ./...
+      - run: make build
+      - run: python3 scripts/e2e.py
+      - run: make dist
+      - name: Source SBOM
+        run: python3 scripts/sbom.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: test-coverage
+          path: coverage.out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-builds
+          path: dist/
+  vulnerability-scan:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.1'
+      - run: go run golang.org/x/vuln/cmd/govulncheck@v1.8.0 ./...
