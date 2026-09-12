@@ -1,4 +1,8 @@
-# Verification report — Zyvor OTA v0.1.0
+---
+hero:
+  eyebrow: TEST REPORT
+  title: Verification report — Zyvor OTA v0.1.0
+---
 
 Recorded 12 September 2026 UTC. This report describes local verification of the
 delivered source. It is not a hardware certification or a GitHub Actions run.

@@ -1,4 +1,8 @@
-# Fleet adapter contract v1
+---
+hero:
+  eyebrow: FLEET
+  title: Fleet adapter contract v1
+---
 
 This is a proposed server contract implemented by the OTA client. No existing
 Zyvor Fleet repository or API has been modified or assumed compatible.

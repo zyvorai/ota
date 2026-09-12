@@ -1,4 +1,8 @@
-# Operator runbook
+---
+hero:
+  eyebrow: OPERATIONS
+  title: Operator runbook
+---
 
 ## Monitor
 

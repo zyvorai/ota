@@ -1,4 +1,8 @@
-# User guide: CLI and configuration reference
+---
+hero:
+  eyebrow: USER GUIDE
+  title: 'User guide: CLI and configuration reference'
+---
 
 A single-page reference for the `zyvor-ota` operator CLI, the `zyvor-otad`
 daemon, and every `agent.json` field. For a narrated first run, see the

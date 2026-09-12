@@ -1,4 +1,8 @@
-# Release process
+---
+hero:
+  eyebrow: RELEASING
+  title: Release process
+---
 
 1. Update the version constant, Makefile and source SBOM version together.
 2. Use a current supported Go patch release; CI pins Go 1.27.1 for this revision.

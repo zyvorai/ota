@@ -1,4 +1,13 @@
-# Architecture and invariants
+---
+hero:
+  eyebrow: ARCHITECTURE
+  title: Architecture and invariants
+  lead: One durable job state machine carries every accepted assignment from acceptance through commit — or an automatic, health-checked rollback — guarded end to end by a single-writer journal and a per-device anti-replay sequence.
+  highlights:
+    - {value: "12", label: "States in the job lifecycle machine"}
+    - {value: "2", label: "Bootable A/B rootfs slots"}
+    - {value: "10,000", label: "Retained jobs & outbox events, bounded by design"}
+---
 
 ```mermaid
 flowchart TD
@@ -85,3 +94,20 @@ The operator API normally binds only a mode-0600 Unix socket. For automated demo
 tests, `-simulation-listen 127.0.0.1:PORT` exposes the same API on loopback but is
 rejected with the RAUC backend. This unauthenticated demo endpoint can only mutate
 simulator files; do not expose it through a proxy.
+
+## Three ways a job ends
+
+<div class="compare-cards" markdown="1">
+
+- **Committed** — health held continuously through `health_stable_seconds`.
+  Commit intent is persisted durably before `Mark(good)` is called, and
+  retrying that mark is idempotent.
+- **Rolled back** — health failed or the deadline was exceeded. The backend
+  restores the old slot automatically; no operator action is needed, and a
+  new, higher-sequence release is required to try again.
+- **NeedsRecovery** — a crash left the installation outcome ambiguous. The
+  agent blocks further jobs rather than guessing, until an operator runs
+  `recover-abort` (or the board recovery path) and issues a newly signed
+  sequence — see [Operations §NeedsRecovery](OPERATIONS.md#needsrecovery).
+
+</div>

@@ -1,4 +1,8 @@
-# FAQ
+---
+hero:
+  eyebrow: FAQ
+  title: FAQ
+---
 
 Questions people evaluating Zyvor OTA actually ask, before they've decided
 to adopt it. If you've already decided, [the tutorial](TUTORIAL.md) is a

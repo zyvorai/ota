@@ -1,4 +1,8 @@
-# Tutorial: your first simulator update
+---
+hero:
+  eyebrow: TUTORIAL
+  title: 'Tutorial: your first simulator update'
+---
 
 This walks the exact lifecycle `make demo` automates (`scripts/e2e.py`), one
 command at a time, so you can see what each step actually does. Every command

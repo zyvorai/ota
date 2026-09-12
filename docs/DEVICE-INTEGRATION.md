@@ -1,4 +1,8 @@
-# RAUC board integration and qualification
+---
+hero:
+  eyebrow: DEVICE INTEGRATION
+  title: RAUC board integration and qualification
+---
 
 ## Required board information
 
