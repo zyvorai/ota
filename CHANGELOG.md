@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add QEMU RAUC lab image builder and record HIL evidence (Minewing still unsigned).
+
 - Document production maturity — software green, Minewing HIL still unsigned.
 
 - GitHub CI `lab-substitute` job (verify downloads its artifact so `ci_*` qualify rows pass)

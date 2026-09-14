@@ -1,0 +1,1 @@
+boot: UEFI grub rescue then direct-kernel multi-user; see qemu-boot2.log

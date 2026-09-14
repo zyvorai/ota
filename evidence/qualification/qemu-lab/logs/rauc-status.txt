@@ -1,0 +1,4 @@
+host-side: image and signed bundle present
+compatible=zyvor-ota-qemu-lab
+rauc host=rauc 1.11.3
+guest SSH: blocked (TCG banner timeout)

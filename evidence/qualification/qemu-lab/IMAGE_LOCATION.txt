@@ -1,0 +1,1 @@
+QUALIFY_QEMU_IMAGE lives on lab: /home/sus/zyvor-qemu-lab/disk.img

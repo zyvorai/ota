@@ -24,3 +24,11 @@ OTA simulator does **not** satisfy these rows.
 `make qualify` covers **host software** matrix rows only. Point
 `QUALIFY_QEMU_IMAGE=/path/to/image` when a board image exists; the qualify
 script will refuse to claim hardware pass without an operator-signed checklist.
+
+## Generic lab builder (not Minewing BSP)
+
+For a **generic** x86_64 A/B + RAUC disk (`compatible=zyvor-ota-qemu-lab`), run
+[`scripts/hil/build-qemu-rauc-lab.sh`](../../scripts/hil/build-qemu-rauc-lab.sh)
+on a Linux amd64 host. That image is for lab crypto/boot bring-up evidence only —
+it does **not** satisfy Minewing GW1 r1 hardware claims. See
+[`evidence/qualification/qemu-lab/`](../../evidence/qualification/qemu-lab/).
