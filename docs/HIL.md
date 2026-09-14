@@ -7,6 +7,22 @@ hero:
 Host `make qualify` never claims these rows. Use the runner after a real RAUC
 image exists ([`boards/minewing-gw1-r1/QEMU.md`](../boards/minewing-gw1-r1/QEMU.md)).
 
+## GitHub CI (lab substitute)
+
+When the lab has no QEMU RAUC image, CI still runs
+[`scripts/ci/lab-substitute.py`](../scripts/ci/lab-substitute.py) (`make ci-lab`,
+workflow job `lab-substitute`):
+
+| CI row | What it proves |
+|---|---|
+| `ci_agent_crash_during_install` | Daemon restart during `installing` → `needs_recovery` + `recover-abort` |
+| `ci_bad_signature_reject` | Wrong signing key rejected before install |
+| `ci_fleet_ref_https_commit` | HTTPS `zyvor-fleet-ref` assignment → simulator `committed` |
+| `ci_hil_harness_dry_run` | HIL evidence layout / harness (never claimable) |
+
+This does **not** close `qemu_rauc_*` or physical power-loss. Set
+`QUALIFY_QEMU_IMAGE` for those.
+
 ## Runner
 
 ```bash

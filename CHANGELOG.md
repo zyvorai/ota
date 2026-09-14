@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-- (none)
+- GitHub CI `lab-substitute` job (`make ci-lab`): agent crash→NeedsRecovery,
+  bad-signature reject, HTTPS fleet-ref commit, HIL harness dry-run — covers
+  lab-blocked rows without claiming Minewing RAUC/power-loss.
 
 ## 0.1.0 — 2026-09-14
 

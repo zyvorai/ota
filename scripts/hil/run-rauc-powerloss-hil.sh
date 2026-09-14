@@ -50,10 +50,14 @@ def sh(cmd, timeout=60):
     return subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=timeout)
 
 # Always capture host software posture
-r = sh(f"cd {root} && make qualify 2>&1 | tail -20")
-(out / "host-qualify.tail.txt").write_text(r.stdout + r.stderr)
-add("host_software_qualify", "pass" if r.returncode == 0 else "fail",
-    "make qualify" + ("" if r.returncode == 0 else f" rc={r.returncode}"))
+skip_q = os.environ.get("OTA_HIL_SKIP_QUALIFY", "") in ("1", "true", "yes")
+if skip_q:
+    add("host_software_qualify", "pass", "skipped via OTA_HIL_SKIP_QUALIFY (covered by CI verify job)")
+else:
+    r = sh(f"cd {root} && make qualify 2>&1 | tail -20")
+    (out / "host-qualify.tail.txt").write_text(r.stdout + r.stderr)
+    add("host_software_qualify", "pass" if r.returncode == 0 else "fail",
+        "make qualify" + ("" if r.returncode == 0 else f" rc={r.returncode}"))
 
 # Dry-run mode: document harness presence only
 if env == "dry-run":

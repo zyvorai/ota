@@ -81,3 +81,22 @@ jobs:
         with:
           go-version: '1.27.1'
       - run: go run golang.org/x/vuln/cmd/govulncheck@v1.8.0 ./...
+  lab-substitute:
+    # Covers lab-blocked rows without real RAUC / Minewing silicon.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: '1.27.1'
+          cache: true
+      - run: sudo apt-get update && sudo apt-get install -y openssl
+      - run: make build
+      - name: CI lab substitute (recovery + fleet-ref + HIL dry-run)
+        run: python3 scripts/ci/lab-substitute.py
+      - uses: actions/upload-artifact@v7
+        with:
+          name: qualification-ci-lab-substitute
+          path: evidence/qualification/ci/
+          if-no-files-found: error

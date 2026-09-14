@@ -10,6 +10,11 @@ board rows are driven by [`scripts/hil/run-rauc-powerloss-hil.sh`](../scripts/hi
 and recorded in
 [`evidence/qualification/hardware-checklist.md`](../evidence/qualification/hardware-checklist.md).
 
+When the lab cannot run RAUC/QEMU, GitHub CI job **`lab-substitute`**
+(`make ci-lab`) still proves agent crash→NeedsRecovery, bad signature reject,
+HTTPS fleet-ref commit, and HIL harness dry-run. Those CI rows never claim
+hardware power-loss.
+
 A multi-product **simulator** stack on a shared Linux host is documented in
 [LAB.md](LAB.md). That evidence complements the software matrix; it does **not**
 close hardware rows.

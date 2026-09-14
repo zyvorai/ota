@@ -180,6 +180,45 @@ def hardware_pending(results):
         )
 
 
+def ci_lab_substitute(results):
+    """Promote CI lab-substitute rows when evidence exists or OTA_CI_LAB=1 runs it."""
+    want = [
+        "ci_agent_crash_during_install",
+        "ci_bad_signature_reject",
+        "ci_fleet_ref_https_commit",
+        "ci_hil_harness_dry_run",
+    ]
+    if os.environ.get("OTA_CI_LAB", "") in ("1", "true", "yes"):
+        proc = run([sys.executable, "scripts/ci/lab-substitute.py"], timeout=600)
+        if proc.returncode != 0:
+            for name in want:
+                row(results, name, "fail", (proc.stdout + proc.stderr)[-400:])
+            return False
+    ci_root = EVIDENCE / "ci"
+    latest = None
+    if ci_root.is_dir():
+        for p in sorted(ci_root.glob("*/results.json"), reverse=True):
+            latest = p
+            break
+    if latest is None:
+        for name in want:
+            row(results, name, "skip", "CI lab-substitute — scripts/ci/lab-substitute.py / workflow lab-substitute")
+        return True
+    data = json.loads(latest.read_text())
+    by = {r["id"]: r for r in data.get("rows", [])}
+    ok = True
+    for name in want:
+        r = by.get(name)
+        if r and r.get("status") == "pass":
+            row(results, name, "pass", r.get("detail", f"ci/{latest.parent.name}"))
+        elif r:
+            row(results, name, "fail", r.get("detail", ""))
+            ok = False
+        else:
+            row(results, name, "skip", f"missing in ci/{latest.parent.name}")
+    return ok
+
+
 def main():
     require_bins()
     EVIDENCE.mkdir(parents=True, exist_ok=True)
@@ -191,6 +230,7 @@ def main():
     ok = render_board(results) and ok
     ok = bake_dry_run(results) and ok
     ok = schema_syntax(results) and ok
+    ok = ci_lab_substitute(results) and ok
     hardware_pending(results)
 
     report = {

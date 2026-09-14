@@ -1,7 +1,7 @@
 GO ?= go
 VERSION := 0.1.0
 
-.PHONY: build test race vet check demo dist qualify hil clean \
+.PHONY: build test race vet check demo dist qualify hil ci-lab clean \
 	deploy deploy-remote deploy-remote-quick deploy-remote-preflight \
 	deploy-remote-verify deploy-remote-uninstall deploy-remote-fleet
 build:
@@ -22,6 +22,8 @@ qualify: build
 	python3 scripts/qualify-matrix.py
 hil:
 	OTA_HIL_STRICT=$${OTA_HIL_STRICT:-1} ./scripts/hil/run-rauc-powerloss-hil.sh
+ci-lab: build
+	python3 scripts/ci/lab-substitute.py
 dist:
 	mkdir -p dist
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GO) build -buildvcs=false -trimpath -o dist/zyvor-ota-linux-amd64 ./cmd/zyvor-ota
