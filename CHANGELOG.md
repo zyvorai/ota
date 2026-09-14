@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Complete generic QEMU RAUC lab HIL (KVM SSH, install, power-loss, reboots); Minewing still unsigned.
+
 - Add QEMU RAUC lab image builder and record HIL evidence (Minewing still unsigned).
 
 - Document production maturity — software green, Minewing HIL still unsigned.

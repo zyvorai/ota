@@ -1,0 +1,71 @@
+{
+  "product": "zyvor-ota",
+  "sku": "zyvor-ota-qemu-lab",
+  "compatible": "zyvor-ota-qemu-lab",
+  "environment": "qemu",
+  "stamp": "20260914T192634Z",
+  "finished_at": "2026-09-14T19:26:39.758887+00:00",
+  "counts": {
+    "pass": 10,
+    "blocked": 1
+  },
+  "minewing_rauc_claimable": false,
+  "qemu_lab_complete": true,
+  "rows": [
+    {
+      "id": "host_software_qualify",
+      "status": "pass",
+      "detail": "skipped via OTA_HIL_SKIP_QUALIFY (covered by CI verify job)"
+    },
+    {
+      "id": "image_present",
+      "status": "pass",
+      "detail": "92e93737d8b8b5e6\u2026"
+    },
+    {
+      "id": "rauc_status",
+      "status": "pass",
+      "detail": "rauc status via ssh"
+    },
+    {
+      "id": "valid_bundle_commit",
+      "status": "pass",
+      "detail": "attached /home/sus/zyvor-qemu-lab/hil-run/logs/commit.log"
+    },
+    {
+      "id": "bad_signature_reject",
+      "status": "pass",
+      "detail": "attached /home/sus/zyvor-qemu-lab/hil-run/logs/badsig.log"
+    },
+    {
+      "id": "power_loss_during_write",
+      "status": "pass",
+      "detail": "attached /home/sus/zyvor-qemu-lab/hil-run/logs/ploss-write.log"
+    },
+    {
+      "id": "power_loss_boot_selection",
+      "status": "pass",
+      "detail": "attached /home/sus/zyvor-qemu-lab/hil-run/logs/ploss-boot.log"
+    },
+    {
+      "id": "needs_recovery_crash",
+      "status": "pass",
+      "detail": "attached /home/sus/zyvor-qemu-lab/hil-run/logs/needs-recovery.log"
+    },
+    {
+      "id": "three_healthy_reboots",
+      "status": "pass",
+      "detail": "attached /home/sus/zyvor-qemu-lab/hil-run/logs/reboots.log"
+    },
+    {
+      "id": "bundle_present",
+      "status": "pass",
+      "detail": "fd4317d1099a40ec\u2026"
+    },
+    {
+      "id": "assignment_present",
+      "status": "blocked",
+      "detail": "set OTA_HIL_ASSIGNMENT"
+    }
+  ]
+}

@@ -98,7 +98,7 @@ if [[ ! -f "$OUT/mnt/etc/os-release" ]]; then
     printf 'deb http://archive.ubuntu.com/ubuntu %s-updates main universe\n' \"\$VERSION_CODENAME\" >>/etc/apt/sources.list
     export DEBIAN_FRONTEND=noninteractive
     apt-get update -qq
-    apt-get install -y -qq linux-image-virtual grub-efi-amd64 rauc
+    apt-get install -y -qq linux-image-virtual grub-efi-amd64 rauc rauc-service iproute2
   "
   sudo umount "$OUT/mnt/sys" "$OUT/mnt/proc" "$OUT/mnt/dev" || true
 fi
@@ -112,6 +112,16 @@ EOF
 
 sudo mkdir -p "$OUT/mnt/etc/rauc" "$OUT/mnt/var/lib/rauc" "$OUT/mnt/var/lib/rauc-data" "$OUT/mnt/boot/efi"
 sudo cp "$OUT/keys/ca.cert.pem" "$OUT/mnt/etc/rauc/trusted-root.pem"
+sudo mkdir -p "$OUT/mnt/etc/systemd/network"
+sudo tee "$OUT/mnt/etc/systemd/network/20-dhcp.network" >/dev/null <<'NET'
+[Match]
+Name=en* eth* ens*
+
+[Network]
+DHCP=yes
+NET
+sudo ln -sf /lib/systemd/system/systemd-networkd.service "$OUT/mnt/etc/systemd/system/multi-user.target.wants/systemd-networkd.service" 2>/dev/null || true
+
 sudo tee "$OUT/mnt/etc/rauc/system.conf" >/dev/null <<EOF
 [system]
 compatible=zyvor-ota-qemu-lab

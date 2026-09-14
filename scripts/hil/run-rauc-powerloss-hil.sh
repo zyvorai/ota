@@ -81,7 +81,8 @@ else:
     if ssh:
         r = sh(f"ssh -o BatchMode=yes -o ConnectTimeout=10 {ssh} 'rauc status; zyvor-ota status || true'")
         (out / "rauc-status.txt").write_text(r.stdout + r.stderr)
-        if r.returncode == 0 and "rauc" in (r.stdout + r.stderr).lower():
+        blob = (r.stdout + r.stderr).lower()
+        if r.returncode == 0 and ("compatible" in blob or "slot" in blob or "rauc" in blob):
             add("rauc_status", "pass", "rauc status via ssh")
         else:
             add("rauc_status", "fail", f"ssh/rauc failed rc={r.returncode}")
@@ -155,26 +156,37 @@ required = [
     "three_healthy_reboots",
 ]
 by = {r["id"]: r for r in rows}
-claimable = (
-    env in ("qemu", "physical")
-    and all(by.get(i, {}).get("status") == "pass" for i in required)
+# Minewing silicon/QEMU claim requires an explicit Minewing-compatible image
+# (QUALIFY_QEMU_IMAGE from BSP) or physical board — not the generic zyvor-ota-qemu-lab disk.
+sku = os.environ.get("OTA_HIL_SKU", "minewing-gw1-r1")
+compatible = os.environ.get("OTA_HIL_COMPATIBLE", "")
+minewing_image = (
+    sku.startswith("minewing")
+    and ("minewing" in compatible.lower() or os.environ.get("OTA_HIL_MINEWING", "") in ("1", "true", "yes"))
 )
+rows_ok = all(by.get(i, {}).get("status") == "pass" for i in required)
+claimable = env in ("qemu", "physical") and rows_ok and minewing_image
+qemu_lab_complete = env == "qemu" and rows_ok and not minewing_image
 report = {
     "product": "zyvor-ota",
-    "sku": "minewing-gw1-r1",
+    "sku": sku,
+    "compatible": compatible or None,
     "environment": env,
     "stamp": out.name,
     "finished_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
     "counts": counts,
     "minewing_rauc_claimable": claimable,
+    "qemu_lab_complete": qemu_lab_complete,
     "rows": rows,
 }
 (out / "results.json").write_text(json.dumps(report, indent=2) + "\n")
 (out / "SUMMARY.md").write_text(
     f"# OTA RAUC / power-loss HIL summary\n\n"
     f"- environment: `{env}`\n"
+    f"- sku: `{sku}` compatible: `{compatible or 'n/a'}`\n"
     f"- counts: `{counts}`\n"
-    f"- minewing_rauc_claimable: **{claimable}**\n\n"
+    f"- minewing_rauc_claimable: **{claimable}**\n"
+    f"- qemu_lab_complete: **{qemu_lab_complete}**\n\n"
     f"Attach operator logs:\n"
     f"- `OTA_HIL_LOG_COMMIT`\n"
     f"- `OTA_HIL_LOG_BADSIG`\n"
@@ -185,36 +197,52 @@ report = {
 )
 
 if sign:
-    if not claimable:
-        raise SystemExit("refusing OTA_HIL_SIGN=1: minewing_rauc_claimable=false")
-    checklist = root / "evidence/qualification/hardware-checklist.md"
-    mapping = [
-        ("valid_bundle_commit", "Valid bundle + healthy commit"),
-        ("bad_signature_reject", "Wrong board or signature / Invalid inner RAUC signature"),
-        ("power_loss_during_write", "Power loss during target writes"),
-        ("power_loss_boot_selection", "Power loss while boot selection changes"),
-        ("needs_recovery_crash", "Agent crash during install → NeedsRecovery"),
-        ("three_healthy_reboots", "Three ordinary healthy reboots"),
-    ]
-    block = [
-        "",
-        f"## Signed RAUC/power-loss run `{out.name}`",
-        "",
-        f"- Environment: {env}",
-        f"- Finished: {report['finished_at']}",
-        f"- Evidence: `evidence/qualification/hil/{out.name}/`",
-        "",
-        "| Test | Environment | Result | Log / evidence path |",
-        "|---|---|---|---|",
-    ]
-    for rid, label in mapping:
-        r = by.get(rid, {})
-        block.append(
-            f"| {label} | {env} | {r.get('status','')} | hil/{out.name}/{rid}.log |"
+    if claimable:
+        checklist = root / "evidence/qualification/hardware-checklist.md"
+        mapping = [
+            ("valid_bundle_commit", "Valid bundle + healthy commit"),
+            ("bad_signature_reject", "Wrong board or signature / Invalid inner RAUC signature"),
+            ("power_loss_during_write", "Power loss during target writes"),
+            ("power_loss_boot_selection", "Power loss while boot selection changes"),
+            ("needs_recovery_crash", "Agent crash during install → NeedsRecovery"),
+            ("three_healthy_reboots", "Three ordinary healthy reboots"),
+        ]
+        block = [
+            "",
+            f"## Signed RAUC/power-loss run `{out.name}`",
+            "",
+            f"- Environment: {env}",
+            f"- Finished: {report['finished_at']}",
+            f"- Evidence: `evidence/qualification/hil/{out.name}/`",
+            "",
+            "| Test | Environment | Result | Log / evidence path |",
+            "|---|---|---|---|",
+        ]
+        for rid, label in mapping:
+            r = by.get(rid, {})
+            block.append(
+                f"| {label} | {env} | {r.get('status','')} | hil/{out.name}/{rid}.log |"
+            )
+        block += ["", f"Operator sign-off stamp: {out.name}", ""]
+        checklist.write_text(checklist.read_text().rstrip() + "\n" + "\n".join(block) + "\n")
+        print(f"updated {checklist}")
+    elif qemu_lab_complete and os.environ.get("OTA_HIL_SIGN_QEMU_LAB", "") in ("1", "true", "yes"):
+        lab_check = root / "evidence/qualification/qemu-lab/CHECKLIST.md"
+        lab_check.parent.mkdir(parents=True, exist_ok=True)
+        lab_check.write_text(
+            f"# QEMU lab RAUC checklist (not Minewing)\n\n"
+            f"- stamp: `{out.name}`\n"
+            f"- compatible: `{compatible or 'zyvor-ota-qemu-lab'}`\n"
+            f"- finished: {report['finished_at']}\n"
+            f"- evidence: `evidence/qualification/hil/{out.name}/`\n\n"
+            f"**Not a Minewing silicon claim.**\n"
         )
-    block += ["", f"Operator sign-off stamp: {out.name}", ""]
-    checklist.write_text(checklist.read_text().rstrip() + "\n" + "\n".join(block) + "\n")
-    print(f"updated {checklist}")
+        print(f"updated {lab_check}")
+    else:
+        raise SystemExit(
+            "refusing OTA_HIL_SIGN=1: minewing_rauc_claimable=false "
+            "(set OTA_HIL_MINEWING=1 + Minewing image, or OTA_HIL_SIGN_QEMU_LAB=1 for lab-only)"
+        )
 
 print(f"\nwrote {out}")
 if strict and env in ("qemu", "physical") and not claimable:

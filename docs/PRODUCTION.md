@@ -14,13 +14,13 @@ see [LAB.md](LAB.md) first — that path does **not** qualify a board image.
 |---|---|
 | Host software matrix + CI lab-substitute | green (`make qualify`, verify←lab-substitute, CodeQL) |
 | Simulator / Fleet contract path | production-capable for **simulator backend** |
-| Generic QEMU+RAUC lab image | **built** on lab (`zyvor-ota-qemu-lab`, see `evidence/qualification/qemu-lab/`) |
-| Minewing / claimable RAUC power-loss HIL | **unsigned** — guest SSH/`rauc status` blocked under TCG; not Minewing BSP |
+| Generic QEMU+RAUC lab image | **complete** — KVM guest SSH, `rauc status`, install, power-loss, 3 reboots; [`qemu-lab/CHECKLIST.md`](../evidence/qualification/qemu-lab/CHECKLIST.md) |
+| Minewing / claimable RAUC power-loss HIL | **unsigned** — not Minewing BSP; set `OTA_HIL_MINEWING=1` with board image |
 | Hardware checklist | **not signed** — do not claim board OS OTA |
 
 **Verdict:** agent software is **engineering-preview production-hardening**. Generic
-QEMU lab image + bundle crypto are available; **Minewing board-production** still
-requires BSP image or physical board + claimable HIL sign-off.
+QEMU RAUC lab HIL is **complete** (not Minewing). **Minewing board-production** still
+requires BSP image or physical board + `OTA_HIL_MINEWING=1` sign-off.
 
 ## Preconditions
 

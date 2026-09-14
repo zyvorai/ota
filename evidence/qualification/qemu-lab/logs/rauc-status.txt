@@ -1,4 +1,20 @@
-host-side: image and signed bundle present
-compatible=zyvor-ota-qemu-lab
-rauc host=rauc 1.11.3
-guest SSH: blocked (TCG banner timeout)
+zyvor-qemu-lab
+rauc 1.11.3
+=== System Info ===
+Compatible:  zyvor-ota-qemu-lab
+Variant:     
+Booted from: rootfs.0 (/dev/vda2)
+
+=== Bootloader ===
+Activated: rootfs.1 (B)
+
+=== Slot States ===
+[1mx[0m [1m[rootfs.1][0m (/dev/disk/by-partlabel/rootB, ext4, inactive[0m)
+	bootname: [34mB[0m
+	boot status: [32mgood[0m
+
+o [32m[32m[1m[rootfs.0][0m (/dev/disk/by-partlabel/rootA, ext4, [1mbooted[0m)
+	bootname: [34mA[0m
+	boot status: [31mbad[0m
+
+
