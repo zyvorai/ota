@@ -1,0 +1,4 @@
+rauc-Message: 19:18:14.411: Reading bundle: /tmp/bad.raucb
+rauc-Message: 19:18:14.414: Verifying bundle signature... 
+signature verification failed: error:1700009E:CMS routines::verification failure
+C0FA882EDD720000:error:1700006D:CMS routines:CMS_verify:content verify error:../crypto/cms/cms_smime.c:457:
