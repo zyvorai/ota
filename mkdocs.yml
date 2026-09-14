@@ -44,12 +44,15 @@ nav:
   - Getting Started:
       - Tutorial: TUTORIAL.md
       - User Guide: USER-GUIDE.md
+      - Lab stack: LAB.md
   - Reference:
       - Architecture: ARCHITECTURE.md
       - Fleet Adapter Contract: FLEET.md
       - Device Integration: DEVICE-INTEGRATION.md
+      - Qualification: QUALIFICATION.md
   - Operations:
       - Operator Runbook: OPERATIONS.md
+      - Production Runbook: PRODUCTION.md
       - Troubleshooting: TROUBLESHOOTING.md
   - Project:
       - FAQ: FAQ.md

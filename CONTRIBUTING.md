@@ -4,7 +4,7 @@ Use Apache-2.0 SPDX headers in original source files. Keep hardware profiles
 specific to tested SKU/revision pairs. Include the board/image evidence when
 changing boot selection, slot grouping, signing or recovery behavior.
 
-Before a pull request run `make check`, `make demo`, and `make dist`. Unit and
+Before a pull request run `make check`, `make demo`, `make qualify`, and `make dist`. Unit and
 protocol tests must not write real block devices or request a host reboot.
 Use the simulator or the private D-Bus service in tests. Never add a production
 "skip signature", "force compatible", or automatic journal-reset option.

@@ -103,3 +103,15 @@ untouched.
   device deployment still follows `docs/DEVICE-INTEGRATION.md` exactly.
 - It never uploads or provisions a real Fleet signing key; the demo trust key
   is generated fresh on the target host and only signs throwaway demo releases.
+
+## Lab host (recorded)
+
+A shared evaluation host at `80.79.5.173` already ran Kryton on `:8080` and
+other services on nearby ports. Deploy with the usual script, then wire
+Fleet HTTPS + Device Agent + Nodra as documented in
+[`docs/LAB.md`](../docs/LAB.md). Helper:
+`scripts/lab-wire-remote.sh` (host-local after deploy).
+
+Permissions note: the `zyvor-ota-demo` user must be able to read
+`/etc/zyvor-ota-demo/agent.json` (group `zyvor-ota-demo`, mode `640`). Wrong
+ownership causes a restart loop.

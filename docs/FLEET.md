@@ -4,8 +4,15 @@ hero:
   title: Fleet adapter contract v1
 ---
 
-This is a proposed server contract implemented by the OTA client. No existing
-Zyvor Fleet repository or API has been modified or assumed compatible.
+This is the HTTPS adapter contract between Zyvor OTA (client) and a Fleet
+control plane (server).
+
+**Zyvor Fleet** (`zyvorai/fleet`) implements this contract on the control
+plane: `/v1/devices/{device_id}/assignment` and `/events`, with digest-bound
+device tokens and operator APIs under `/api/v1/ota/...`. See Fleet's
+`docs/OTA_CONTRACT.md`. A **lab reference server** also ships in this OTA
+repository as `zyvor-fleet-ref` for bring-up without a full Fleet deployment.
+A recorded multi-product lab is in [LAB.md](LAB.md).
 
 All requests use HTTPS to the configured Fleet base URL. Authentication is a
 token read from a local file at startup, mTLS, or both. Redirects are rejected.

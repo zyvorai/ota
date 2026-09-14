@@ -1,0 +1,14 @@
+[
+  {
+    "kind": "systemd",
+    "target": "zyvor-device-agent.service"
+  },
+  {
+    "kind": "http",
+    "target": "http://127.0.0.1:9091/healthz"
+  },
+  {
+    "kind": "file",
+    "target": "/var/lib/zyvor-device/healthy"
+  }
+]

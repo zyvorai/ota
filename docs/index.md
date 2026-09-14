@@ -18,6 +18,7 @@ hero:
     - {icon: "📖", title: "User Guide", description: "A single-page reference for the zyvor-ota CLI, the zyvor-otad daemon, and every agent.json field.", href: USER-GUIDE.md}
     - {icon: "🏗️", title: "Architecture", description: "The full job state machine and the invariants that guard it, from acceptance to commit or automatic rollback.", href: ARCHITECTURE.md}
     - {icon: "❓", title: "FAQ", description: "Licensing, support, and production-readiness questions people ask before adopting it.", href: FAQ.md}
+    - {icon: "🧪", title: "Lab stack", description: "Deploy and wire OTA with Fleet, Nodra, Device Agent, and relay-edge on one Linux host.", href: LAB.md}
     - {icon: "🛠️", title: "Troubleshooting", description: "Real operational issues, with the documented fix — not a generic checklist.", href: TROUBLESHOOTING.md}
 footnotes:
   - {marker: "1", text: "Exactly two bootable rootfs slots are supported per device; kernel/DTB partitions are grouped under their rootfs in RAUC.", href: ARCHITECTURE.md, href_label: "See installation and boot."}
@@ -56,11 +57,10 @@ project overview, comparison table, and license details.
 
 === "Fleet contract"
 
-    A proposed HTTPS contract: Fleet delivers signed assignments and
-    consumes acknowledged events. No existing Zyvor Fleet repository or API
-    has been modified or assumed compatible — the client side of this
-    contract is implemented and tested; your Fleet deployment's server side
-    is a separate integration to verify.
+    HTTPS contract: Fleet delivers signed assignments and consumes
+    acknowledged events. Zyvor Fleet implements the server APIs; this
+    repository ships the client and a lab reference server
+    (`zyvor-fleet-ref`). See [FLEET.md](FLEET.md) and [LAB.md](LAB.md).
 
 ## What's implemented
 

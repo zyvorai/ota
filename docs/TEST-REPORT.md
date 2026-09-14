@@ -27,8 +27,10 @@ delivered source. It is not a hardware certification or a GitHub Actions run.
 | Physical RAUC install / actual `.raucb` boot test | Not run |
 | QEMU kernel/rootfs boot and hardware power interruption | Not run |
 | Installed systemd/D-Bus/polkit policy behavior | Requires target distribution qualification |
-| Existing Zyvor Fleet server integration | Not run; implemented client uses the documented proposed contract |
-| GitHub CI/release/Cosign workflow | Included; not executed on GitHub in this task |
+| Existing Zyvor Fleet server integration | Lab reference (`zyvor-fleet-ref`) unit-tested; live Fleet TLS + OTA contract exercised on lab host (see [LAB.md](LAB.md)); hardware RAUC path still open |
+| GitHub CI/release/Cosign workflow | Included; release workflow publishes a GitHub Release on tag |
+| Software qualification matrix (`make qualify`) | Host software rows; see `evidence/qualification/` |
+| ARM64 binary execution | Cross-build locally; CI runs CLI under qemu-user |
 
 The 71 passing records count 42 top-level tests and 29 named subtests. This is not
 a claim of 71 independent hardware tests. CLI/daemon main packages are exercised
@@ -80,8 +82,15 @@ produce an identity-bound Cosign signature; none is fabricated for this archive.
 
 ## Production qualification still required
 
-Use `DEVICE-INTEGRATION.md` on one exact board/BSP/bootloader revision. Confirm
+Use `DEVICE-INTEGRATION.md` / `QUALIFICATION.md` on Minewing GW1 r1. Confirm
 real native bundle verification, grouped kernel/rootfs/DTB installation, boot
 attempt limits, watchdog recovery, shared-data rollback, power interruption,
-and device-specific health probes. SWUpdate, standalone MCU/model/config update
-backends, and a prebuilt QEMU board image are not included in this v0.1 scope.
+and device-specific health probes. Sign
+`evidence/qualification/hardware-checklist.md` before production. SWUpdate,
+standalone MCU/model/config update backends, and a prebuilt QEMU board image
+are not included in this v0.1 scope.
+
+A multi-product **simulator** lab (Fleet TLS, Device Agent, Nodra, relay-edge)
+was recorded on 14 September 2026 — see [LAB.md](LAB.md). That stack proves
+wiring and the Fleet OTA contract against the simulator backend; it does not
+close hardware rows.

@@ -42,12 +42,13 @@ states this is "a separate release gate," and `TEST-REPORT.md` itself lists
 power-loss testing. Don't deploy to production hardware on the strength of
 this README alone — read the test report and qualify your own board first.
 
-**Does it work with Zyvor Fleet today?** [`docs/FLEET.md`](FLEET.md) is
-explicit: it's "a proposed server contract implemented by the OTA client.
-No existing Zyvor Fleet repository or API has been modified or assumed
-compatible." OTA's client side of that contract is real and tested; whether
-your Fleet deployment implements the server side is a separate integration
-question you need to verify, not something to assume from this repo alone.
+**Does it work with Zyvor Fleet today?** Yes — Zyvor Fleet (`zyvorai/fleet`)
+implements the server side of [`docs/FLEET.md`](FLEET.md) (`/v1/devices/...`
+and `/api/v1/ota/...`). See Fleet's `docs/OTA_CONTRACT.md`. OTA's client is
+tested against that contract; a lab reference server (`zyvor-fleet-ref`) in
+this repo is for bring-up without a full Fleet deploy. A recorded multi-product
+lab (simulator OTA + Fleet TLS) is in [`docs/LAB.md`](LAB.md). Always verify
+your own Fleet version and TLS trust path before production.
 
 ## Security
 
@@ -71,11 +72,12 @@ ambiguous case.
 
 ## Hardware
 
-**What boards are supported?** None are named/certified yet.
-`boards/reference/` holds templates, explicitly documented as "not a
-certified image" — see [`docs/DEVICE-INTEGRATION.md`](DEVICE-INTEGRATION.md)
-for board bring-up/qualification steps you'd need to do yourself. Build
-targets today are Linux amd64/arm64; an arm64 build existing is not
+**What boards are supported?** The bring-up SKU is **Minewing GW1 revision r1**
+(`boards/minewing-gw1-r1/`). It is a profile for BSP bake and qualification, not
+a prebuilt flashable image — see [`docs/DEVICE-INTEGRATION.md`](DEVICE-INTEGRATION.md)
+and [`docs/QUALIFICATION.md`](QUALIFICATION.md). `boards/reference/` remains generic
+templates. Build targets are Linux amd64/arm64; CI also executes the ARM64 CLI
+under qemu-user. An arm64 build existing is not
 evidence it's been run on arm64 hardware.
 
 **Does it require RAUC specifically?** Yes — the current adapter talks to

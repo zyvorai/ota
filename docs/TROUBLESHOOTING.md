@@ -42,6 +42,11 @@ stored. If you're operating without a Fleet integration at all, export
 `zyvor-ota ack LAST_SEQUENCE` — `ack` does not erase job history, so this is
 safe to do after the fact.
 
+**Lab gotcha:** posting a synthetic low `sequence` (for example `1`) into
+Fleet before a real job whose outbox starts higher creates a hole. The agent
+keeps `pending_events` until Fleet's `ackedSequence` is aligned with the
+contiguous prefix the agent actually emitted. See [LAB.md](LAB.md).
+
 ## Job journal is approaching 10,000 entries
 
 There is no online compaction command in v0.1 by design — the journal is
@@ -70,11 +75,12 @@ agent after any manual state recovery.
 
 ## `docs/FLEET.md`'s contract doesn't match my Fleet deployment's API
 
-That contract is explicitly documented as "proposed... No existing Zyvor
-Fleet repository or API has been modified or assumed compatible" — treat it
-as a spec for the client side OTA implements, not a guarantee your specific
-Fleet deployment already speaks it. Verify server-side support before
-relying on it.
+Zyvor Fleet (`zyvorai/fleet`) ships the server APIs described in
+[FLEET.md](FLEET.md) (see Fleet `docs/OTA_CONTRACT.md`). Older or forked
+Fleet builds may not. Confirm your deployed version exposes
+`/v1/devices/{id}/assignment` and `/events`, and that `fleet_url` is HTTPS
+with a CA the agent trusts. For bring-up without Fleet, use `zyvor-fleet-ref`.
+Recorded lab wiring: [LAB.md](LAB.md).
 
 ## Nothing here matches
 

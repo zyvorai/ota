@@ -6,14 +6,16 @@ hero:
 
 ## Required board information
 
-Select one exact Minewing SKU and hardware revision. Obtain its SoC, RAM/storage
-layout, BSP/build system, bootloader version, boot environment storage, recovery
-connector, signed-boot settings, watchdog behavior, and vendor firmware procedure.
-Do not infer these from ARM64 support alone.
+The production bring-up SKU for this repository is **Minewing GW1 revision r1**
+(`compatible=minewing-gw1-r1`). See [`boards/minewing-gw1-r1/BOARD.md`](../boards/minewing-gw1-r1/BOARD.md).
+Obtain its SoC, RAM/storage layout, BSP/build system, bootloader version, boot
+environment storage, recovery connector, signed-boot settings, watchdog behavior,
+and vendor firmware procedure. Do not infer these from ARM64 support alone.
 
-The templates in `boards/reference` are **not deployable board images**. Replace
-all PARTUUID, compatible, image and trust-anchor placeholders in the BSP project.
-No script in this repository repartitions or flashes a device automatically.
+Templates in `boards/reference` remain generic placeholders. The Minewing profile
+uses `system.conf.in` / `manifest.raucm.in` rendered from `board.env` (PARTUUIDs
+from the BSP). No script in this repository repartitions or flashes a device
+automatically. Bake the agent with `scripts/bake-rootfs-overlay.sh`.
 
 ## Image layout
 
@@ -74,11 +76,13 @@ against its X.509 trust anchor at install time. Both checks are required.
 
 ## Install the agent
 
-Create a dedicated system account `zyvor-ota`. Install the two built executables
-under `/usr/local/bin`, the config under `/etc/zyvor-ota/agent.json`, and the unit
-under `/etc/systemd/system/zyvor-otad.service`. Provision the supplied D-Bus and
-polkit policy examples through your image build after review against distro policy.
-The daemon has no direct block-device permission; RAUC runs separately as root.
+Create a dedicated system account `zyvor-ota`. Prefer baking with
+`scripts/bake-rootfs-overlay.sh` into the rootfs, or install equivalently: the
+two built executables under `/usr/local/bin`, the config under
+`/etc/zyvor-ota/agent.json`, and the unit under `/etc/systemd/system/zyvor-otad.service`.
+Provision the supplied D-Bus and polkit policy examples through your image build
+after review against distro policy. The daemon has no direct block-device
+permission; RAUC runs separately as root.
 
 ```sh
 systemctl daemon-reload
@@ -93,6 +97,8 @@ actual distribution. Socket access is restricted to the agent UID and root.
 
 Record image hashes, firmware versions, device serial, power supply and test logs.
 Each destructive test uses a recoverable lab device with a known recovery image.
+Host software rows are automated by `make qualify` (see [QUALIFICATION.md](QUALIFICATION.md)).
+Hardware / QEMU RAUC rows use `evidence/qualification/hardware-checklist.md`.
 
 | Test | Required outcome |
 |---|---|

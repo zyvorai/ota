@@ -41,7 +41,7 @@ devices get which release and when; OTA only ever verifies and installs.
 | Update mechanism | RAUC-managed A/B slots | A/B or single-partition | A/B, single-copy, or custom | balenaOS + container layer swap | Package manager, no atomicity guarantee |
 | Rollback | Automatic, health-check gated, with an explicit `NeedsRecovery` interlock for ambiguous crashes | Automatic (A/B mode) | Depends on integration | Automatic (balenaOS) | Usually none |
 | License | Apache-2.0 | Apache-2.0 core + commercial Enterprise | GPL-2.0 | Apache-2.0 agent + proprietary balenaCloud | N/A |
-| Fleet/targeting | Separate concern — a proposed Fleet contract exists (`docs/FLEET.md`), not yet confirmed integrated with any specific fleet product | Mender server (open or hosted) | Not included — typically paired with hawkBit or a custom backend | balenaCloud (proprietary) | You build it |
+| Fleet/targeting | Separate concern — Zyvor Fleet implements `docs/FLEET.md` (`/v1/devices` + `/api/v1/ota`); lab stack in `docs/LAB.md` | Mender server (open or hosted) | Not included — typically paired with hawkBit or a custom backend | balenaCloud (proprietary) | You build it |
 
 *(General characterizations as of writing — verify current licensing/features
 against each project's own docs. Eclipse hawkBit and Uptane are not included
@@ -64,6 +64,7 @@ covers real operational issues with their documented fix.
 
 - [Is this for you?](#is-this-for-you)
 - [FAQ](docs/FAQ.md) · [Troubleshooting](docs/TROUBLESHOOTING.md)
+- [Lab stack (Fleet + OTA + Device Agent)](docs/LAB.md)
 - [Tutorial: your first simulator update](docs/TUTORIAL.md)
 - [User guide: CLI and config reference](docs/USER-GUIDE.md)
 - [Run the complete simulator demonstration](#run-the-complete-simulator-demonstration)
@@ -139,13 +140,14 @@ The initial image must already provide redundant slots, a working bootloader
 fallback policy, a shared persistent OTA state directory, RAUC trust anchors,
 and a recovery method. This project does not repartition existing devices.
 
-1. Build a board image and real `.raucb` with the BSP's image build system.
+1. Build a board image and real `.raucb` with the BSP's image build system
+   (Minewing GW1 r1 profile: `boards/minewing-gw1-r1/`).
 2. Give the RAUC bundle and signed OTA release the same unique version.
 3. Provision the pinned Ed25519 public key and the RAUC X.509 trust anchor.
-4. Configure `examples/agent.rauc.json` for the exact board and artifact host.
-5. Install the binaries, unit, D-Bus policy and reboot policy on the image.
-6. Start the agent and submit a signed assignment through its Unix socket or Fleet.
-7. Qualify reboot, rollback and power interruption on the exact board revision.
+4. Configure `boards/minewing-gw1-r1/agent.json` (or `examples/agent.rauc.json`) for the board and artifact host.
+5. Bake binaries/unit/D-Bus/polkit with `scripts/bake-rootfs-overlay.sh`, or install equivalently.
+6. Start the agent and submit a signed assignment through its Unix socket or Fleet (`zyvor-fleet-ref` for lab).
+7. Qualify reboot, rollback and power interruption per `docs/QUALIFICATION.md`.
 
 The daemon defaults to the configured backend; the example development flow
 explicitly uses `simulator`. RAUC requires `allow_device_writes: true` and at least
@@ -186,16 +188,18 @@ make deploy-remote H=HOST U=USER
 | `internal/ota/` | Engine, journal, verification, downloader, backends, API, Fleet |
 | `api/` | OpenAPI and release JSON schema |
 | `examples/` | Config/release/assignment templates |
-| `boards/reference/` | RAUC slot/group and bundle templates, not a certified image |
+| `boards/minewing-gw1-r1/` | Selected production SKU profile (Minewing GW1 r1), bake inputs |
+| `boards/reference/` | Generic RAUC templates, not a certified image |
 | `packaging/` | systemd, D-Bus and polkit policy examples |
 | `deploy/` | Remote smoke-deploy tooling (simulator backend, not board deployment) |
-| `scripts/` | Daemon E2E test, release checksums, and remote deploy/selftest |
+| `scripts/` | Daemon E2E, qualify matrix, bake/render, checksums, remote deploy |
 | `docs/` | Architecture, security, recovery, device qualification and test evidence |
 
 See [architecture](docs/ARCHITECTURE.md), [Fleet contract](docs/FLEET.md),
-[operations](docs/OPERATIONS.md), the [tutorial](docs/TUTORIAL.md), and the
-[user guide](docs/USER-GUIDE.md). There is intentionally no second fleet
-dashboard or competing application rollout controller in this repository.
+[lab stack](docs/LAB.md), [operations](docs/OPERATIONS.md), the
+[tutorial](docs/TUTORIAL.md), and the [user guide](docs/USER-GUIDE.md). There
+is intentionally no second fleet dashboard or competing application rollout
+controller in this repository.
 
 ## Contributing
 

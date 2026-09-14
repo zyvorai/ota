@@ -1,0 +1,15 @@
+# SPDX-License-Identifier: Apache-2.0
+# Bundle version must equal the outer OTA release version for each ship.
+[update]
+compatible=minewing-gw1-r1
+version=@BUNDLE_VERSION@
+description=Minewing GW1 r1 OS update
+
+[bundle]
+format=verity
+
+[image.rootfs]
+filename=rootfs.ext4
+
+[image.boot]
+filename=boot.vfat

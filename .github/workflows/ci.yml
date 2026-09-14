@@ -7,7 +7,7 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-go@v7
@@ -24,8 +24,25 @@ jobs:
       - run: make build
       - run: python3 scripts/e2e.py
       - run: make dist
+      - name: Software qualification matrix
+        run: make qualify
       - name: Source SBOM
         run: python3 scripts/sbom.py
+      - name: OpenAPI / release schema parse
+        run: |
+          python3 - <<'PY'
+          import json, pathlib, sys
+          try:
+              import yaml
+          except ImportError:
+              import subprocess
+              subprocess.check_call([sys.executable, "-m", "pip", "install", "pyyaml", "-q"])
+              import yaml
+          root = pathlib.Path(".")
+          yaml.safe_load((root / "api/openapi.yaml").read_text())
+          json.loads((root / "api/release.schema.json").read_text())
+          print("schemas ok")
+          PY
       - uses: actions/upload-artifact@v7
         with:
           name: test-coverage
@@ -34,6 +51,27 @@ jobs:
         with:
           name: linux-builds
           path: dist/
+      - uses: actions/upload-artifact@v7
+        with:
+          name: qualification-software
+          path: evidence/qualification/software-matrix.json
+          if-no-files-found: error
+  arm64-smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: '1.27.1'
+      - name: Install qemu-user for ARM64 execution
+        run: sudo apt-get update && sudo apt-get install -y qemu-user-static
+      - name: Cross-build and run ARM64 binaries under qemu
+        run: |
+          make dist
+          qemu-aarch64-static dist/zyvor-ota-linux-arm64 version | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$'
+          qemu-aarch64-static dist/zyvor-fleet-ref-linux-arm64 -h 2>&1 | head -n 1 || true
+          echo "arm64 CLI execution ok"
   vulnerability-scan:
     runs-on: ubuntu-24.04
     timeout-minutes: 10

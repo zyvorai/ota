@@ -7,9 +7,9 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 25
     permissions:
-      contents: read
+      contents: write
       id-token: write
     steps:
       - uses: actions/checkout@v7
@@ -32,3 +32,17 @@ jobs:
           name: zyvor-ota-${{ github.ref_name }}
           path: dist/
           if-no-files-found: error
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/**
+          fail_on_unmatched_files: true
+          generate_release_notes: true
+          body: |
+            Zyvor OTA ${{ github.ref_name }}
+
+            Verify `SHA256SUMS` with Cosign against this workflow identity, then `sha256sum -c SHA256SUMS`.
+            Board qualification status is tracked in `docs/QUALIFICATION.md` and is not implied by this tag alone.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

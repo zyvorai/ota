@@ -67,10 +67,13 @@ start rather than run with a relaxed setting.
 | `health_timeout_seconds` | int | yes | `1` – `3600`. |
 | `health_stable_seconds` | int | yes | `0` – (`health_timeout_seconds` − 1): how long health must hold continuously before commit. |
 | `checks` | []Check | conditionally | `{"kind": "...", "target": "..."}`; required (≥1) when `backend: rauc`. See below. |
-| `fleet_url` | string | no | Plain HTTPS base URL — no userinfo, query string, or fragment. |
-| `fleet_token_file` | string | conditionally | Required when `fleet_url` is set, unless both `fleet_cert` and `fleet_key` are given (mTLS). |
+| `fleet_url` | string | no | Plain **HTTPS** base URL — no userinfo, query string, or fragment. HTTP is rejected at config validation. Use `fleet_ca` (or the system trust store) for lab self-signed Fleet certs. |
+| `fleet_token_file` | string | conditionally | Required when `fleet_url` is set, unless both `fleet_cert` and `fleet_key` are given (mTLS). Mode `0600`/`640`; readable by the agent user. |
 | `fleet_ca` | string | no | Custom CA bundle path for the Fleet connection. |
 | `fleet_cert` / `fleet_key` | string | conditionally | mTLS client cert/key pair; both required together. |
+
+For a multi-product lab (Fleet TLS + simulator OTA), see [LAB.md](LAB.md).
+For bring-up without Fleet, run `zyvor-fleet-ref` (see [QUALIFICATION.md](QUALIFICATION.md)).
 
 ### Health check kinds
 

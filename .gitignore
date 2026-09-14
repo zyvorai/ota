@@ -8,3 +8,5 @@ __pycache__/
 .DS_Store
 /.venv-docs/
 /site/
+**/board.env
+boards/**/out/

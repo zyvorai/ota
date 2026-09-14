@@ -1,0 +1,31 @@
+# SPDX-License-Identifier: Apache-2.0
+# Render with: scripts/render-board-rauc.sh boards/minewing-gw1-r1
+# PARTUUID values are substituted from board.env (never invent them).
+[system]
+compatible=minewing-gw1-r1
+bootloader=uboot
+data-directory=/var/lib/rauc
+activate-installed=true
+
+[keyring]
+path=/etc/rauc/trusted-root.pem
+
+[slot.rootfs.0]
+device=/dev/disk/by-partuuid/@ROOTFS_A@
+type=ext4
+bootname=A
+
+[slot.boot.0]
+device=/dev/disk/by-partuuid/@BOOT_A@
+type=vfat
+parent=rootfs.0
+
+[slot.rootfs.1]
+device=/dev/disk/by-partuuid/@ROOTFS_B@
+type=ext4
+bootname=B
+
+[slot.boot.1]
+device=/dev/disk/by-partuuid/@BOOT_B@
+type=vfat
+parent=rootfs.1
