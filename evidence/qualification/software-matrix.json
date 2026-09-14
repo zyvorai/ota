@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-09-14T07:21:51.438583+00:00",
-  "finished_at": "2026-09-14T07:22:13.226497+00:00",
+  "generated_at": "2026-09-14T12:57:46.634697+00:00",
+  "finished_at": "2026-09-14T12:58:07.538880+00:00",
   "board_profile": "minewing-gw1-r1",
   "host": "Darwin",
   "results": [
@@ -43,31 +43,31 @@
     {
       "id": "qemu_rauc_valid_bundle_commit",
       "status": "skip",
-      "detail": "requires board image / lab device \u2014 see docs/QUALIFICATION.md",
+      "detail": "run scripts/hil/run-rauc-powerloss-hil.sh + sign \u2014 docs/HIL.md",
       "class": "software"
     },
     {
       "id": "qemu_rauc_power_loss_during_flash",
       "status": "skip",
-      "detail": "requires board image / lab device \u2014 see docs/QUALIFICATION.md",
+      "detail": "run scripts/hil/run-rauc-powerloss-hil.sh + sign \u2014 docs/HIL.md",
       "class": "software"
     },
     {
       "id": "physical_board_power_loss_boot_selection",
       "status": "skip",
-      "detail": "requires board image / lab device \u2014 see docs/QUALIFICATION.md",
+      "detail": "run scripts/hil/run-rauc-powerloss-hil.sh + sign \u2014 docs/HIL.md",
       "class": "software"
     },
     {
       "id": "physical_board_watchdog_bad_kernel",
       "status": "skip",
-      "detail": "requires board image / lab device \u2014 see docs/QUALIFICATION.md",
+      "detail": "run scripts/hil/run-rauc-powerloss-hil.sh + sign \u2014 docs/HIL.md",
       "class": "software"
     },
     {
       "id": "physical_packaging_dbus_polkit",
       "status": "skip",
-      "detail": "requires board image / lab device \u2014 see docs/QUALIFICATION.md",
+      "detail": "run scripts/hil/run-rauc-powerloss-hil.sh + sign \u2014 docs/HIL.md",
       "class": "software"
     }
   ],

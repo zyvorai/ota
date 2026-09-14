@@ -82,10 +82,9 @@ produce an identity-bound Cosign signature; none is fabricated for this archive.
 
 ## Production qualification still required
 
-Use `DEVICE-INTEGRATION.md` / `QUALIFICATION.md` on Minewing GW1 r1. Confirm
-real native bundle verification, grouped kernel/rootfs/DTB installation, boot
-attempt limits, watchdog recovery, shared-data rollback, power interruption,
-and device-specific health probes. Sign
+Use `DEVICE-INTEGRATION.md` / `QUALIFICATION.md` / `HIL.md` on Minewing GW1 r1.
+Drive QEMU+RAUC and power-loss rows with
+`scripts/hil/run-rauc-powerloss-hil.sh`, then sign
 `evidence/qualification/hardware-checklist.md` before production. SWUpdate,
 standalone MCU/model/config update backends, and a prebuilt QEMU board image
 are not included in this v0.1 scope.

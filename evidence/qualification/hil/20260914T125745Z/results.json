@@ -1,0 +1,59 @@
+{
+  "product": "zyvor-ota",
+  "sku": "minewing-gw1-r1",
+  "environment": "dry-run",
+  "stamp": "20260914T125745Z",
+  "finished_at": "2026-09-14T12:58:07.544237+00:00",
+  "counts": {
+    "pass": 1,
+    "blocked": 8
+  },
+  "minewing_rauc_claimable": false,
+  "rows": [
+    {
+      "id": "host_software_qualify",
+      "status": "pass",
+      "detail": "make qualify"
+    },
+    {
+      "id": "image_present",
+      "status": "blocked",
+      "detail": "dry-run \u2014 set QUALIFY_QEMU_IMAGE"
+    },
+    {
+      "id": "rauc_status",
+      "status": "blocked",
+      "detail": "dry-run"
+    },
+    {
+      "id": "valid_bundle_commit",
+      "status": "blocked",
+      "detail": "dry-run"
+    },
+    {
+      "id": "bad_signature_reject",
+      "status": "blocked",
+      "detail": "dry-run"
+    },
+    {
+      "id": "power_loss_during_write",
+      "status": "blocked",
+      "detail": "dry-run"
+    },
+    {
+      "id": "power_loss_boot_selection",
+      "status": "blocked",
+      "detail": "dry-run"
+    },
+    {
+      "id": "needs_recovery_crash",
+      "status": "blocked",
+      "detail": "dry-run"
+    },
+    {
+      "id": "three_healthy_reboots",
+      "status": "blocked",
+      "detail": "dry-run"
+    }
+  ]
+}

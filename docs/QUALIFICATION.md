@@ -5,7 +5,9 @@ hero:
 ---
 
 Software rows are automated by `make qualify`. QEMU-with-real-RAUC and physical
-board rows require a Minewing GW1 r1 image and lab device; record them in
+board rows are driven by [`scripts/hil/run-rauc-powerloss-hil.sh`](../scripts/hil/run-rauc-powerloss-hil.sh)
+([HIL.md](HIL.md), [`boards/minewing-gw1-r1/QEMU.md`](../boards/minewing-gw1-r1/QEMU.md))
+and recorded in
 [`evidence/qualification/hardware-checklist.md`](../evidence/qualification/hardware-checklist.md).
 
 A multi-product **simulator** stack on a shared Linux host is documented in

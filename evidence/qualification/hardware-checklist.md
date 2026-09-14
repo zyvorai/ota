@@ -1,7 +1,9 @@
 # Hardware / QEMU qualification checklist — Minewing GW1 r1
 
-**Status:** unsigned / not run in CI. Do not treat software `make qualify` results
-as a substitute for this checklist.
+**Status:** harness ready (`scripts/hil/run-rauc-powerloss-hil.sh` + `docs/HIL.md`);
+**unsigned** until `QUALIFY_QEMU_IMAGE` + power-loss logs make
+`minewing_rauc_claimable=true`. Dry-run evidence under
+`evidence/qualification/hil/` is **not** a production claim.
 
 | Field | Value |
 |---|---|
