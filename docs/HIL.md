@@ -5,12 +5,12 @@ hero:
 ---
 
 Host `make qualify` never claims these rows. Use the runner after a real RAUC
-image exists ([`boards/minewing-gw1-r1/QEMU.md`](../boards/minewing-gw1-r1/QEMU.md)).
+image exists ([`boards/minewing-gw1-r1/QEMU.md`](https://github.com/zyvorai/ota/blob/main/boards/minewing-gw1-r1/QEMU.md)).
 
 ## GitHub CI (lab substitute)
 
 When the lab has no QEMU RAUC image, CI still runs
-[`scripts/ci/lab-substitute.py`](../scripts/ci/lab-substitute.py) (`make ci-lab`,
+[`scripts/ci/lab-substitute.py`](https://github.com/zyvorai/ota/blob/main/scripts/ci/lab-substitute.py) (`make ci-lab`,
 workflow job `lab-substitute`):
 
 | CI row | What it proves |

@@ -74,7 +74,7 @@ RELAY_EDGE_DIRECT=1 EDGE_PORT=18086 ./scripts/deploy-remote.sh 80.79.5.173 sus
 ./scripts/deploy-remote.sh sus@80.79.5.173 --no-ui
 ```
 
-OTA smoke-deploy is documented in [`deploy/README.md`](../deploy/README.md).
+OTA smoke-deploy is documented in [`deploy/README.md`](https://github.com/zyvorai/ota/blob/main/deploy/README.md).
 It is not a RAUC board image.
 
 ## Wire the stack
@@ -122,7 +122,7 @@ Fleet CA that the Go TLS stack trusts (install the lab cert into the host
 CA store, or equivalent). Site inventory metadata then includes
 `zyvor.device_agent.reachable` and `zyvor.device.serial`.
 
-Helper on a host that already has the units: [`scripts/lab-wire-remote.sh`](../scripts/lab-wire-remote.sh)
+Helper on a host that already has the units: [`scripts/lab-wire-remote.sh`](https://github.com/zyvorai/ota/blob/main/scripts/lab-wire-remote.sh)
 (run **on** the lab machine as `sus`). Treat it as a bring-up sketch, not a
 production installer.
 

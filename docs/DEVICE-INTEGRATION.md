@@ -7,7 +7,7 @@ hero:
 ## Required board information
 
 The production bring-up SKU for this repository is **Minewing GW1 revision r1**
-(`compatible=minewing-gw1-r1`). See [`boards/minewing-gw1-r1/BOARD.md`](../boards/minewing-gw1-r1/BOARD.md).
+(`compatible=minewing-gw1-r1`). See [`boards/minewing-gw1-r1/BOARD.md`](https://github.com/zyvorai/ota/blob/main/boards/minewing-gw1-r1/BOARD.md).
 Obtain its SoC, RAM/storage layout, BSP/build system, bootloader version, boot
 environment storage, recovery connector, signed-boot settings, watchdog behavior,
 and vendor firmware procedure. Do not infer these from ARM64 support alone.

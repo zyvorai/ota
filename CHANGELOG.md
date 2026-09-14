@@ -2,7 +2,8 @@
 
 ## Unreleased
 
-- GitHub CI `lab-substitute` job (`make ci-lab`): agent crash→NeedsRecovery,
+- GitHub CI `lab-substitute` job (verify downloads its artifact so `ci_*` qualify rows pass)
+- CodeQL workflow for Go (`make ci-lab`): agent crash→NeedsRecovery,
   bad-signature reject, HTTPS fleet-ref commit, HIL harness dry-run — covers
   lab-blocked rows without claiming Minewing RAUC/power-loss.
 

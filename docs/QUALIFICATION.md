@@ -5,10 +5,10 @@ hero:
 ---
 
 Software rows are automated by `make qualify`. QEMU-with-real-RAUC and physical
-board rows are driven by [`scripts/hil/run-rauc-powerloss-hil.sh`](../scripts/hil/run-rauc-powerloss-hil.sh)
-([HIL.md](HIL.md), [`boards/minewing-gw1-r1/QEMU.md`](../boards/minewing-gw1-r1/QEMU.md))
+board rows are driven by [`scripts/hil/run-rauc-powerloss-hil.sh`](https://github.com/zyvorai/ota/blob/main/scripts/hil/run-rauc-powerloss-hil.sh)
+([HIL.md](HIL.md), [`boards/minewing-gw1-r1/QEMU.md`](https://github.com/zyvorai/ota/blob/main/boards/minewing-gw1-r1/QEMU.md))
 and recorded in
-[`evidence/qualification/hardware-checklist.md`](../evidence/qualification/hardware-checklist.md).
+[`evidence/qualification/hardware-checklist.md`](https://github.com/zyvorai/ota/blob/main/evidence/qualification/hardware-checklist.md).
 
 When the lab cannot run RAUC/QEMU, GitHub CI job **`lab-substitute`**
 (`make ci-lab`) still proves agent crash→NeedsRecovery, bad signature reject,
@@ -24,7 +24,7 @@ close hardware rows.
 | Field | Value |
 |---|---|
 | SKU / revision | Minewing GW1 / r1 |
-| Profile | [`boards/minewing-gw1-r1`](../boards/minewing-gw1-r1/BOARD.md) |
+| Profile | [`boards/minewing-gw1-r1`](https://github.com/zyvorai/ota/blob/main/boards/minewing-gw1-r1/BOARD.md) |
 | Compatible | `minewing-gw1-r1` |
 
 ## Software (host) rows — `make qualify`
@@ -57,7 +57,7 @@ repeat the lab on a new machine.
 
 ## Hardware / QEMU rows — operator signed
 
-Run first in QEMU with a real RAUC image ([`boards/minewing-gw1-r1/QEMU.md`](../boards/minewing-gw1-r1/QEMU.md)),
+Run first in QEMU with a real RAUC image ([`boards/minewing-gw1-r1/QEMU.md`](https://github.com/zyvorai/ota/blob/main/boards/minewing-gw1-r1/QEMU.md)),
 then on the exact physical board. Copy the checklist template and fill results:
 
 | Test | Required outcome |

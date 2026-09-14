@@ -10,13 +10,13 @@ see [LAB.md](LAB.md) first — that path does **not** qualify a board image.
 
 ## Preconditions
 
-1. Board profile [`boards/minewing-gw1-r1`](../boards/minewing-gw1-r1/BOARD.md)
+1. Board profile [`boards/minewing-gw1-r1`](https://github.com/zyvorai/ota/blob/main/boards/minewing-gw1-r1/BOARD.md)
    baked into the factory image (`scripts/bake-rootfs-overlay.sh` + PARTUUIDs
    from `board.env`).
 2. Software matrix green: `make qualify` →
    `evidence/qualification/software-matrix.json`.
 3. Hardware checklist signed for the exact image hash:
-   [`evidence/qualification/hardware-checklist.md`](../evidence/qualification/hardware-checklist.md).
+   [`evidence/qualification/hardware-checklist.md`](https://github.com/zyvorai/ota/blob/main/evidence/qualification/hardware-checklist.md).
 4. Fleet server implements [FLEET.md](FLEET.md):
    - **Production / lab control plane:** Zyvor Fleet (`zyvorai/fleet`)
      `/v1/devices/...` and `/api/v1/ota/...` — see Fleet
