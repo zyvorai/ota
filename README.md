@@ -18,10 +18,11 @@
 
 </div>
 
-**v0.1.0 — engineering preview, Apache-2.0.** This repository contains a working
-Go agent and CLI, a native RAUC D-Bus adapter, an isolated simulator, and automated
-tests. Physical board qualification is a separate release gate. See
-[verification evidence](docs/TEST-REPORT.md) for exactly what ran.
+**v0.1.0 — engineering preview, Apache-2.0.** Working Go agent and CLI, native
+RAUC D-Bus adapter, simulator, automated tests, and CI lab-substitutes.
+**Generic QEMU RAUC lab HIL is complete** (`zyvor-ota-qemu-lab`); **Minewing
+silicon qualification remains a separate, unsigned gate**. See
+[verification evidence](docs/TEST-REPORT.md) and [HIL.md](docs/HIL.md).
 
 Fleet decides **which devices and when**. OTA verifies and installs a device OS
 release. RAUC writes the inactive slot and integrates with the board bootloader.
@@ -50,11 +51,11 @@ Fleet+OTA combined, and Uptane is a security framework some of the above
 implement, not a competing product — Zyvor OTA does not currently claim
 Uptane conformance.)*
 
-**Maturity, stated honestly**: this is **v0.1.0, an engineering preview** —
-a working agent, CLi, RAUC adapter, simulator and automated tests exist, but
-physical board qualification is a separate, not-yet-completed release gate
-(see [verification evidence](docs/TEST-REPORT.md)). If you need something
-qualified on real hardware today, evaluate accordingly.
+**Maturity, stated honestly**: **v0.1.0 engineering preview** — working agent,
+CLI, RAUC adapter, simulator, CI, and **generic QEMU RAUC lab HIL**
+([docs/HIL.md](docs/HIL.md) Track A). **Minewing GW1 r1 silicon** is still
+unsigned ([docs/PRODUCTION.md](docs/PRODUCTION.md)). If you need Minewing
+board-qualified OTA today, evaluate accordingly.
 
 New here? [`docs/FAQ.md`](docs/FAQ.md) covers licensing, support, and
 production-readiness questions; [`docs/TROUBLESHOOTING.md`](docs/TROUBLESHOOTING.md)

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Docs refresh: HIL/QUALIFICATION/LAB/TEST-REPORT/FAQ/README split generic
+  `zyvor-ota-qemu-lab` (complete) from Minewing silicon (unsigned); lab topology
+  updated for Fleet non-demo, Nodra HTTPS, relay-edge auth.
+
 - Complete generic QEMU RAUC lab HIL (KVM SSH, install, power-loss, reboots); Minewing still unsigned.
 
 - Add QEMU RAUC lab image builder and record HIL evidence (Minewing still unsigned).

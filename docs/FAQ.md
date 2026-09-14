@@ -32,22 +32,24 @@ vulnerability reporting feature to be enabled by the maintainers first.
 
 ## Production readiness
 
-**Is this production-ready?** Be precise about what "v0.1.0 — engineering
-preview" means here: a working Go agent, CLI, native RAUC D-Bus adapter,
-simulator, and automated tests exist and are exercised in CI (see
-[`docs/TEST-REPORT.md`](TEST-REPORT.md) for exact coverage/results). What's
-explicitly **not** done yet: physical board qualification — the README
-states this is "a separate release gate," and `TEST-REPORT.md` itself lists
-"Production qualification still required" items, including hardware
-power-loss testing. Don't deploy to production hardware on the strength of
-this README alone — read the test report and qualify your own board first.
+**Is this production-ready?** Be precise. **v0.1.0 — engineering preview** means:
+
+- **Yes (software):** Go agent, CLI, RAUC D-Bus adapter, simulator, CI
+  (`lab-substitute`), and Fleet contract path — see [TEST-REPORT.md](TEST-REPORT.md)
+  and [PRODUCTION.md](PRODUCTION.md).
+- **Yes (generic QEMU lab):** real RAUC A/B install, bad-signature reject,
+  mid-install power-loss, and three reboots for `zyvor-ota-qemu-lab` —
+  [HIL.md](HIL.md) Track A (`qemu_lab_complete=true`).
+- **No (Minewing board OS OTA):** physical / BSP Minewing HIL is still
+  unsigned (`minewing_rauc_claimable=false`). Do not deploy to Minewing
+  production silicon on the strength of the qemu-lab track alone.
 
 **Does it work with Zyvor Fleet today?** Yes — Zyvor Fleet (`zyvorai/fleet`)
 implements the server side of [`docs/FLEET.md`](FLEET.md) (`/v1/devices/...`
 and `/api/v1/ota/...`). See Fleet's `docs/OTA_CONTRACT.md`. OTA's client is
 tested against that contract; a lab reference server (`zyvor-fleet-ref`) in
 this repo is for bring-up without a full Fleet deploy. A recorded multi-product
-lab (simulator OTA + Fleet TLS) is in [`docs/LAB.md`](LAB.md). Always verify
+lab (simulator OTA + Fleet TLS, non-demo) is in [`docs/LAB.md`](LAB.md). Always verify
 your own Fleet version and TLS trust path before production.
 
 ## Security

@@ -4,20 +4,22 @@ hero:
   title: Production qualification matrix
 ---
 
-Software rows are automated by `make qualify`. QEMU-with-real-RAUC and physical
-board rows are driven by [`scripts/hil/run-rauc-powerloss-hil.sh`](https://github.com/zyvorai/ota/blob/main/scripts/hil/run-rauc-powerloss-hil.sh)
-([HIL.md](HIL.md), [`boards/minewing-gw1-r1/QEMU.md`](https://github.com/zyvorai/ota/blob/main/boards/minewing-gw1-r1/QEMU.md))
-and recorded in
-[`evidence/qualification/hardware-checklist.md`](https://github.com/zyvorai/ota/blob/main/evidence/qualification/hardware-checklist.md).
+Software rows are automated by `make qualify`. Real-RAUC rows split into two tracks
+([HIL.md](HIL.md)):
 
-When the lab cannot run RAUC/QEMU, GitHub CI job **`lab-substitute`**
+| Track | Evidence | Status |
+|---|---|---|
+| Generic QEMU lab (`zyvor-ota-qemu-lab`) | [`qemu-lab/CHECKLIST.md`](https://github.com/zyvorai/ota/blob/main/evidence/qualification/qemu-lab/CHECKLIST.md), HIL `20260914T192634Z` (`qemu_lab_complete=true`) | **Complete** |
+| Minewing GW1 r1 (`minewing-gw1-r1`) | [`hardware-checklist.md`](https://github.com/zyvorai/ota/blob/main/evidence/qualification/hardware-checklist.md) via `OTA_HIL_MINEWING=1` | **Unsigned** |
+
+When neither image is available, GitHub CI job **`lab-substitute`**
 (`make ci-lab`) still proves agent crash→NeedsRecovery, bad signature reject,
 HTTPS fleet-ref commit, and HIL harness dry-run. Those CI rows never claim
-hardware power-loss.
+Track A or Track B hardware.
 
 A multi-product **simulator** stack on a shared Linux host is documented in
-[LAB.md](LAB.md). That evidence complements the software matrix; it does **not**
-close hardware rows.
+[LAB.md](LAB.md). That complements the software matrix; it does **not** close
+Minewing silicon.
 
 ## Board under qualification
 
@@ -55,10 +57,19 @@ Run after each product's `deploy-remote.sh` (see [LAB.md](LAB.md)):
 Record host, date, and job IDs next to `evidence/qualification/` when you
 repeat the lab on a new machine.
 
-## Hardware / QEMU rows — operator signed
+## Generic QEMU lab rows — signed (not Minewing)
 
-Run first in QEMU with a real RAUC image ([`boards/minewing-gw1-r1/QEMU.md`](https://github.com/zyvorai/ota/blob/main/boards/minewing-gw1-r1/QEMU.md)),
-then on the exact physical board. Copy the checklist template and fill results:
+Completed for `compatible=zyvor-ota-qemu-lab` on 2026-09-14: live `rauc status`,
+signed install, bad-signature reject, mid-install power-loss, three healthy
+reboots. See [HIL.md](HIL.md) Track A. This does **not** sign Minewing.
+
+## Minewing / physical rows — operator signed
+
+Run first with a **Minewing BSP** QEMU image
+([`boards/minewing-gw1-r1/QEMU.md`](https://github.com/zyvorai/ota/blob/main/boards/minewing-gw1-r1/QEMU.md)),
+then on the exact physical board. Fill
+[`hardware-checklist.md`](https://github.com/zyvorai/ota/blob/main/evidence/qualification/hardware-checklist.md)
+only when `minewing_rauc_claimable=true`:
 
 | Test | Required outcome |
 |---|---|

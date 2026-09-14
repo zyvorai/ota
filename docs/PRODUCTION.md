@@ -8,19 +8,24 @@ Companion to [OPERATIONS.md](OPERATIONS.md) for the Minewing GW1 r1 production p
 For a multi-product Linux lab (simulator OTA + Fleet + Nodra + Device Agent),
 see [LAB.md](LAB.md) first — that path does **not** qualify a board image.
 
-## Current maturity (2026-09-14)
+## Current maturity (2026-09-15)
 
 | Claim | Status |
 |---|---|
 | Host software matrix + CI lab-substitute | green (`make qualify`, verify←lab-substitute, CodeQL) |
 | Simulator / Fleet contract path | production-capable for **simulator backend** |
-| Generic QEMU+RAUC lab image | **complete** — KVM guest SSH, `rauc status`, install, power-loss, 3 reboots; [`qemu-lab/CHECKLIST.md`](../evidence/qualification/qemu-lab/CHECKLIST.md) |
-| Minewing / claimable RAUC power-loss HIL | **unsigned** — not Minewing BSP; set `OTA_HIL_MINEWING=1` with board image |
-| Hardware checklist | **not signed** — do not claim board OS OTA |
+| Generic QEMU+RAUC lab (`zyvor-ota-qemu-lab`) | **complete** — KVM SSH, `rauc status`, install, power-loss, 3 reboots; [`qemu-lab/CHECKLIST.md`](https://github.com/zyvorai/ota/blob/main/evidence/qualification/qemu-lab/CHECKLIST.md); HIL `20260914T192634Z` |
+| Minewing / claimable RAUC power-loss HIL | **unsigned** — needs BSP/`OTA_HIL_MINEWING=1` or physical board |
+| Hardware checklist (Minewing) | **not signed** — do not claim board OS OTA |
+
+**Sign gates** ([HIL.md](HIL.md)):
+
+- Lab-only: `OTA_HIL_SIGN=1` + `OTA_HIL_SIGN_QEMU_LAB=1` → `qemu-lab/CHECKLIST.md` when `qemu_lab_complete=true`.
+- Minewing: `OTA_HIL_SIGN=1` + `OTA_HIL_MINEWING=1` → `hardware-checklist.md` only when `minewing_rauc_claimable=true`.
 
 **Verdict:** agent software is **engineering-preview production-hardening**. Generic
 QEMU RAUC lab HIL is **complete** (not Minewing). **Minewing board-production** still
-requires BSP image or physical board + `OTA_HIL_MINEWING=1` sign-off.
+requires BSP image or physical board + Minewing HIL sign-off.
 
 ## Preconditions
 

@@ -24,10 +24,11 @@ delivered source. It is not a hardware certification or a GitHub Actions run.
 | Workflow/OpenAPI YAML and JSON syntax | Parsed successfully |
 | Full OpenAPI/JSON-Schema conformance validation | Not run; validator not installed |
 | Source SBOM and release checksums | Generated and included |
-| Physical RAUC install / actual `.raucb` boot test | Not run |
-| QEMU kernel/rootfs boot and hardware power interruption | Not run |
+| Physical RAUC install / actual `.raucb` boot test (Minewing) | Not run |
+| Generic QEMU RAUC lab (`zyvor-ota-qemu-lab`) | **Complete** 2026-09-14 — install, bad-sig, power-loss, 3 reboots; see [HIL.md](HIL.md) Track A |
+| Minewing QEMU kernel/rootfs boot and hardware power interruption | Not run |
 | Installed systemd/D-Bus/polkit policy behavior | Requires target distribution qualification |
-| Existing Zyvor Fleet server integration | Lab reference (`zyvor-fleet-ref`) unit-tested; live Fleet TLS + OTA contract exercised on lab host (see [LAB.md](LAB.md)); hardware RAUC path still open |
+| Existing Zyvor Fleet server integration | Lab reference (`zyvor-fleet-ref`) unit-tested; live Fleet TLS + OTA contract exercised on lab host (see [LAB.md](LAB.md)); Minewing RAUC path still open |
 | GitHub CI/release/Cosign workflow | Included; release workflow publishes a GitHub Release on tag |
 | Software qualification matrix (`make qualify`) | Host software rows; see `evidence/qualification/` |
 | ARM64 binary execution | Cross-build locally; CI runs CLI under qemu-user |
@@ -83,13 +84,21 @@ produce an identity-bound Cosign signature; none is fabricated for this archive.
 ## Production qualification still required
 
 Use `DEVICE-INTEGRATION.md` / `QUALIFICATION.md` / `HIL.md` on Minewing GW1 r1.
-Drive QEMU+RAUC and power-loss rows with
-`scripts/hil/run-rauc-powerloss-hil.sh`, then sign
-`evidence/qualification/hardware-checklist.md` before production. SWUpdate,
-standalone MCU/model/config update backends, and a prebuilt QEMU board image
-are not included in this v0.1 scope.
+Generic QEMU lab HIL (`zyvor-ota-qemu-lab`) is **already complete** and does
+**not** replace Minewing silicon sign-off. Drive Minewing rows with
+`OTA_HIL_MINEWING=1` and sign
+`evidence/qualification/hardware-checklist.md` before claiming board OS OTA.
+SWUpdate, standalone MCU/model/config update backends, and a prebuilt Minewing
+QEMU board image are not included in this v0.1 scope.
 
-A multi-product **simulator** lab (Fleet TLS, Device Agent, Nodra, relay-edge)
-was recorded on 14 September 2026 — see [LAB.md](LAB.md). That stack proves
-wiring and the Fleet OTA contract against the simulator backend; it does not
-close hardware rows.
+### Addendum — 14–15 September 2026
+
+| Item | Result |
+|---|---|
+| Multi-product simulator lab | Recorded — [LAB.md](LAB.md) (Fleet non-demo, Nodra HTTPS, relay auth) |
+| Generic QEMU RAUC lab HIL | Complete — `qemu_lab_complete=true`, stamp `20260914T192634Z` |
+| CI `lab-substitute` | Green on `main` (never claims Minewing power-loss) |
+| Minewing physical / BSP HIL | Still open |
+
+That stack proves wiring, Fleet OTA contract (simulator), and generic QEMU RAUC
+lab drills. It does **not** close Minewing hardware checklist rows.
