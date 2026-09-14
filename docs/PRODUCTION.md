@@ -8,6 +8,18 @@ Companion to [OPERATIONS.md](OPERATIONS.md) for the Minewing GW1 r1 production p
 For a multi-product Linux lab (simulator OTA + Fleet + Nodra + Device Agent),
 see [LAB.md](LAB.md) first — that path does **not** qualify a board image.
 
+## Current maturity (2026-09-14)
+
+| Claim | Status |
+|---|---|
+| Host software matrix + CI lab-substitute | green (`make qualify`, verify←lab-substitute, CodeQL) |
+| Simulator / Fleet contract path | production-capable for **simulator backend** |
+| Minewing / QEMU+RAUC / power-loss HIL | **unsigned** — needs `QUALIFY_QEMU_IMAGE` or physical board |
+| Hardware checklist | **not signed** — do not claim board OS OTA |
+
+**Verdict:** agent software is **engineering-preview production-hardening**. It is
+**not** Minewing board-production-ready until [HIL.md](HIL.md) rows are signed.
+
 ## Preconditions
 
 1. Board profile [`boards/minewing-gw1-r1`](https://github.com/zyvorai/ota/blob/main/boards/minewing-gw1-r1/BOARD.md)

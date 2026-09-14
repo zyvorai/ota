@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Document production maturity — software green, Minewing HIL still unsigned.
+
 - GitHub CI `lab-substitute` job (verify downloads its artifact so `ci_*` qualify rows pass)
 - CodeQL workflow for Go (`make ci-lab`): agent crash→NeedsRecovery,
   bad-signature reject, HTTPS fleet-ref commit, HIL harness dry-run — covers

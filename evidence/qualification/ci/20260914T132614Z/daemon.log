@@ -1,0 +1,4 @@
+2026/09/14 18:56:14 INFO Zyvor OTA ready version=0.1.0 backend=simulator listener=127.0.0.1:54074
+2026/09/14 18:56:17 INFO Zyvor OTA ready version=0.1.0 backend=simulator listener=127.0.0.1:54074
+zyvor-fleet-ref listening on https://127.0.0.1:54117 (devices=ci-1)
+2026/09/14 18:56:19 INFO Zyvor OTA ready version=0.1.0 backend=simulator listener=127.0.0.1:54074
