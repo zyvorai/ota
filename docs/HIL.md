@@ -6,10 +6,16 @@ hero:
 
 Host `make qualify` never claims hardware rows. There are **two separate tracks**:
 
-| Track | Compatible | Status |
-|---|---|---|
-| Generic QEMU lab | `zyvor-ota-qemu-lab` | **Complete** — see below |
-| Minewing GW1 r1 | `minewing-gw1-r1` | **Unsigned** — needs BSP image or physical board |
+| Track | Compatible | Status | How to exercise |
+|---|---|---|---|
+| Generic QEMU lab | `zyvor-ota-qemu-lab` | **Complete** (lab evidence) | QEMU guest + RAUC; CI soft-smoke via `make ci-rauc-qemu` |
+| Minewing GW1 r1 | `minewing-gw1-r1` | **Unsigned** | BSP QEMU image **or** physical silicon — never auto-signed |
+
+**QEMU vs Minewing silicon:** Track A proves RAUC A/B install / mid-install power-loss /
+reboots on the **generic** lab disk only. Track B Minewing power-loss is **not** signed
+unless an operator runs the harness with `OTA_HIL_MINEWING=1` and
+`minewing_rauc_claimable=true`. Soft-skip CI (`scripts/ci/rauc-qemu-smoke.sh`) never
+claims either track as newly signed.
 
 Never treat the generic lab image as a Minewing silicon claim.
 
@@ -68,7 +74,7 @@ OTA_HIL_SIGN=1 \
 [`evidence/qualification/hardware-checklist.md`](https://github.com/zyvorai/ota/blob/main/evidence/qualification/hardware-checklist.md)
 **only** when `minewing_rauc_claimable=true` (Minewing-compatible image + all required rows pass).
 
-## GitHub CI (lab substitute)
+## GitHub CI (lab substitute + QEMU soft-smoke)
 
 When neither image is available, CI still runs
 [`scripts/ci/lab-substitute.py`](https://github.com/zyvorai/ota/blob/main/scripts/ci/lab-substitute.py)
@@ -81,7 +87,13 @@ When neither image is available, CI still runs
 | `ci_fleet_ref_https_commit` | HTTPS `zyvor-fleet-ref` → simulator `committed` |
 | `ci_hil_harness_dry_run` | HIL evidence layout (never claimable) |
 
-CI substitutes **do not** close Track A or Track B hardware claims.
+Beyond lab-substitute, [`scripts/ci/rauc-qemu-smoke.sh`](https://github.com/zyvorai/ota/blob/main/scripts/ci/rauc-qemu-smoke.sh)
+(`make ci-rauc-qemu`) soft-skips when `QUALIFY_QEMU_IMAGE` / `QEMU_LAB_DIR/disk.img`
+is missing (exit 0). When the generic lab image is present it records a presence
+(or optional live `rauc status` / full HIL) check for Track A tooling — still
+**not** a Minewing power-loss signature.
+
+CI substitutes and soft-skips **do not** close Track B (Minewing) hardware claims.
 
 ## Dry-run harness
 

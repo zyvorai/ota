@@ -24,6 +24,14 @@ jobs:
           name: qualification-ci-lab-substitute
           path: evidence/qualification/ci/
           if-no-files-found: error
+  rauc-qemu-smoke:
+    # Soft-skips when QUALIFY_QEMU_IMAGE / disk.img missing. Never Minewing claim.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - name: QEMU RAUC soft-smoke (skip if no image)
+        run: bash scripts/ci/rauc-qemu-smoke.sh
   verify:
     needs: [lab-substitute]
     runs-on: ubuntu-24.04

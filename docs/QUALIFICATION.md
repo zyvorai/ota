@@ -7,15 +7,17 @@ hero:
 Software rows are automated by `make qualify`. Real-RAUC rows split into two tracks
 ([HIL.md](HIL.md)):
 
-| Track | Evidence | Status |
-|---|---|---|
-| Generic QEMU lab (`zyvor-ota-qemu-lab`) | [`qemu-lab/CHECKLIST.md`](https://github.com/zyvorai/ota/blob/main/evidence/qualification/qemu-lab/CHECKLIST.md), HIL `20260914T192634Z` (`qemu_lab_complete=true`) | **Complete** |
-| Minewing GW1 r1 (`minewing-gw1-r1`) | [`hardware-checklist.md`](https://github.com/zyvorai/ota/blob/main/evidence/qualification/hardware-checklist.md) via `OTA_HIL_MINEWING=1` | **Unsigned** |
+| Track | Environment | Evidence | Status |
+|---|---|---|---|
+| Generic QEMU lab (`zyvor-ota-qemu-lab`) | **QEMU guest** (KVM/TCG), not silicon | [`qemu-lab/CHECKLIST.md`](https://github.com/zyvorai/ota/blob/main/evidence/qualification/qemu-lab/CHECKLIST.md), HIL `20260914T192634Z` (`qemu_lab_complete=true`) | **Complete** (lab image only) |
+| Minewing GW1 r1 (`minewing-gw1-r1`) | **BSP QEMU or physical silicon** | [`hardware-checklist.md`](https://github.com/zyvorai/ota/blob/main/evidence/qualification/hardware-checklist.md) via `OTA_HIL_MINEWING=1` | **Unsigned** — power-loss not CI-signed |
 
 When neither image is available, GitHub CI job **`lab-substitute`**
 (`make ci-lab`) still proves agent crash→NeedsRecovery, bad signature reject,
-HTTPS fleet-ref commit, and HIL harness dry-run. Those CI rows never claim
-Track A or Track B hardware.
+HTTPS fleet-ref commit, and HIL harness dry-run. Soft-smoke
+[`scripts/ci/rauc-qemu-smoke.sh`](https://github.com/zyvorai/ota/blob/main/scripts/ci/rauc-qemu-smoke.sh)
+(`make ci-rauc-qemu`) exit-0 skips when the QEMU disk is absent. Those CI rows
+never claim Track B Minewing power-loss, and do not re-sign Track A.
 
 A multi-product **simulator** stack on a shared Linux host is documented in
 [LAB.md](LAB.md). That complements the software matrix; it does **not** close
@@ -63,13 +65,18 @@ Completed for `compatible=zyvor-ota-qemu-lab` on 2026-09-14: live `rauc status`,
 signed install, bad-signature reject, mid-install power-loss, three healthy
 reboots. See [HIL.md](HIL.md) Track A. This does **not** sign Minewing.
 
+CI soft-smoke (`make ci-rauc-qemu` / `scripts/ci/rauc-qemu-smoke.sh`) only checks
+image presence (or optional live SSH) when a disk is available; missing images
+soft-skip. It does **not** re-sign Track A or claim Minewing power-loss.
+
 ## Minewing / physical rows — operator signed
 
 Run first with a **Minewing BSP** QEMU image
 ([`boards/minewing-gw1-r1/QEMU.md`](https://github.com/zyvorai/ota/blob/main/boards/minewing-gw1-r1/QEMU.md)),
 then on the exact physical board. Fill
 [`hardware-checklist.md`](https://github.com/zyvorai/ota/blob/main/evidence/qualification/hardware-checklist.md)
-only when `minewing_rauc_claimable=true`:
+only when `minewing_rauc_claimable=true`. **Minewing power-loss is not CI-
+automated and is not signed by lab-substitute or rauc-qemu-smoke.**
 
 | Test | Required outcome |
 |---|---|
