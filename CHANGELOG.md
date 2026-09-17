@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- CI soft-smoke for generic QEMU RAUC lab: `scripts/ci/rauc-qemu-smoke.sh`
+  (`make ci-rauc-qemu`) — exit 0 soft-skip when the QEMU disk is absent;
+  does **not** sign Minewing silicon power-loss (see `docs/HIL.md`).
+
 - Docs refresh: HIL/QUALIFICATION/LAB/TEST-REPORT/FAQ/README split generic
   `zyvor-ota-qemu-lab` (complete) from Minewing silicon (unsigned); lab topology
   updated for Fleet non-demo, Nodra HTTPS, relay-edge auth.
