@@ -124,7 +124,7 @@ class Runner:
             if self.proc.poll() is not None:
                 raise AssertionError("daemon exited early")
             try:
-                self.command("status", api=True)
+                self.command("status", "json", api=True)
                 return
             except AssertionError:
                 time.sleep(0.05)

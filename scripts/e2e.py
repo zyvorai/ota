@@ -58,7 +58,7 @@ def run():
                 if proc.poll() is not None:
                     raise AssertionError("daemon exited")
                 try:
-                    command("status", api=True)
+                    command("status", "json", api=True)
                     return
                 except AssertionError:
                     time.sleep(0.05)
