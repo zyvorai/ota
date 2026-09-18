@@ -6,7 +6,8 @@ VERSION := 0.1.0
 	deploy-remote-verify deploy-remote-uninstall deploy-remote-fleet
 build:
 	mkdir -p bin
-	$(GO) build -buildvcs=false -trimpath -o bin/zyvor-ota ./cmd/zyvor-ota
+	$(GO) build -buildvcs=false -trimpath -o bin/otactl ./cmd/zyvor-ota
+	cp -f bin/otactl bin/zyvor-ota
 	$(GO) build -buildvcs=false -trimpath -o bin/zyvor-otad ./cmd/zyvor-otad
 	$(GO) build -buildvcs=false -trimpath -o bin/zyvor-fleet-ref ./cmd/zyvor-fleet-ref
 test:
@@ -29,10 +30,12 @@ ci-rauc-qemu:
 	bash scripts/ci/rauc-qemu-smoke.sh
 dist:
 	mkdir -p dist
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GO) build -buildvcs=false -trimpath -o dist/zyvor-ota-linux-amd64 ./cmd/zyvor-ota
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GO) build -buildvcs=false -trimpath -o dist/otactl-linux-amd64 ./cmd/zyvor-ota
+	cp -f dist/otactl-linux-amd64 dist/zyvor-ota-linux-amd64
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GO) build -buildvcs=false -trimpath -o dist/zyvor-otad-linux-amd64 ./cmd/zyvor-otad
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GO) build -buildvcs=false -trimpath -o dist/zyvor-fleet-ref-linux-amd64 ./cmd/zyvor-fleet-ref
-	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 $(GO) build -buildvcs=false -trimpath -o dist/zyvor-ota-linux-arm64 ./cmd/zyvor-ota
+	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 $(GO) build -buildvcs=false -trimpath -o dist/otactl-linux-arm64 ./cmd/zyvor-ota
+	cp -f dist/otactl-linux-arm64 dist/zyvor-ota-linux-arm64
 	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 $(GO) build -buildvcs=false -trimpath -o dist/zyvor-otad-linux-arm64 ./cmd/zyvor-otad
 	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 $(GO) build -buildvcs=false -trimpath -o dist/zyvor-fleet-ref-linux-arm64 ./cmd/zyvor-fleet-ref
 	cp LICENSE NOTICE THIRD_PARTY_NOTICES.md dist/

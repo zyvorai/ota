@@ -380,6 +380,7 @@ SUDO=""
 [ "$(id -u)" -ne 0 ] && SUDO="sudo"
 cd "${REMOTE_STAGING}"
 
+$SUDO install -m755 bin/otactl /usr/local/bin/otactl
 $SUDO install -m755 bin/zyvor-ota /usr/local/bin/zyvor-ota
 $SUDO install -m755 bin/zyvor-otad /usr/local/bin/zyvor-otad
 
@@ -469,7 +470,7 @@ $SUDO systemctl disable --now zyvor-otad-demo.service 2>/dev/null || true
 $SUDO systemctl disable --now zyvor-ota-demo-artifacts.service 2>/dev/null || true
 $SUDO rm -f /etc/systemd/system/zyvor-otad-demo.service /etc/systemd/system/zyvor-ota-demo-artifacts.service
 $SUDO systemctl daemon-reload
-$SUDO rm -f /usr/local/bin/zyvor-ota /usr/local/bin/zyvor-otad
+$SUDO rm -f /usr/local/bin/otactl /usr/local/bin/zyvor-ota /usr/local/bin/zyvor-otad
 $SUDO rm -rf /etc/zyvor-ota-demo /var/lib/zyvor-ota-demo /run/zyvor-ota-demo
 id zyvor-ota-demo &>/dev/null && $SUDO userdel zyvor-ota-demo 2>/dev/null || true
 rm -rf "${REMOTE_STAGING}"

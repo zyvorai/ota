@@ -6,7 +6,7 @@ hero:
 
 ## Monitor
 
-`zyvor-ota status` shows the active job, sequence high-water mark and outbox count.
+`otactl status` prints a Cilium-style colorful logo (agent, backend, active job, events, sequence, feature rows). `otactl status json` keeps the raw agent JSON. `zyvor-ota` is the same binary.
 `zyvor-ota job JOB_ID` shows retained job history. `zyvor-ota events` shows ordered
 unacknowledged transitions. The socket exposes `/metrics` for local scraping.
 Errors from download and Fleet transport are sanitized to avoid printing signed

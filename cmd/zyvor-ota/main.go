@@ -33,7 +33,7 @@ func run() error {
 	flag.Parse()
 	a := flag.Args()
 	if len(a) == 0 {
-		return errors.New("usage: zyvor-ota [-socket PATH] version|keygen DIR|sign RELEASE KEY KEY_ID OUT|status|job ID|submit ASSIGNMENT|events|ack SEQUENCE|reboot|recover-abort|gc")
+		return errors.New("usage: otactl [-socket PATH] version|keygen DIR|sign RELEASE KEY KEY_ID OUT|status [json]|job ID|submit ASSIGNMENT|events|ack SEQUENCE|reboot|recover-abort|gc  (zyvor-ota is the same binary)")
 	}
 	switch a[0] {
 	case "version":
@@ -138,6 +138,9 @@ func run() error {
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := client.Do(req)
 	if err != nil {
+		if a[0] == "status" && (len(a) < 2 || a[1] != "json") {
+			fmt.Print(formatOTAStatus(nil, err.Error()))
+		}
 		return err
 	}
 	defer resp.Body.Close()
@@ -145,9 +148,67 @@ func run() error {
 	if err != nil {
 		return err
 	}
+	if a[0] == "status" && (len(a) < 2 || a[1] != "json") {
+		msg := ""
+		if resp.StatusCode >= 300 {
+			msg = fmt.Sprintf("agent HTTP %d", resp.StatusCode)
+		}
+		fmt.Print(formatOTAStatus(b, msg))
+		if resp.StatusCode >= 300 {
+			return fmt.Errorf("agent HTTP %d", resp.StatusCode)
+		}
+		return nil
+	}
 	fmt.Println(string(b))
 	if resp.StatusCode >= 300 {
 		return fmt.Errorf("agent HTTP %d", resp.StatusCode)
 	}
 	return nil
+}
+
+func formatOTAStatus(b []byte, collection string) string {
+	view := StatusView{Labels: [5]string{"Agent", "Backend", "Active job", "Events", "Sequence"}}
+	if collection != "" && len(b) == 0 {
+		for i := range view.Components {
+			view.Components[i].Disabled = true
+		}
+		view.Collection = []string{collection}
+		return view.Format()
+	}
+	var st struct {
+		Version       string          `json:"version"`
+		DeviceID      string          `json:"device_id"`
+		Backend       string          `json:"backend"`
+		Active        json.RawMessage `json:"active"`
+		HighSequence  uint64          `json:"high_sequence"`
+		PendingEvents int             `json:"pending_events"`
+	}
+	_ = json.Unmarshal(b, &st)
+	if st.Backend == "" {
+		view.Components[1].Disabled = true
+	}
+	if len(st.Active) == 0 || string(st.Active) == "null" {
+		view.Components[2].Disabled = true
+	}
+	if st.PendingEvents > 0 {
+		view.Components[3].Warnings = st.PendingEvents
+	}
+	view.Body = [][3]string{
+		{"🖥️  Device:", st.DeviceID, ""},
+		{"📦 Backend:", st.Backend, ""},
+		{"🚀 Version:", st.Version, ""},
+		{"🔌 Pending events:", fmt.Sprintf("%d", st.PendingEvents), ""},
+		{"🖼️  Sequence:", fmt.Sprintf("%d", st.HighSequence), ""},
+	}
+	for _, name := range []string{"Sign", "Submit", "Ack", "Reboot", "Recover", "GC", "Events", "RAUC"} {
+		on := true
+		if name == "RAUC" && st.Backend != "" && st.Backend != "rauc" {
+			on = false
+		}
+		view.Features = append(view.Features, okFeature(name, on))
+	}
+	if collection != "" {
+		view.Collection = []string{collection}
+	}
+	return view.Format()
 }
