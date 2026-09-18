@@ -23,9 +23,11 @@ Requirements: Linux, Go 1.27.1 or a newer supported patch, Python 3.
 make build
 mkdir -p /tmp/zyvor-ota-tutorial/assets
 cd /tmp/zyvor-ota-tutorial
-OTA=/path/to/zyvor-ota/bin/zyvor-ota
+OTA=/path/to/zyvor-ota/bin/otactl
 OTAD=/path/to/zyvor-ota/bin/zyvor-otad
 ```
+
+`bin/zyvor-ota` is the same bytes as `bin/otactl`. Commands below that say `$OTA status` and expect JSON should use `$OTA status json`. The bare `status` command is the colorful banner.
 
 ## 2. Generate a signing key and a device config
 

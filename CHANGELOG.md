@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Operator CLI is `otactl`. `zyvor-ota` is the same binary, including `dist/zyvor-ota-linux-*`. `otactl status` is the colorful banner; `status json` stays machine-readable. Lab substitute and e2e call `status json`.
+- `make help`, `make ci` (gofmt, vet, race, build), and `make status`.
+
 - CI soft-smoke for generic QEMU RAUC lab: `scripts/ci/rauc-qemu-smoke.sh`
   (`make ci-rauc-qemu`) — exit 0 soft-skip when the QEMU disk is absent;
   does **not** sign Minewing silicon power-loss (see `docs/HIL.md`).

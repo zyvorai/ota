@@ -89,7 +89,12 @@ make test
 make race
 make vet
 make demo
+make help
+make ci
+make status          # bin/otactl; zyvor-ota is the same binary
 ```
+
+`bin/otactl` and `bin/zyvor-ota` are the same CLI. `otactl status` is the colorful banner; `otactl status json` is the raw agent JSON the lab scripts parse.
 
 The demo generates temporary signing keys, starts a local artifact server and
 the **real daemon and CLI**, installs two simulated releases, restarts the daemon
