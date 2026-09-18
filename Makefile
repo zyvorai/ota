@@ -3,20 +3,21 @@ VERSION := 0.1.0
 
 .PHONY: build test race vet check demo dist qualify hil ci-lab ci-rauc-qemu clean \
 	deploy deploy-remote deploy-remote-quick deploy-remote-preflight \
-	deploy-remote-verify deploy-remote-uninstall deploy-remote-fleet
-build:
+	deploy-remote-verify deploy-remote-uninstall deploy-remote-fleet \
+	fmt ci status help
+build: ## Build otactl (and the zyvor-ota copy), daemon, and fleet-ref
 	mkdir -p bin
 	$(GO) build -buildvcs=false -trimpath -o bin/otactl ./cmd/zyvor-ota
 	cp -f bin/otactl bin/zyvor-ota
 	$(GO) build -buildvcs=false -trimpath -o bin/zyvor-otad ./cmd/zyvor-otad
 	$(GO) build -buildvcs=false -trimpath -o bin/zyvor-fleet-ref ./cmd/zyvor-fleet-ref
-test:
+test: ## Unit tests
 	$(GO) test ./...
-race:
+race: ## Tests with the race detector
 	$(GO) test -race ./...
-vet:
+vet: ## go vet
 	$(GO) vet ./...
-check: test race vet build
+check: test race vet build ## Tests, race, vet, and build
 demo: build
 	python3 scripts/e2e.py
 qualify: build
@@ -41,6 +42,17 @@ dist:
 	cp LICENSE NOTICE THIRD_PARTY_NOTICES.md dist/
 	cp vendor/github.com/godbus/dbus/v5/LICENSE dist/GODBUS-LICENSE
 	cp "$$($(GO) env GOROOT)/LICENSE" dist/GO-LICENSE
+fmt: ## Fail if cmd/ or internal/ need gofmt
+	@test -z "$$(gofmt -l cmd internal)" || (echo "Run gofmt on:"; gofmt -l cmd internal; exit 1)
+
+ci: fmt vet race build ## Local gate: gofmt, vet, race tests, build
+
+status: build ## otactl status (daemon socket; zyvor-ota is the same binary)
+	./bin/otactl status
+
+help: ## Show targets
+	@grep -E '^[a-zA-Z0-9_-]+:.*## ' $(MAKEFILE_LIST) | sort | awk -F':.*## ' '{printf "  \033[36m%-24s\033[0m %s\n", $$1, $$2}'
+
 clean:
 	rm -rf bin dist coverage.out
 
