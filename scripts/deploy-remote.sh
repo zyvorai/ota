@@ -443,7 +443,7 @@ $SUDO systemctl restart zyvor-ota-demo-artifacts.service
 $SUDO systemctl restart zyvor-otad-demo.service
 ready=0
 for _ in $(seq 1 30); do
-    if [ -S /run/zyvor-ota-demo/agent.sock ]; then
+    if $SUDO test -S /run/zyvor-ota-demo/agent.sock; then
         ready=1
         break
     fi
