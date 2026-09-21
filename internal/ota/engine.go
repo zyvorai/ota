@@ -21,6 +21,7 @@ type Engine struct {
 	Now          func() time.Time
 	Stats        Stats
 	Spans        SpanExporter
+	MeasuredBoot func(context.Context) error
 	mu           sync.Mutex
 	healthySince time.Time
 }
@@ -49,6 +50,13 @@ func (e *Engine) Submit(a Assignment) (Job, error) {
 	if err != nil {
 		return Job{}, err
 	}
+	if err = e.gateMeasuredBoot(r); err != nil {
+		return Job{}, err
+	}
+	supply, err := evaluateSupplyChain(e.Config, db, a.Release.Payload, a.Release.KeyID, r, now)
+	if err != nil {
+		return Job{}, err
+	}
 	if !a.Deadline.After(now) || !a.Deadline.After(a.NotBefore) || a.Deadline.After(r.Expires) {
 		return Job{}, errors.New("invalid assignment window")
 	}
@@ -63,12 +71,24 @@ func (e *Engine) Submit(a Assignment) (Job, error) {
 		if r.Sequence <= d.HighSequence {
 			return errors.New("replayed or downgraded release sequence")
 		}
+		if err := applySupplyChain(d, e.Config.StateDir, supply, r.ID); err != nil {
+			return err
+		}
 		d.HighSequence = r.Sequence
 		d.Active = a.JobID
 		d.Jobs[a.JobID] = j
 		return addEvent(d, j, now)
 	})
 	return j, err
+}
+func (e *Engine) gateMeasuredBoot(r Release) error {
+	if !r.RequiresMeasuredBoot {
+		return nil
+	}
+	if e.MeasuredBoot == nil {
+		return errors.New("measured boot quote path is not available")
+	}
+	return e.MeasuredBoot(context.Background())
 }
 func addEvent(d *Database, j Job, now time.Time) error {
 	if len(d.Events) >= 10000 {
@@ -225,6 +245,11 @@ func (e *Engine) Step(ctx context.Context) error {
 			if err := CheckArtifact(sbomPath, j.Release.SBOM); err != nil {
 				return e.save(j, Failed, err.Error())
 			}
+			if err := verifySBOMSignature(sbomPath, j.Release, e.Config); err != nil {
+				return e.save(j, Failed, err.Error())
+			}
+		} else if e.Config.RequireSBOMSignature || j.Release.SBOMKeyID != "" || len(j.Release.SBOMSignature) > 0 {
+			return e.save(j, Failed, "signed SBOM is required")
 		}
 		if !j.PayloadsApplied && len(j.Release.Targets) > 0 {
 			if err := applySidePayloads(e.Config.StateDir, j.Release, e.Config.Checks); err != nil {

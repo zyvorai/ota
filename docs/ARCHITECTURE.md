@@ -45,7 +45,7 @@ without accepting an older remote release.
 
 ## Signed release
 
-`api/release.schema.json` is the publisher contract for the bytes inside the signature. Schema 1 is one artifact. Schema 2 is a `targets` list of `os.rauc`, `container.oci`, `config.bundle`, and `model.oci`. A schema 1 document that includes `targets` is invalid. A non-empty `sbom_sha256` requires an `sbom` artifact with that digest; the agent checks those bytes before install and does not treat that check as a signature or a vulnerability scan. The agent still checks the signature, sequence, and digests; this file does not replace that.
+`api/release.schema.json` is the publisher contract for the bytes inside the signature. Schema 1 is one artifact. Schema 2 is a `targets` list of `os.rauc`, `container.oci`, `config.bundle`, and `model.oci`. A schema 1 document that includes `targets` is invalid. A non-empty `sbom_sha256` requires an `sbom` artifact with that digest; the agent checks those bytes before install. When `trust_dir` is set, a threshold root, delegated keys, and snapshot/timestamp metadata must also agree with that release. The agent still checks the signature, sequence, and digests. This is not a conformance claim.
 
 ## Persistence
 

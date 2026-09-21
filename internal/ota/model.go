@@ -54,6 +54,11 @@ type Release struct {
 	// Adaptive is refused unless the device config explicitly allows the
 	// board's existing RAUC adaptive mode. This agent does not invent a delta format.
 	Adaptive bool `json:"adaptive,omitempty"`
+	// RequiresMeasuredBoot refuses the release unless the process has a quote
+	// checker. This binary does not include a TPM driver.
+	RequiresMeasuredBoot bool   `json:"requires_measured_boot,omitempty"`
+	SBOMKeyID            string `json:"sbom_key_id,omitempty"`
+	SBOMSignature        []byte `json:"sbom_signature,omitempty"`
 }
 
 // Payload contains base64-encoded exact JSON bytes; signatures never depend on reserialization.
@@ -101,6 +106,9 @@ type Config struct {
 	OTLPTokenFile         string            `json:"otlp_token_file,omitempty"`
 	RelayURL              string            `json:"relay_url,omitempty"`
 	RelayTokenFile        string            `json:"relay_token_file,omitempty"`
+	TrustDir              string            `json:"trust_dir,omitempty"`
+	RootSHA256            string            `json:"root_sha256,omitempty"`
+	RequireSBOMSignature  bool              `json:"require_sbom_signature,omitempty"`
 	FleetURL              string            `json:"fleet_url,omitempty"`
 	FleetTokenFile        string            `json:"fleet_token_file,omitempty"`
 	FleetCA               string            `json:"fleet_ca,omitempty"`
@@ -167,6 +175,12 @@ func (c Config) Validate() error {
 	}
 	if c.LocalMediaDir != "" && !filepath.IsAbs(c.LocalMediaDir) {
 		return errors.New("local_media_dir must be absolute")
+	}
+	if (c.TrustDir == "") != (c.RootSHA256 == "") {
+		return errors.New("trust_dir and root_sha256 are set together")
+	}
+	if c.TrustDir != "" && (!filepath.IsAbs(c.TrustDir) || !digestPattern.MatchString(c.RootSHA256)) {
+		return errors.New("trust_dir must be absolute and root_sha256 must be a sha256")
 	}
 	if err := c.validateOTLP(); err != nil {
 		return err
@@ -313,13 +327,17 @@ type Event struct {
 	Time     time.Time `json:"time"`
 }
 type Database struct {
-	Schema        int            `json:"schema"`
-	HighSequence  uint64         `json:"high_sequence"`
-	EventSequence uint64         `json:"event_sequence"`
-	Jobs          map[string]Job `json:"jobs"`
-	Active        string         `json:"active,omitempty"`
-	Events        []Event        `json:"events"`
-	BootCheck     BootCheck      `json:"boot_check"`
+	Schema          int            `json:"schema"`
+	HighSequence    uint64         `json:"high_sequence"`
+	EventSequence   uint64         `json:"event_sequence"`
+	Jobs            map[string]Job `json:"jobs"`
+	Active          string         `json:"active,omitempty"`
+	Events          []Event        `json:"events"`
+	BootCheck       BootCheck      `json:"boot_check"`
+	RootVersion     uint64         `json:"root_version,omitempty"`
+	RootPayload     []byte         `json:"root_payload,omitempty"`
+	SnapshotVersion uint64         `json:"snapshot_version,omitempty"`
+	SnapshotSHA     string         `json:"snapshot_sha256,omitempty"`
 }
 type BootCheck struct {
 	BootID    string    `json:"boot_id"`

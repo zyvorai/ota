@@ -36,6 +36,9 @@
         "sbom_sha256": { "type": "string", "pattern": "^([a-f0-9]{64})?$" },
         "sbom": { "$ref": "#/$defs/artifact" },
         "adaptive": { "type": "boolean" },
+        "requires_measured_boot": { "type": "boolean" },
+        "sbom_key_id": { "$ref": "#/$defs/id" },
+        "sbom_signature": { "type": "string", "minLength": 1 },
         "artifact": { "$ref": "#/$defs/artifact" }
       },
       "allOf": [
@@ -104,6 +107,9 @@
         "sbom_sha256": { "type": "string", "pattern": "^([a-f0-9]{64})?$" },
         "sbom": { "$ref": "#/$defs/artifact" },
         "adaptive": { "type": "boolean" },
+        "requires_measured_boot": { "type": "boolean" },
+        "sbom_key_id": { "$ref": "#/$defs/id" },
+        "sbom_signature": { "type": "string", "minLength": 1 },
         "artifact": { "$ref": "#/$defs/artifact" },
         "targets": {
           "type": "array",

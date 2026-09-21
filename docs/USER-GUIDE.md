@@ -75,6 +75,9 @@ start rather than run with a relaxed setting.
 | `local_media_dir` | string | no | Absolute directory of `{sha256}.raucb` files for offline install. |
 | `relay_url` | string | no | Site relay base URL. Empty skips the relay. HTTPS, or HTTP on `127.0.0.1` / `::1`, with an empty path. The agent asks the relay for the signed digest before the artifact URL. A miss falls through. A digest mismatch does not. |
 | `relay_token_file` | string | conditionally | Bearer token for `relay_url`. Required when the URL is set. |
+| `trust_dir` | string | no | Absolute directory of `root.json`, `timestamp.json`, `snapshot.json`, and `targets.json`. Empty keeps the single pinned release key. |
+| `root_sha256` | string | conditionally | SHA-256 of the initial root payload. Required with `trust_dir`. Later root versions must meet the previous root's signature threshold. |
+| `require_sbom_signature` | bool | no | Off unless set. A release must then carry `sbom_key_id` and `sbom_signature` over the SBOM bytes. |
 | `allow_adaptive` | bool | no | Off unless set. Refuses a release that sets `adaptive` when this is false. |
 | `capabilities` | []string | no | Capability names a schema 2 target may list in `requires`. |
 | `fleet_url` | string | no | Plain **HTTPS** base URL — no userinfo, query string, or fragment. HTTP is rejected at config validation. Use `fleet_ca` (or the system trust store) for lab self-signed Fleet certs. |

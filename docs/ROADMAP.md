@@ -16,7 +16,7 @@ Zyvor Fleet decides which devices and when. This repository verifies and install
 1. **15-minute golden path** — `scripts/ota-demo up` on the simulator, plus a QEMU lab recipe. Minewing GW1 r1 physical qualification stays unsigned until an operator records it.
 2. **Safe rollout in Fleet** — canary then wave, pause thresholds, per-device timeline, guided `NeedsRecovery`. Policy is not reimplemented in the agent.
 3. **Typed release graph** — schema 2 targets (`os.rauc`, `container.oci`, `config.bundle`, `model.oci`) commit together or return to the previous consistent set. No shell handlers.
-4. **Supply chain, after v1** — threshold signing, TPM or secure-element identity, delegated roles. Documented in [SUPPLY-CHAIN.md](SUPPLY-CHAIN.md). Not claimed as implemented or as Uptane.
+4. **Supply chain** — optional threshold root, delegated target types, snapshot and timestamp binding, signed SBOM, and an append-only release log. Documented in [SUPPLY-CHAIN.md](SUPPLY-CHAIN.md). No TPM driver. This project does **not** claim Uptane conformance.
 5. **Intermittent networks** — content-addressed cache, download window, bandwidth cap, offline campaign, USB or local media with the same digest check, and Zyvor Relay.
 
 ## 90-day exit criteria
@@ -28,12 +28,12 @@ Zyvor Fleet decides which devices and when. This repository verifies and install
 | Weeks 4–7 | SQLite journal, retention, metrics | Long-running retention and a documented corruption restore pass without hand-editing state |
 | Weeks 6–10 | Relay, offline campaigns, bandwidth | 100 clients share one upstream artifact download |
 | Weeks 8–12 | Typed payloads and release DAG | An OS + payload release commits or rolls back as one set |
-| After v1 | Threshold signing, TPM, delegated roles | Threat model and adversarial qualification exist. No conformance claim before that |
+| After v1 | Threshold signing, TPM, delegated roles | Metadata checks and adversarial tests cover the root threshold, delegation, snapshot, timestamp, SBOM signature, and release log. No TPM driver and no conformance claim. |
 
-## Not v1
+## Not in this repository
 
 - Uptane conformance, or any wording that implies it
-- Offline root, threshold signing, delegated roles, TPM identity, measured-boot gates
+- A TPM or secure-element quote driver. `requires_measured_boot` is refused unless a checker is linked
 - Arbitrary root scripts or MCU firmware handlers
 - Signing Minewing silicon from CI or from the generic QEMU lab
 - A second cloud scheduler inside the agent
