@@ -310,6 +310,30 @@ components:
           type: string
         error:
           type: string
+        old_slot:
+          type: string
+        old_version:
+          type: string
+        target_slot:
+          type: string
+        boot_id:
+          type: string
+        health_started:
+          type: string
+          format: date-time
+        reboot_requested:
+          type: boolean
+        deferred:
+          type: boolean
+        download_after:
+          type: string
+          format: date-time
+        payloads_applied:
+          type: boolean
+        trace_id:
+          type: string
+        span_id:
+          type: string
         updated:
           type: string
           format: date-time

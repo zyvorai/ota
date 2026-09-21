@@ -10,6 +10,7 @@ hero:
 - Rejects a release whose Ed25519 signature does not match a pinned trust key.
 - Rejects the wrong board, an expired envelope, or a release sequence at or below the on-disk high-water mark.
 - Checks artifact size and SHA-256 before install, including on the file:// and USB import path.
+- When a release pins `sbom_sha256`, requires an `sbom` artifact with that same digest and checks those bytes before install. It does not verify a signature over the SBOM, scan for vulnerabilities, or refuse a release because of a CVE.
 - Speaks TLS to Fleet. Artifact hosts must be on the allowlist. Relay peers must present the relay token.
 - Does not run shell from release JSON. Typed payload handlers copy verified bytes into the agent state directory.
 - Treats Cosign on the GitHub release as a checksum signature for the published binaries, not as trust for a RAUC bundle.
@@ -37,7 +38,7 @@ These roles are the ones to implement later, mapped only loosely onto TUF/Uptane
 - **Rotation and revocation.** A signed metadata update, not a new OS image, retires a targets key. Emergency revocation still needs a device that can fetch or import that metadata offline.
 - **Device identity.** TPM 2.0 or a secure element holds a device key. Enrollment binds that key to the Fleet device id. The agent does not ship a TPM quote path now.
 - **Measured boot.** A later gate can refuse a sensitive campaign when a measured-boot quote does not match a policy. It is not a substitute for the A/B health check.
-- **Provenance.** SLSA attestations and a signed SBOM can be required as extra digests inside the envelope. The agent already has an optional `sbom_sha256`. Enforcing a signature over the SBOM is future work.
+- **Provenance.** SLSA attestations and a signed SBOM can be required as extra digests inside the envelope. The agent checks the pinned SBOM bytes. Enforcing a signature over the SBOM is future work.
 - **Transparency.** An append-only log of published releases, plus a per-release vulnerability policy. Neither log nor policy gate exists in this repository.
 
 `internal/ota` does not contain a Uptane metadata state machine. Adaptive OS updates stay off unless a board profile sets `allow_adaptive`, and even then this project does not define its own delta format.

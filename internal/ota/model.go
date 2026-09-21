@@ -49,6 +49,7 @@ type Release struct {
 	Expires    time.Time `json:"expires"`
 	Artifact   Artifact  `json:"artifact,omitempty"`
 	SBOMSHA256 string    `json:"sbom_sha256,omitempty"`
+	SBOM       Artifact  `json:"sbom,omitempty"`
 	Targets    []Target  `json:"targets,omitempty"`
 	// Adaptive is refused unless the device config explicitly allows the
 	// board's existing RAUC adaptive mode. This agent does not invent a delta format.

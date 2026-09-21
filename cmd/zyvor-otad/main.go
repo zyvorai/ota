@@ -107,7 +107,8 @@ func run() error {
 				return
 			case <-tick.C:
 				if err := engine.Step(ctx); err != nil {
-					slog.Warn("update step deferred", "error", err)
+					job, release, campaign := activeIDs(engine)
+					slog.Warn("update step deferred", "error", err, "device_id", c.DeviceID, "job_id", job, "release_id", release, "campaign_id", campaign)
 				}
 			}
 		}
@@ -120,7 +121,8 @@ func run() error {
 			defer tick.Stop()
 			for {
 				if err := fleet.Sync(ctx, engine); err != nil && ctx.Err() == nil {
-					slog.Warn("Fleet sync deferred", "error", err)
+					job, release, campaign := activeIDs(engine)
+					slog.Warn("Fleet sync deferred", "error", err, "device_id", c.DeviceID, "job_id", job, "release_id", release, "campaign_id", campaign)
 				}
 				select {
 				case <-ctx.Done():
@@ -130,7 +132,7 @@ func run() error {
 			}
 		}()
 	}
-	slog.Info("Zyvor OTA ready", "version", ota.Version, "backend", c.Backend, "listener", l.Addr().String())
+	slog.Info("Zyvor OTA ready", "version", ota.Version, "backend", c.Backend, "device_id", c.DeviceID, "listener", l.Addr().String())
 	select {
 	case <-ctx.Done():
 	case err = <-serverErrors:
@@ -150,4 +152,13 @@ func run() error {
 		return fmt.Errorf("HTTP server: %w", err)
 	}
 	return nil
+}
+
+func activeIDs(engine *ota.Engine) (job, release, campaign string) {
+	d := engine.Store.View()
+	j, ok := d.Jobs[d.Active]
+	if !ok {
+		return "", "", ""
+	}
+	return j.Assignment.JobID, j.Release.ID, j.Assignment.CampaignID
 }

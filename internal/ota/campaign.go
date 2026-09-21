@@ -70,6 +70,9 @@ func releaseArtifacts(r Release) ([]Artifact, error) {
 	if err := add(r.Artifact); err != nil {
 		return nil, err
 	}
+	if err := add(r.SBOM); err != nil {
+		return nil, err
+	}
 	for _, t := range r.Targets {
 		if err := add(t.Artifact); err != nil {
 			return nil, err

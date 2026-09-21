@@ -34,9 +34,19 @@
         "version": { "$ref": "#/$defs/id" },
         "expires": { "type": "string", "format": "date-time" },
         "sbom_sha256": { "type": "string", "pattern": "^([a-f0-9]{64})?$" },
+        "sbom": { "$ref": "#/$defs/artifact" },
         "adaptive": { "type": "boolean" },
         "artifact": { "$ref": "#/$defs/artifact" }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "sbom_sha256": { "pattern": "^[a-f0-9]{64}$" } },
+            "required": ["sbom_sha256"]
+          },
+          "then": { "required": ["sbom"] }
+        }
+      ]
     },
     "target": {
       "type": "object",
@@ -92,6 +102,7 @@
         "version": { "$ref": "#/$defs/id" },
         "expires": { "type": "string", "format": "date-time" },
         "sbom_sha256": { "type": "string", "pattern": "^([a-f0-9]{64})?$" },
+        "sbom": { "$ref": "#/$defs/artifact" },
         "adaptive": { "type": "boolean" },
         "artifact": { "$ref": "#/$defs/artifact" },
         "targets": {
@@ -99,7 +110,16 @@
           "minItems": 1,
           "items": { "$ref": "#/$defs/target" }
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "sbom_sha256": { "pattern": "^[a-f0-9]{64}$" } },
+            "required": ["sbom_sha256"]
+          },
+          "then": { "required": ["sbom"] }
+        }
+      ]
     }
   }
 }

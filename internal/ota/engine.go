@@ -220,6 +220,12 @@ func (e *Engine) Step(ctx context.Context) error {
 		}
 		return e.save(j, Verified, "")
 	case Verified:
+		if j.Release.SBOMSHA256 != "" {
+			sbomPath := filepath.Join(e.Config.StateDir, "cache", j.Release.SBOM.SHA256+".raucb")
+			if err := CheckArtifact(sbomPath, j.Release.SBOM); err != nil {
+				return e.save(j, Failed, err.Error())
+			}
+		}
 		if !j.PayloadsApplied && len(j.Release.Targets) > 0 {
 			if err := applySidePayloads(e.Config.StateDir, j.Release, e.Config.Checks); err != nil {
 				_ = rollbackSidePayloads(e.Config.StateDir, j.Release)

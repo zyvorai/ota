@@ -23,6 +23,14 @@ func TestReleaseSchemaAcceptsSchema1AndSchema2(t *testing.T) {
 			"artifact": {"url": "http://127.0.0.1:8091/os.raucb", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 24}
 		}`,
 		`{
+			"schema": 1, "id": "tutorial-release-sbom", "sequence": 1,
+			"compatible": "tutorial-board", "backend": "simulator", "version": "1.0.0",
+			"expires": "2030-01-01T00:00:00Z",
+			"sbom_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+			"sbom": {"url": "https://downloads.example/image.spdx.json", "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "size": 12},
+			"artifact": {"url": "http://127.0.0.1:8091/os.raucb", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 24}
+		}`,
+		`{
 			"schema": 2, "id": "rel-2", "sequence": 2,
 			"compatible": "tutorial-board", "backend": "simulator", "version": "2026.10.0",
 			"expires": "2030-01-01T00:00:00Z",
@@ -46,6 +54,7 @@ func TestReleaseSchemaAcceptsSchema1AndSchema2(t *testing.T) {
 		`{"schema": 2, "id": "r", "sequence": 1, "compatible": "b", "backend": "simulator", "version": "1", "expires": "2030-01-01T00:00:00Z", "targets": [{"id": "os", "type": "os.rauc", "artifact": {"url": "https://downloads.example/a", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1}}]}`,
 		`{"schema": 2, "id": "r", "sequence": 1, "compatible": "b", "backend": "simulator", "version": "1", "expires": "2030-01-01T00:00:00Z", "targets": [{"id": "cfg", "type": "config.bundle", "reboot": "required", "artifact": {"url": "https://downloads.example/a", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1}}]}`,
 		`{"schema": 3, "id": "r", "sequence": 1, "compatible": "b", "backend": "simulator", "version": "1", "expires": "2030-01-01T00:00:00Z", "artifact": {"url": "https://downloads.example/a", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1}}`,
+		`{"schema": 1, "id": "r", "sequence": 1, "compatible": "b", "backend": "simulator", "version": "1", "expires": "2030-01-01T00:00:00Z", "sbom_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "artifact": {"url": "https://downloads.example/a", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size": 1}}`,
 	}
 	for _, doc := range invalid {
 		if err := validateRelease(sch, doc); err == nil {

@@ -40,8 +40,8 @@ func VerifyEnvelope(env Envelope, c Config, now time.Time) (Release, error) {
 	if r.Adaptive && !c.AllowAdaptive {
 		return r, errors.New("adaptive updates are not enabled for this device")
 	}
-	if r.SBOMSHA256 != "" && !digestPattern.MatchString(r.SBOMSHA256) {
-		return r, errors.New("invalid SBOM digest")
+	if err = checkSBOM(r, c.MaxArtifactBytes); err != nil {
+		return r, err
 	}
 	if r.Schema == 1 {
 		if len(r.Targets) != 0 {
@@ -97,6 +97,21 @@ func VerifyEnvelope(env Envelope, c Config, now time.Time) (Release, error) {
 		}
 	}
 	return r, nil
+}
+
+func checkSBOM(r Release, max int64) error {
+	pinned := r.SBOMSHA256 != ""
+	present := r.SBOM.SHA256 != "" || r.SBOM.URL != "" || r.SBOM.Size != 0
+	if !pinned && !present {
+		return nil
+	}
+	if !pinned || !present || r.SBOM.SHA256 != r.SBOMSHA256 {
+		return errors.New("SBOM digest does not match the pinned release digest")
+	}
+	if !digestPattern.MatchString(r.SBOMSHA256) {
+		return errors.New("invalid SBOM digest")
+	}
+	return checkArtifact(r.SBOM, max)
 }
 
 func checkArtifact(a Artifact, max int64) error {

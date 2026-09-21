@@ -92,8 +92,11 @@ key after the fleet has the new trust configuration.
 
 ## Journal retention
 
-At 10,000 jobs there is no online compaction in v0.1. Retire/reprovision under
-an audited maintenance process with a trusted sequence baseline.
+Terminal jobs above 10,000 move into the SQLite archive in the same transaction.
+Unacknowledged events are not dropped to make room. Copy the live journal with
+`zyvor-ota backup` and read retired jobs with `zyvor-ota archive`. A corrupt
+database fails startup. Stop the agent before replacing `ota.db` with that
+backup. Do not hand-edit rows or delete the journal to reset the release sequence.
 
 ## Release artifacts
 
