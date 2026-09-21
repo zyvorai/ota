@@ -33,7 +33,7 @@ func run() error {
 	flag.Parse()
 	a := flag.Args()
 	if len(a) == 0 {
-		return errors.New("usage: otactl [-socket PATH] version|keygen DIR|sign RELEASE KEY KEY_ID OUT|status [json]|job ID|submit ASSIGNMENT|events|ack SEQUENCE|reboot|recover-abort|gc  (zyvor-ota is the same binary)")
+		return errors.New("usage: otactl [-socket PATH] version|keygen DIR|sign RELEASE KEY KEY_ID OUT|campaign-export ASSIGNMENT ARTIFACT_DIR OUT_DIR|campaign-import CAMPAIGN_DIR MEDIA_DIR|status [json]|job ID|submit ASSIGNMENT|events|ack SEQUENCE|reboot|recover-abort|gc  (zyvor-ota is the same binary)")
 	}
 	switch a[0] {
 	case "version":
@@ -83,6 +83,32 @@ func run() error {
 			return err
 		}
 		return ota.AtomicWrite(a[4], b, 0644)
+	case "campaign-export":
+		if len(a) != 4 {
+			return errors.New("campaign-export ASSIGNMENT_JSON ARTIFACT_DIR OUT_DIR")
+		}
+		b, err := os.ReadFile(a[1])
+		if err != nil {
+			return err
+		}
+		var assignment ota.Assignment
+		if err = ota.StrictJSON(b, &assignment); err != nil {
+			return err
+		}
+		return ota.ExportCampaign(a[3], assignment, a[2])
+	case "campaign-import":
+		if len(a) != 3 {
+			return errors.New("campaign-import CAMPAIGN_DIR MEDIA_DIR")
+		}
+		assignment, err := ota.ImportCampaign(a[1])
+		if err != nil {
+			return err
+		}
+		if err = ota.InstallCampaign(a[2], a[1], assignment); err != nil {
+			return err
+		}
+		fmt.Println(filepath.Join(a[1], "assignment.json"))
+		return nil
 	}
 	method := http.MethodGet
 	path := ""

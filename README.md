@@ -174,6 +174,8 @@ zyvor-ota keygen ./release-keys
 zyvor-ota sign release.json release-keys/release.key production-1 envelope.json
 # Embed envelope.json as the release field in assignment.json.
 zyvor-ota -socket /run/zyvor-ota/agent.sock submit assignment.json
+zyvor-ota campaign-export assignment.json ./artifacts /media/usb/campaign
+zyvor-ota campaign-import /media/usb/campaign /var/lib/zyvor-ota/media
 zyvor-ota -socket /run/zyvor-ota/agent.sock job job-001
 zyvor-ota -socket /run/zyvor-ota/agent.sock reboot
 ```

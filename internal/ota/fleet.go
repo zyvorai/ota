@@ -95,6 +95,9 @@ func (f *Fleet) Sync(ctx context.Context, e *Engine) error {
 	started := time.Now()
 	err := f.sync(ctx, e)
 	e.Stats.fleetSync(err == nil, time.Since(started))
+	if e.Spans != nil {
+		e.Spans.Export(fleetSpan(e.Config.DeviceID, started, time.Now(), err))
+	}
 	return err
 }
 func (f *Fleet) sync(ctx context.Context, e *Engine) error {

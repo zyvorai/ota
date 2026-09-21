@@ -20,6 +20,7 @@ type Engine struct {
 	Health       HealthFunc
 	Now          func() time.Time
 	Stats        Stats
+	Spans        SpanExporter
 	mu           sync.Mutex
 	healthySince time.Time
 }
@@ -78,6 +79,7 @@ func addEvent(d *Database, j Job, now time.Time) error {
 	return nil
 }
 func (e *Engine) save(j Job, state State, message string) error {
+	prev := j.Updated
 	j.State = state
 	j.Error = message
 	j.Updated = e.Now()
@@ -96,14 +98,44 @@ func (e *Engine) save(j Job, state State, message string) error {
 		"state", state,
 		"error", message,
 	)
-	return e.Store.Update(func(d *Database) error {
+	if prevJob, ok := e.Store.View().Jobs[j.Assignment.JobID]; ok {
+		j.TraceID = prevJob.TraceID
+		j.SpanID = prevJob.SpanID
+	}
+	span, j, err := e.nextSpan(j, prev, message)
+	if err != nil {
+		return err
+	}
+	if err = e.Store.Update(func(d *Database) error {
 		d.Jobs[j.Assignment.JobID] = j
 		if Terminal(state) {
 			d.Active = ""
 		}
 		return addEvent(d, j, j.Updated)
-	})
+	}); err != nil {
+		return err
+	}
+	if e.Spans != nil {
+		e.Spans.Export(span)
+	}
+	return nil
 }
+func (e *Engine) armDownload(j Job) (Job, error) {
+	if !j.DownloadAfter.IsZero() || e.Config.DownloadJitter() == 0 {
+		return j, nil
+	}
+	arts, err := releaseArtifacts(j.Release)
+	if err != nil {
+		return j, err
+	}
+	local, err := e.Downloader.artifactsLocal(arts)
+	if err != nil || local {
+		return j, err
+	}
+	j.DownloadAfter = e.Now().Add(e.Config.DownloadJitter())
+	return j, nil
+}
+
 func (e *Engine) noteDeferred(j Job, err error) error {
 	if j.Deferred {
 		return nil
@@ -113,18 +145,12 @@ func (e *Engine) noteDeferred(j Job, err error) error {
 }
 
 func (e *Engine) fetchAll(ctx context.Context, j Job) (int64, bool, error) {
+	arts, err := releaseArtifacts(j.Release)
+	if err != nil {
+		return 0, false, err
+	}
 	var total int64
 	var resumed bool
-	arts := []Artifact{}
-	if j.Release.Artifact.SHA256 != "" {
-		arts = append(arts, j.Release.Artifact)
-	}
-	for _, t := range j.Release.Targets {
-		if t.Artifact.SHA256 == j.Release.Artifact.SHA256 {
-			continue
-		}
-		arts = append(arts, t.Artifact)
-	}
 	for _, a := range arts {
 		path, n, r, err := e.Downloader.fetch(ctx, a)
 		_ = path
@@ -160,10 +186,27 @@ func (e *Engine) Step(ctx context.Context) error {
 	}
 	switch j.State {
 	case Accepted:
-		return e.save(j, Downloading, "")
+		armed, err := e.armDownload(j)
+		if err != nil {
+			return err
+		}
+		return e.save(armed, Downloading, "")
 	case Downloading:
-		if err := e.Config.DownloadAllowed(now); err != nil {
-			return e.noteDeferred(j, err)
+		arts, err := releaseArtifacts(j.Release)
+		if err != nil {
+			return err
+		}
+		ready, err := e.Downloader.artifactsLocal(arts)
+		if err != nil {
+			return err
+		}
+		if !ready {
+			if !j.DownloadAfter.IsZero() && now.Before(j.DownloadAfter) {
+				return e.noteDeferred(j, ErrJitter)
+			}
+			if err = e.Config.DownloadAllowed(now); err != nil {
+				return e.noteDeferred(j, err)
+			}
 		}
 		j.Deferred = false
 		started := time.Now()

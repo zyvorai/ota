@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"hash/fnv"
 	"io"
 	"net/url"
 	"path/filepath"
@@ -75,30 +76,33 @@ type Check struct {
 	Name   string `json:"name,omitempty"`
 }
 type Config struct {
-	DeviceID             string            `json:"device_id"`
-	Compatible           string            `json:"compatible"`
-	StateDir             string            `json:"state_dir"`
-	Socket               string            `json:"socket"`
-	Backend              string            `json:"backend"`
-	AllowDeviceWrites    bool              `json:"allow_device_writes"`
-	TrustKeys            map[string]string `json:"trust_keys"`
-	DownloadHosts        []string          `json:"download_hosts"`
-	MaxArtifactBytes     int64             `json:"max_artifact_bytes"`
-	ReserveBytes         uint64            `json:"reserve_bytes"`
-	HealthTimeoutSeconds int               `json:"health_timeout_seconds"`
-	HealthStableSeconds  int               `json:"health_stable_seconds"`
-	Checks               []Check           `json:"checks"`
-	Capabilities         []string          `json:"capabilities,omitempty"`
-	BandwidthBytesPerSec int64             `json:"bandwidth_bytes_per_sec,omitempty"`
-	DownloadWindowStart  string            `json:"download_window_start,omitempty"`
-	DownloadWindowEnd    string            `json:"download_window_end,omitempty"`
-	LocalMediaDir        string            `json:"local_media_dir,omitempty"`
-	AllowAdaptive        bool              `json:"allow_adaptive,omitempty"`
-	FleetURL             string            `json:"fleet_url,omitempty"`
-	FleetTokenFile       string            `json:"fleet_token_file,omitempty"`
-	FleetCA              string            `json:"fleet_ca,omitempty"`
-	FleetCert            string            `json:"fleet_cert,omitempty"`
-	FleetKey             string            `json:"fleet_key,omitempty"`
+	DeviceID              string            `json:"device_id"`
+	Compatible            string            `json:"compatible"`
+	StateDir              string            `json:"state_dir"`
+	Socket                string            `json:"socket"`
+	Backend               string            `json:"backend"`
+	AllowDeviceWrites     bool              `json:"allow_device_writes"`
+	TrustKeys             map[string]string `json:"trust_keys"`
+	DownloadHosts         []string          `json:"download_hosts"`
+	MaxArtifactBytes      int64             `json:"max_artifact_bytes"`
+	ReserveBytes          uint64            `json:"reserve_bytes"`
+	HealthTimeoutSeconds  int               `json:"health_timeout_seconds"`
+	HealthStableSeconds   int               `json:"health_stable_seconds"`
+	Checks                []Check           `json:"checks"`
+	Capabilities          []string          `json:"capabilities,omitempty"`
+	BandwidthBytesPerSec  int64             `json:"bandwidth_bytes_per_sec,omitempty"`
+	DownloadJitterSeconds int               `json:"download_jitter_seconds,omitempty"`
+	DownloadWindowStart   string            `json:"download_window_start,omitempty"`
+	DownloadWindowEnd     string            `json:"download_window_end,omitempty"`
+	LocalMediaDir         string            `json:"local_media_dir,omitempty"`
+	AllowAdaptive         bool              `json:"allow_adaptive,omitempty"`
+	OTLPEndpoint          string            `json:"otlp_endpoint,omitempty"`
+	OTLPTokenFile         string            `json:"otlp_token_file,omitempty"`
+	FleetURL              string            `json:"fleet_url,omitempty"`
+	FleetTokenFile        string            `json:"fleet_token_file,omitempty"`
+	FleetCA               string            `json:"fleet_ca,omitempty"`
+	FleetCert             string            `json:"fleet_cert,omitempty"`
+	FleetKey              string            `json:"fleet_key,omitempty"`
 }
 
 func (c Config) Validate() error {
@@ -144,6 +148,9 @@ func (c Config) Validate() error {
 	if c.BandwidthBytesPerSec < 0 {
 		return errors.New("bandwidth_bytes_per_sec must be >= 0")
 	}
+	if c.DownloadJitterSeconds < 0 || c.DownloadJitterSeconds > 3600 {
+		return errors.New("download_jitter_seconds must be 0..3600")
+	}
 	if (c.DownloadWindowStart == "") != (c.DownloadWindowEnd == "") {
 		return errors.New("download window needs both start and end")
 	}
@@ -157,6 +164,9 @@ func (c Config) Validate() error {
 	}
 	if c.LocalMediaDir != "" && !filepath.IsAbs(c.LocalMediaDir) {
 		return errors.New("local_media_dir must be absolute")
+	}
+	if err := c.validateOTLP(); err != nil {
+		return err
 	}
 	if c.FleetURL != "" {
 		u, e := url.Parse(c.FleetURL)
@@ -172,6 +182,21 @@ func (c Config) Validate() error {
 
 // ErrDeferred means the download is intentionally waiting, not failed.
 var ErrDeferred = errors.New("deferred: outside download window")
+
+// ErrJitter means this device is waiting out its share of the fleet start spread.
+var ErrJitter = errors.New("deferred: download jitter")
+
+// DownloadJitter spreads fleet download starts. Zero disables it.
+// The offset is stable for a device_id so a retry does not roll a new delay.
+func (c Config) DownloadJitter() time.Duration {
+	if c.DownloadJitterSeconds <= 0 {
+		return 0
+	}
+	h := fnv.New32a()
+	_, _ = h.Write([]byte(c.DeviceID))
+	sec := time.Duration(h.Sum32() % uint32(c.DownloadJitterSeconds+1))
+	return sec * time.Second
+}
 
 func (c Config) DownloadAllowed(now time.Time) error {
 	if c.DownloadWindowStart == "" {
@@ -268,7 +293,10 @@ type Job struct {
 	HealthStarted   time.Time  `json:"health_started,omitempty"`
 	RebootRequested bool       `json:"reboot_requested"`
 	Deferred        bool       `json:"deferred,omitempty"`
+	DownloadAfter   time.Time  `json:"download_after,omitempty"`
 	PayloadsApplied bool       `json:"payloads_applied,omitempty"`
+	TraceID         string     `json:"trace_id,omitempty"`
+	SpanID          string     `json:"span_id,omitempty"`
 	Updated         time.Time  `json:"updated"`
 }
 type Event struct {

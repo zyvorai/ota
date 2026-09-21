@@ -43,6 +43,10 @@ an assignment is accepted, including assignments which later fail. This prevents
 replay after rollback. The last known working slot can still be selected locally
 without accepting an older remote release.
 
+## Signed release
+
+`api/release.schema.json` is the publisher contract for the bytes inside the signature. Schema 1 is one artifact. Schema 2 is a `targets` list of `os.rauc`, `container.oci`, `config.bundle`, and `model.oci`. A schema 1 document that includes `targets` is invalid. The agent still checks the signature, sequence, and digests; this file does not replace that.
+
 ## Persistence
 
 The journal is a single-writer SQLite database (`ota.db`) in WAL mode with

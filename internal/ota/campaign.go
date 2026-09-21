@@ -8,35 +8,24 @@ import (
 	"path/filepath"
 )
 
-// ExportCampaign writes a signed assignment and its artifact for offline or USB use.
-// The artifact is copied and re-checked against the signed digest. Import uses the same bytes.
-func ExportCampaign(dir string, assignment Assignment, artifactPath string) error {
+// ExportCampaign writes a signed assignment and every artifact it names.
+// artifactDir must contain each file as {sha256}.raucb. The signed payload is not rewritten.
+func ExportCampaign(dir string, assignment Assignment, artifactDir string) error {
 	if err := os.MkdirAll(dir, 0700); err != nil {
 		return err
 	}
-	rel, err := assignmentRelease(assignment)
+	arts, err := assignmentArtifacts(assignment)
 	if err != nil {
 		return err
 	}
-	if err = CheckArtifact(artifactPath, rel.Artifact); err != nil && len(rel.Targets) == 0 {
-		return err
-	}
-	src := artifactPath
-	name := rel.Artifact.SHA256
-	if name == "" && len(rel.Targets) > 0 {
-		name = rel.Targets[0].Artifact.SHA256
-		if err = CheckArtifact(artifactPath, rel.Targets[0].Artifact); err != nil {
+	for _, a := range arts {
+		src := filepath.Join(artifactDir, a.SHA256+".raucb")
+		if err = CheckArtifact(src, a); err != nil {
 			return err
 		}
-	} else if err = CheckArtifact(artifactPath, rel.Artifact); err != nil {
-		return err
-	}
-	if name == "" {
-		return errors.New("campaign has no artifact")
-	}
-	dst := filepath.Join(dir, name+".raucb")
-	if err = copyFile(src, dst); err != nil {
-		return err
+		if err = copyFile(src, filepath.Join(dir, a.SHA256+".raucb")); err != nil {
+			return err
+		}
 	}
 	b, err := json.MarshalIndent(assignment, "", "  ")
 	if err != nil {
@@ -53,36 +42,73 @@ func assignmentRelease(a Assignment) (Release, error) {
 	return r, nil
 }
 
-// ImportCampaign reads an offline campaign directory. The caller still verifies
-// the envelope with the device trust keys before submit.
-func ImportCampaign(dir string) (Assignment, string, error) {
+func assignmentArtifacts(a Assignment) ([]Artifact, error) {
+	rel, err := assignmentRelease(a)
+	if err != nil {
+		return nil, err
+	}
+	return releaseArtifacts(rel)
+}
+
+func releaseArtifacts(r Release) ([]Artifact, error) {
+	var out []Artifact
+	seen := map[string]bool{}
+	add := func(a Artifact) error {
+		if a.SHA256 == "" && a.URL == "" && a.Size == 0 {
+			return nil
+		}
+		if !digestPattern.MatchString(a.SHA256) || a.Size <= 0 {
+			return errors.New("campaign artifact missing digest")
+		}
+		if seen[a.SHA256] {
+			return nil
+		}
+		seen[a.SHA256] = true
+		out = append(out, a)
+		return nil
+	}
+	if err := add(r.Artifact); err != nil {
+		return nil, err
+	}
+	for _, t := range r.Targets {
+		if err := add(t.Artifact); err != nil {
+			return nil, err
+		}
+	}
+	if len(out) == 0 {
+		return nil, errors.New("campaign has no artifact")
+	}
+	return out, nil
+}
+
+// ImportCampaign reads an offline campaign directory and checks every artifact
+// digest. The caller still verifies the envelope with the device trust keys before submit.
+func ImportCampaign(dir string) (Assignment, error) {
 	b, err := os.ReadFile(filepath.Join(dir, "assignment.json"))
 	if err != nil {
-		return Assignment{}, "", err
+		return Assignment{}, err
 	}
 	var a Assignment
 	if err = StrictJSON(b, &a); err != nil {
-		return Assignment{}, "", err
+		return Assignment{}, err
 	}
-	rel, err := assignmentRelease(a)
+	arts, err := assignmentArtifacts(a)
 	if err != nil {
-		return Assignment{}, "", err
+		return Assignment{}, err
 	}
-	digest := rel.Artifact.SHA256
-	art := rel.Artifact
-	if digest == "" && len(rel.Targets) > 0 {
-		digest = rel.Targets[0].Artifact.SHA256
-		art = rel.Targets[0].Artifact
+	for _, art := range arts {
+		if err = CheckArtifact(filepath.Join(dir, art.SHA256+".raucb"), art); err != nil {
+			return Assignment{}, err
+		}
 	}
-	path := filepath.Join(dir, digest+".raucb")
-	if err = CheckArtifact(path, art); err != nil {
-		return Assignment{}, "", err
-	}
-	return a, path, nil
+	return a, nil
 }
 
-// CopyToMedia places an imported artifact under local_media_dir for a file:// install.
+// CopyToMedia places one artifact under local_media_dir. The signed URL is unchanged.
 func CopyToMedia(mediaDir, artifactPath string, a Artifact) (string, error) {
+	if !filepath.IsAbs(mediaDir) {
+		return "", errors.New("media dir must be absolute")
+	}
 	if err := CheckArtifact(artifactPath, a); err != nil {
 		return "", err
 	}
@@ -94,4 +120,18 @@ func CopyToMedia(mediaDir, artifactPath string, a Artifact) (string, error) {
 		return "", err
 	}
 	return dst, nil
+}
+
+// InstallCampaign copies every campaign artifact into mediaDir for local_media_dir.
+func InstallCampaign(mediaDir, campaignDir string, assignment Assignment) error {
+	arts, err := assignmentArtifacts(assignment)
+	if err != nil {
+		return err
+	}
+	for _, a := range arts {
+		if _, err = CopyToMedia(mediaDir, filepath.Join(campaignDir, a.SHA256+".raucb"), a); err != nil {
+			return err
+		}
+	}
+	return nil
 }

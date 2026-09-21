@@ -1,0 +1,57 @@
+{
+  "environment": {
+    "arch": "arm64",
+    "go": "go1.27.1",
+    "minewing": "not measured; no board run",
+    "note": "In-process simulator on this host. Install time is engine and localhost download time, not RAUC flash time.",
+    "os": "darwin",
+    "profile": "simulator",
+    "qemu": "not measured; QUALIFY_QEMU_IMAGE is unset or not a file",
+    "uname": "Darwin 25.6.0 arm64"
+  },
+  "install": {
+    "artifact_bytes": 1048576,
+    "booted_slot": "rootfs.1",
+    "cache_bytes": 1048576,
+    "final_state": "committed",
+    "health_stable_seconds": 0,
+    "journal_bytes": 4096,
+    "journal_wal_bytes": 70072,
+    "rss_kb_peak": 22560,
+    "state_dir_bytes": 1155734,
+    "steps": 7,
+    "wall_ms": 75
+  },
+  "measured_at": "2026-09-21T11:15:58Z",
+  "recover_abort": {
+    "final_state": "failed",
+    "note": "NeedsRecovery is the ambiguous install path. recover-abort is the operator call on the simulator, not a board power cycle.",
+    "recover_abort_wall_ms": 15,
+    "rss_kb_peak": 26608,
+    "steps_to_needs_recovery": 3,
+    "time_to_needs_recovery_ms": 29
+  },
+  "relay": {
+    "artifact_bytes": 1048576,
+    "client_bytes": 104857600,
+    "clients": 100,
+    "note": "Localhost relay. WAN bytes not sent are client bytes minus the single upstream read. This is not a wide-area link.",
+    "rss_kb_peak": 30960,
+    "upstream_bytes": 1048576,
+    "upstream_fetches": 1,
+    "wall_ms": 44,
+    "wan_bytes_not_sent": 103809024
+  },
+  "rollback": {
+    "booted_slot": "rootfs.0",
+    "final_state": "rolled_back",
+    "health_timeout_seconds": 1,
+    "note": "Wall time includes the configured health deadline. The simulator restores the previous slot in-process.",
+    "rss_kb_peak": 25520,
+    "steps": 186,
+    "wall_ms": 1090
+  },
+  "rss_kb": {
+    "process_start": 17104
+  }
+}

@@ -9,14 +9,20 @@ hero:
 `otactl status` prints a Cilium-style colorful logo (agent, backend, active job, events, sequence, feature rows). `otactl status json` keeps the raw agent JSON. `zyvor-ota` is the same binary.
 `zyvor-ota job JOB_ID` shows retained job history. `zyvor-ota events` shows ordered
 unacknowledged transitions. The socket exposes `/metrics` for local scraping.
+Set `otlp_endpoint` to also export one OpenTelemetry span per job transition
+and per Fleet sync. Leave it empty to keep traces off. A collector failure
+does not change the job outcome.
 Errors from download and Fleet transport are sanitized to avoid printing signed
 URLs or bearer tokens. Full job data is visible only to trusted socket operators.
 
 Fleet retries every ten seconds; the engine advances once per second. Downloads
 have a 30-minute cap, Fleet requests 20 seconds, and local health probes three
 seconds each. A transient download failure retains the partial file and retries
-until the assignment expires. This version does not implement jitter or bandwidth
-shaping; schedule fleet cohorts to avoid synchronized large downloads.
+until the assignment expires. `bandwidth_bytes_per_sec` caps a download when it is
+greater than zero. `download_jitter_seconds` spreads the moment devices in one
+wave start fetching; zero leaves that off. The offset is a stable function of
+`device_id`, so a retry waits out the same delay instead of rolling a new one.
+Local media that already matches the signed digest does not wait.
 
 ## Reboot
 
@@ -45,6 +51,18 @@ For a journal/storage error, stop the agent, preserve logs and state, repair the
 filesystem, and reconcile against RAUC before restarting. A stale `.ota-*` temp
 file is not authoritative; `state.json` is. Do not restore old state snapshots
 without also restoring an equal-or-higher trusted anti-replay high-water mark.
+
+## Offline campaign
+
+Copy a signed assignment and its digest-named artifacts onto removable media, then onto the device. The signed URLs stay as they are. Set `local_media_dir` to the absolute media directory. When `{sha256}.raucb` is present and matches, the agent uses that file and skips the download window. A file that is present but does not match the signed digest is refused.
+
+```sh
+zyvor-ota campaign-export assignment.json ./artifacts /media/usb/campaign
+zyvor-ota campaign-import /media/usb/campaign /var/lib/zyvor-ota/media
+zyvor-ota -socket /run/zyvor-ota/agent.sock submit /media/usb/campaign/assignment.json
+```
+
+`campaign-import` prints the assignment path. Submit that file. Do not edit the envelope to point the URLs at `file://`.
 
 ## Cache and outbox
 

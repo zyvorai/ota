@@ -48,6 +48,7 @@ nav:
       - Lab stack: LAB.md
       - QEMU lab: QEMU-LAB.md
       - Demo script: DEMO-VIDEO.md
+      - Measurements: BENCHMARKS.md
   - Reference:
       - Architecture: ARCHITECTURE.md
       - Fleet Adapter Contract: FLEET.md

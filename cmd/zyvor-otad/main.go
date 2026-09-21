@@ -58,6 +58,14 @@ func run() error {
 		return err
 	}
 	engine := ota.NewEngine(c, store, backend)
+	var traces *ota.OTLPExporter
+	if c.OTLPEndpoint != "" {
+		traces, err = ota.NewOTLPExporter(c)
+		if err != nil {
+			return err
+		}
+		engine.Spans = traces
+	}
 	var fleet *ota.Fleet
 	if c.FleetURL != "" {
 		fleet, err = ota.NewFleet(c)
@@ -133,6 +141,11 @@ func run() error {
 	_ = server.Shutdown(shutdown)
 	cancel()
 	workers.Wait()
+	if traces != nil {
+		shut, cancelShut := context.WithTimeout(context.Background(), 2*time.Second)
+		traces.Shutdown(shut)
+		cancelShut()
+	}
 	if err != nil && err != http.ErrServerClosed {
 		return fmt.Errorf("HTTP server: %w", err)
 	}

@@ -67,6 +67,11 @@ func (d Downloader) Fetch(ctx context.Context, a Artifact) (string, error) {
 }
 
 func (d Downloader) fetch(ctx context.Context, a Artifact) (string, int64, bool, error) {
+	if path, err := d.localMediaFile(a); err != nil {
+		return "", 0, false, err
+	} else if path != "" {
+		return d.stageLocal(a, path)
+	}
 	u, err := url.Parse(a.URL)
 	if err != nil {
 		return "", 0, false, err
@@ -219,6 +224,45 @@ func (d Downloader) fetchFile(a Artifact, u *url.URL) (string, int64, bool, erro
 	if err := CheckArtifact(path, a); err != nil {
 		return "", 0, false, err
 	}
+	return d.stageLocal(a, path)
+}
+
+// localMediaFile returns {sha256}.raucb inside local_media_dir when that file
+// matches the signed artifact. A missing file is not an error. A present file
+// with the wrong digest is.
+func (d Downloader) localMediaFile(a Artifact) (string, error) {
+	if d.Config.LocalMediaDir == "" || !digestPattern.MatchString(a.SHA256) {
+		return "", nil
+	}
+	path := filepath.Join(d.Config.LocalMediaDir, a.SHA256+".raucb")
+	f, err := os.OpenFile(path, os.O_RDONLY|syscall.O_NOFOLLOW, 0)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return "", nil
+		}
+		return "", err
+	}
+	f.Close()
+	if err = CheckArtifact(path, a); err != nil {
+		return "", err
+	}
+	return path, nil
+}
+
+func (d Downloader) artifactsLocal(arts []Artifact) (bool, error) {
+	if len(arts) == 0 || d.Config.LocalMediaDir == "" {
+		return false, nil
+	}
+	for _, a := range arts {
+		path, err := d.localMediaFile(a)
+		if err != nil || path == "" {
+			return false, err
+		}
+	}
+	return true, nil
+}
+
+func (d Downloader) stageLocal(a Artifact, path string) (string, int64, bool, error) {
 	dir := filepath.Join(d.Config.StateDir, "cache")
 	if err := os.MkdirAll(dir, 0700); err != nil {
 		return "", 0, false, err
@@ -228,6 +272,9 @@ func (d Downloader) fetchFile(a Artifact, u *url.URL) (string, int64, bool, erro
 		return final, a.Size, false, nil
 	}
 	if err := copyFile(path, final); err != nil {
+		return "", 0, false, err
+	}
+	if err := CheckArtifact(final, a); err != nil {
 		return "", 0, false, err
 	}
 	return final, a.Size, false, nil

@@ -4,7 +4,7 @@ VERSION := 0.1.0
 .PHONY: build test race vet check demo dist qualify hil ci-lab ci-rauc-qemu clean \
 	deploy deploy-remote deploy-remote-quick deploy-remote-preflight \
 	deploy-remote-verify deploy-remote-uninstall deploy-remote-fleet \
-	fmt ci status help
+	fmt ci status help measure
 build: ## Build otactl (and the zyvor-ota copy), daemon, and fleet-ref
 	mkdir -p bin
 	$(GO) build -buildvcs=false -trimpath -o bin/otactl ./cmd/zyvor-ota
@@ -23,6 +23,8 @@ demo: build
 	python3 scripts/e2e.py
 ota-demo: build
 	python3 scripts/ota-demo up
+measure: ## Simulator and localhost relay figures. Not QEMU or Minewing.
+	$(GO) run ./scripts/measure
 qualify: build
 	python3 scripts/qualify-matrix.py
 hil:
