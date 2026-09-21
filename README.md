@@ -152,7 +152,7 @@ An ARM64 build is not evidence of execution on ARM64 hardware.
 | Fleet integration | Contract and transport implemented; Zyvor Fleet serves the matching endpoints |
 | Site relay and offline campaign | Implemented. Digest check is the same as HTTPS |
 | Optional trust metadata | Implemented when `trust_dir` is set. Not a conformance claim. No TPM driver |
-| QEMU bootable image | Build recipe in [docs/QEMU-LAB.md](docs/QEMU-LAB.md); generic lab HIL is signed, disk is not attached to the GitHub release |
+| QEMU bootable image | Build recipe in [docs/QEMU-LAB.md](docs/QEMU-LAB.md). Generic lab HIL is signed. A disk copy lives at `$HOME/zyvor-qemu-lab/disk.img` and on lab host `80.79.5.173`. It is not a GitHub release asset |
 | Hardware power-loss testing | Generic QEMU lab signed 2026-09-14. Minewing GW1 r1 is unsigned |
 
 ## Device deployment

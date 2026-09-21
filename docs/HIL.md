@@ -37,6 +37,7 @@ Evidence:
 - Checklist: [`evidence/qualification/qemu-lab/CHECKLIST.md`](https://github.com/zyvorai/ota/blob/main/evidence/qualification/qemu-lab/CHECKLIST.md) (`qemu_lab_complete=true`)
 - HIL stamp: [`evidence/qualification/hil/20260914T192634Z/`](https://github.com/zyvorai/ota/blob/main/evidence/qualification/hil/20260914T192634Z/)
 - Notes: [`evidence/qualification/qemu-lab/README.md`](https://github.com/zyvorai/ota/blob/main/evidence/qualification/qemu-lab/README.md)
+- Disk copy checked 2026-09-21 at `/home/sus/zyvor-qemu-lab/disk.img` and `$HOME/zyvor-qemu-lab/disk.img` (`7b8ce8ecbce8b43f…`). Presence smoke only. Not re-booted, not a release asset, not Minewing.
 
 Sign **lab-only** checklist (never Minewing hardware-checklist):
 

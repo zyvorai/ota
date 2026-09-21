@@ -1,1 +1,4 @@
-QUALIFY_QEMU_IMAGE lives on lab: /home/sus/zyvor-qemu-lab/disk.img
+Lab host 80.79.5.173: /home/sus/zyvor-qemu-lab/disk.img
+Operator machine: $HOME/zyvor-qemu-lab/disk.img
+Checked 2026-09-21 sha256 7b8ce8ecbce8b43fce12b2571dfe79644115955ebea4fb5c54ccb0f09be31ed6
+Not in git. Not a GitHub release asset. Not Minewing.

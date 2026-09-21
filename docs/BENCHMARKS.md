@@ -12,7 +12,7 @@ hero:
 | When | 2026-09-21T11:15:58Z |
 | Host | Darwin 25.6.0 arm64, go1.27.1 |
 | Profile | simulator |
-| QEMU | not measured; `QUALIFY_QEMU_IMAGE` was unset |
+| QEMU | not measured in this run. A generic lab disk exists separately; these figures are still the simulator |
 | Minewing | not measured; no board run |
 
 `rss_kb_peak` is the macOS `ps` resident set, in kilobytes, of the measure process during that phase. The process includes the Go runtime and the artifact bytes held for the localhost download. It is not `zyvor-otad` on a device. At process start, before the scenarios, resident set was 17104 KB.
