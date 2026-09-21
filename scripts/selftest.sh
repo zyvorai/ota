@@ -47,7 +47,15 @@ else
 fi
 
 section "Operator socket"
-if [ -S "$SOCKET" ]; then
+ready=0
+for _ in $(seq 1 30); do
+    if [ -S "$SOCKET" ]; then
+        ready=1
+        break
+    fi
+    sleep 1
+done
+if [ "$ready" -eq 1 ]; then
     pass "agent socket present: $SOCKET"
 else
     failc "agent socket missing: $SOCKET"
@@ -72,11 +80,19 @@ AGENT_CONFIG = os.environ["AGENT_CONFIG"]
 
 
 def cli(*args):
-    result = subprocess.run([CLI, "-socket", SOCKET] + list(args),
-                             text=True, capture_output=True, timeout=30)
-    if result.returncode != 0:
+    last = None
+    for _ in range(25):
+        result = subprocess.run([CLI, "-socket", SOCKET] + list(args),
+                                 text=True, capture_output=True, timeout=30)
+        if result.returncode == 0:
+            return result.stdout
+        blob = result.stdout + result.stderr
+        last = result
+        if "engine busy" in blob:
+            time.sleep(0.2)
+            continue
         raise SystemExit(f"{args}: rc={result.returncode} stdout={result.stdout!r} stderr={result.stderr!r}")
-    return result.stdout
+    raise SystemExit(f"{args}: rc={last.returncode} stdout={last.stdout!r} stderr={last.stderr!r}")
 
 
 def wait_state(job_id, expected, timeout=40):

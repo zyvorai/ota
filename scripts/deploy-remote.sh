@@ -441,7 +441,19 @@ $SUDO systemctl enable zyvor-ota-demo-artifacts.service zyvor-otad-demo.service
 # "invalid release signature" failure during initial testing of this script).
 $SUDO systemctl restart zyvor-ota-demo-artifacts.service
 $SUDO systemctl restart zyvor-otad-demo.service
-sleep 1
+ready=0
+for _ in $(seq 1 30); do
+    if [ -S /run/zyvor-ota-demo/agent.sock ]; then
+        ready=1
+        break
+    fi
+    sleep 1
+done
+if [ "$ready" -ne 1 ]; then
+    echo "agent socket did not appear within 30s" >&2
+    $SUDO journalctl -u zyvor-otad-demo -n 40 --no-pager >&2 || true
+    exit 1
+fi
 $SUDO systemctl is-active zyvor-ota-demo-artifacts.service
 $SUDO systemctl is-active zyvor-otad-demo.service
 echo "Installed and started zyvor-otad-demo"
