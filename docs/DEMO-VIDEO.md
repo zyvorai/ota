@@ -15,4 +15,4 @@ hero:
 | 4:20 | Printed report path | Downloadable proof of what the device did |
 | 4:50 | Qualification page | Minewing silicon is still unsigned |
 
-Say explicitly: Fleet chooses the devices; the agent verifies and installs; this demo is the simulator unless `--profile qemu` was used with a locally built disk.
+Say explicitly: Fleet chooses the devices; the agent verifies and installs; this demo is the simulator unless `--profile qemu` was used with `QUALIFY_QEMU_IMAGE` set to the generic lab disk.

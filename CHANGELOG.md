@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Document schema 2 file-copy targets, campaign export and import, and the checked generic QEMU disk path. SWUpdate, MCU handlers, Minewing silicon, and a TPM driver stay out.
+
 - Record the generic QEMU lab disk copy at `$HOME/zyvor-qemu-lab/disk.img` and on lab host `80.79.5.173`, with the 2026-09-21 checksum. The image stays out of git and off the GitHub release. Minewing stays unsigned.
 - SQLite journal with terminal-job archive, `zyvor-ota backup`, and `zyvor-ota archive`. A legacy `state.json` is imported once.
 - Schema 2 targets (`os.rauc`, `container.oci`, `config.bundle`, `model.oci`) commit or roll back as one set. No shell handlers. MCU firmware is not implemented.

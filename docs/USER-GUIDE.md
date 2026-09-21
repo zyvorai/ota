@@ -21,7 +21,9 @@ in production — see `cmd/zyvor-ota/main.go`).
 | `version` | Prints the build version. No socket needed. |
 | `keygen DIR` | Generates an Ed25519 keypair. `DIR` must **not** already exist; writes `DIR/release.key` (0600) and `DIR/release.pub` (0644). |
 | `sign RELEASE KEY KEY_ID OUT` | Signs the release JSON at `RELEASE` with the private key at `KEY`, tagged `KEY_ID`, and writes the signed envelope to `OUT`. |
-| `status` | Current version, backend, device ID, the active job (or `null`), and event/sequence counters. |
+| `campaign-export ASSIGNMENT ARTIFACT_DIR OUT_DIR` | Copies a signed assignment and its digest-named artifacts into `OUT_DIR` for removable media. Does not rewrite the signed URLs. |
+| `campaign-import CAMPAIGN_DIR MEDIA_DIR` | Copies that campaign into `MEDIA_DIR` and prints the assignment path to submit. |
+| `status` | Current version, backend, device ID, the active job (or `null`), and event/sequence counters. `status json` prints the raw agent JSON. |
 | `job ID` | The full job record for `ID` — state, old/target slot, boot ID, timestamps. |
 | `submit ASSIGNMENT` | Submits a signed assignment. Returns the created (or already-accepted) job. Rejects a replayed or downgraded release sequence. |
 | `events` | Unacknowledged state-transition events, oldest first. `null` when there are none. |

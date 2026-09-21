@@ -2,7 +2,7 @@
 hero:
   eyebrow: ROADMAP
   title: From engine to customer outcome
-  lead: The agent already verifies, installs, and rolls back. v1 is the trial, the fleet rollout, and the evidence around that — not a second copy of RAUC.
+  lead: The agent verifies, installs, and rolls back. The trial, Fleet contract, schema 2 payloads, journal, relay, and optional trust metadata are in this repository. Minewing silicon, the five-minute recording, and a TPM driver are not.
 ---
 
 Positioning:

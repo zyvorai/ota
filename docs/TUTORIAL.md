@@ -7,7 +7,7 @@ hero:
 
 You should not need to read RAUC, partition tables, or key ceremonies before the first commit and rollback. Those details are in [DEVICE-INTEGRATION.md](DEVICE-INTEGRATION.md) when you leave the simulator.
 
-Requirements: Linux, Go 1.27.1 or a newer supported patch, Python 3. The QEMU profile also needs KVM or TCG and a disk you built yourself ([QEMU-LAB.md](QEMU-LAB.md)).
+Requirements: Linux, Go 1.27.1 or a newer supported patch, Python 3. The QEMU profile also needs KVM or TCG and `QUALIFY_QEMU_IMAGE` pointing at a generic lab disk. Use `$HOME/zyvor-qemu-lab/disk.img` when that copy is present; otherwise build one with the recipe in [QEMU-LAB.md](QEMU-LAB.md).
 
 ## One command
 
@@ -33,7 +33,7 @@ The report is written to the demo work directory and printed at the end. It is t
 
 ## The seven steps, if you run them by hand
 
-1. **Reference image.** Simulator needs none. For RAUC, build the generic lab: `./scripts/hil/build-qemu-rauc-lab.sh /path/to/out` and checksum it. Do not treat that disk as a Minewing image.
+1. **Reference image.** Simulator needs none. For RAUC, use `$HOME/zyvor-qemu-lab/disk.img` when that copy is present, or build with `./scripts/hil/build-qemu-rauc-lab.sh /path/to/out` and checksum it. Do not treat that disk as a Minewing image.
 2. **Fleet.** `bin/zyvor-fleet-ref -token lab-secret -devices demo-1 -listen 127.0.0.1:8443` with the TLS material `ota-demo` generates, or use `--serve`.
 3. **Enroll.** One device id and one token file. `ota-demo` writes both.
 4. **Sign a release.** `zyvor-ota keygen` and `zyvor-ota sign`. The private key stays off the device.

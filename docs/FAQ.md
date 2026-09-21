@@ -97,6 +97,4 @@ templates. Build targets are Linux amd64/arm64; CI also executes the ARM64 CLI
 under qemu-user. An arm64 build existing is not
 evidence it's been run on arm64 hardware.
 
-**Does it require RAUC specifically?** Yes — the current adapter talks to
-RAUC over D-Bus. There's no SWUpdate or other backend adapter in this
-repository today.
+**Does it require RAUC specifically?** OS slot updates use the RAUC D-Bus adapter. There is no SWUpdate adapter. Schema 2 container, config, and model targets are verified file copies and do not add another install backend.
