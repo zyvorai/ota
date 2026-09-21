@@ -139,37 +139,52 @@ func (c *Client) Metrics(ctx context.Context) (string, error) {
 }
 
 func (c *Client) do(ctx context.Context, method, path string, body any, want int, dest any) error {
-	var r io.Reader
+	var payload []byte
 	if body != nil {
-		b, err := json.Marshal(body)
+		var err error
+		payload, err = json.Marshal(body)
 		if err != nil {
 			return err
 		}
-		r = bytes.NewReader(b)
 	}
-	req, err := http.NewRequestWithContext(ctx, method, c.url(path), r)
-	if err != nil {
-		return err
+	var last []byte
+	var status int
+	for attempt := 0; attempt < 25; attempt++ {
+		var r io.Reader
+		if payload != nil {
+			r = bytes.NewReader(payload)
+		}
+		req, err := http.NewRequestWithContext(ctx, method, c.url(path), r)
+		if err != nil {
+			return err
+		}
+		if payload != nil {
+			req.Header.Set("Content-Type", "application/json")
+		}
+		resp, err := c.HTTP.Do(req)
+		if err != nil {
+			return err
+		}
+		b, err := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
+		resp.Body.Close()
+		if err != nil {
+			return err
+		}
+		if resp.StatusCode == want {
+			if dest == nil {
+				return nil
+			}
+			return json.Unmarshal(b, dest)
+		}
+		last = b
+		status = resp.StatusCode
+		if resp.StatusCode == 409 && bytes.Contains(b, []byte("engine busy")) && attempt < 24 {
+			time.Sleep(200 * time.Millisecond)
+			continue
+		}
+		return &APIError{Status: status, Body: string(last)}
 	}
-	if body != nil {
-		req.Header.Set("Content-Type", "application/json")
-	}
-	resp, err := c.HTTP.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	b, err := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
-	if err != nil {
-		return err
-	}
-	if resp.StatusCode != want {
-		return &APIError{Status: resp.StatusCode, Body: string(b)}
-	}
-	if dest == nil {
-		return nil
-	}
-	return json.Unmarshal(b, dest)
+	return &APIError{Status: status, Body: string(last)}
 }
 
 func (c *Client) url(path string) string {

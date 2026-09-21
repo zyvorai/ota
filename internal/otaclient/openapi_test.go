@@ -95,3 +95,36 @@ func TestClientBackupAndArchive(t *testing.T) {
 		t.Fatal(string(raw))
 	}
 }
+
+func TestClientRetriesEngineBusy(t *testing.T) {
+	var n int
+	busy := true
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		n++
+		if busy && n < 3 {
+			w.WriteHeader(409)
+			_, _ = io.WriteString(w, `{"error":"engine busy"}`+"\n")
+			return
+		}
+		if busy {
+			_, _ = io.WriteString(w, `{"ok":true}`+"\n")
+			return
+		}
+		w.WriteHeader(409)
+		_, _ = io.WriteString(w, `{"error":"cache cleanup requires no active job"}`+"\n")
+	}))
+	defer srv.Close()
+	c := &Client{HTTP: srv.Client(), Base: srv.URL}
+	if err := c.GC(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+	if n != 3 {
+		t.Fatal(n)
+	}
+	busy = false
+	n = 0
+	err := c.GC(context.Background())
+	if err == nil || n != 1 {
+		t.Fatalf("n=%d err=%v", n, err)
+	}
+}

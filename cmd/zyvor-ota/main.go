@@ -170,22 +170,33 @@ func run() error {
 		base = *simulationURL
 		client = &http.Client{Timeout: 30 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}
 	}
-	req, err := http.NewRequest(method, base+path, bytes.NewReader(body))
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
-	resp, err := client.Do(req)
-	if err != nil {
-		if a[0] == "status" && (len(a) < 2 || a[1] != "json") {
-			fmt.Print(formatOTAStatus(nil, err.Error()))
+	var resp *http.Response
+	var b []byte
+	var err error
+	for attempt := 0; attempt < 25; attempt++ {
+		var req *http.Request
+		req, err = http.NewRequest(method, base+path, bytes.NewReader(body))
+		if err != nil {
+			return err
 		}
-		return err
-	}
-	defer resp.Body.Close()
-	b, err := io.ReadAll(io.LimitReader(resp.Body, 8<<20))
-	if err != nil {
-		return err
+		req.Header.Set("Content-Type", "application/json")
+		resp, err = client.Do(req)
+		if err != nil {
+			if a[0] == "status" && (len(a) < 2 || a[1] != "json") {
+				fmt.Print(formatOTAStatus(nil, err.Error()))
+			}
+			return err
+		}
+		b, err = io.ReadAll(io.LimitReader(resp.Body, 8<<20))
+		resp.Body.Close()
+		if err != nil {
+			return err
+		}
+		if resp.StatusCode == 409 && bytes.Contains(b, []byte("engine busy")) && attempt < 24 {
+			time.Sleep(200 * time.Millisecond)
+			continue
+		}
+		break
 	}
 	if a[0] == "status" && (len(a) < 2 || a[1] != "json") {
 		msg := ""
