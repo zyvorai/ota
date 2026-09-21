@@ -23,6 +23,9 @@ greater than zero. `download_jitter_seconds` spreads the moment devices in one
 wave start fetching; zero leaves that off. The offset is a stable function of
 `device_id`, so a retry waits out the same delay instead of rolling a new one.
 Local media that already matches the signed digest does not wait.
+`relay_url` asks a site relay for that digest before the signed URL. The relay
+may fetch the signed URL only for hosts in its `-origin-hosts` list. The agent
+still checks the digest. A relay miss uses the signed URL. A mismatched body does not.
 
 ## Reboot
 

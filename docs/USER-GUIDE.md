@@ -71,6 +71,8 @@ start rather than run with a relaxed setting.
 | `download_jitter_seconds` | int | no | `0`–`3600`. `0` starts the download on the next engine step. Otherwise the device waits `FNV(device_id) % (n+1)` seconds. |
 | `download_window_start` / `download_window_end` | string | no | Both empty, or both `HH:MM` local time. Outside the window the job stays deferred. |
 | `local_media_dir` | string | no | Absolute directory of `{sha256}.raucb` files for offline install. |
+| `relay_url` | string | no | Site relay base URL. Empty skips the relay. HTTPS, or HTTP on `127.0.0.1` / `::1`, with an empty path. The agent asks the relay for the signed digest before the artifact URL. A miss falls through. A digest mismatch does not. |
+| `relay_token_file` | string | conditionally | Bearer token for `relay_url`. Required when the URL is set. |
 | `allow_adaptive` | bool | no | Off unless set. Refuses a release that sets `adaptive` when this is false. |
 | `capabilities` | []string | no | Capability names a schema 2 target may list in `requires`. |
 | `fleet_url` | string | no | Plain **HTTPS** base URL — no userinfo, query string, or fragment. HTTP is rejected at config validation. Use `fleet_ca` (or the system trust store) for lab self-signed Fleet certs. |

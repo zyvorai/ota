@@ -98,6 +98,8 @@ type Config struct {
 	AllowAdaptive         bool              `json:"allow_adaptive,omitempty"`
 	OTLPEndpoint          string            `json:"otlp_endpoint,omitempty"`
 	OTLPTokenFile         string            `json:"otlp_token_file,omitempty"`
+	RelayURL              string            `json:"relay_url,omitempty"`
+	RelayTokenFile        string            `json:"relay_token_file,omitempty"`
 	FleetURL              string            `json:"fleet_url,omitempty"`
 	FleetTokenFile        string            `json:"fleet_token_file,omitempty"`
 	FleetCA               string            `json:"fleet_ca,omitempty"`
@@ -166,6 +168,9 @@ func (c Config) Validate() error {
 		return errors.New("local_media_dir must be absolute")
 	}
 	if err := c.validateOTLP(); err != nil {
+		return err
+	}
+	if err := c.validateRelay(); err != nil {
 		return err
 	}
 	if c.FleetURL != "" {

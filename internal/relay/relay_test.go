@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strings"
 	"sync"
 	"testing"
@@ -60,6 +61,51 @@ func TestOneHundredClientsShareOneUpstreamFetch(t *testing.T) {
 		t.Fatalf("unauthenticated peer status %d", unauth.StatusCode)
 	}
 	unauth.Body.Close()
+}
+
+func TestRelayFetchesAllowlistedOriginOnce(t *testing.T) {
+	body := "origin-bytes"
+	sum := sha256Hex(body)
+	var hits int
+	origin := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		hits++
+		_, _ = w.Write([]byte(body))
+	}))
+	defer origin.Close()
+	ou, _ := url.Parse(origin.URL)
+	s := &Server{Dir: t.TempDir(), Token: "peer-token", OriginHosts: []string{ou.Host}}
+	srv := httptest.NewServer(s.Handler())
+	defer srv.Close()
+	for i := 0; i < 2; i++ {
+		req, _ := http.NewRequest(http.MethodGet, srv.URL+"/artifacts/"+sum, nil)
+		req.Header.Set("Authorization", "Bearer peer-token")
+		req.Header.Set("X-Zyvor-Artifact-Url", origin.URL+"/os.raucb")
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			t.Fatal(err)
+		}
+		resp.Body.Close()
+		if resp.StatusCode != 200 {
+			t.Fatalf("status %d", resp.StatusCode)
+		}
+	}
+	if hits != 1 || s.Fetches() != 1 {
+		t.Fatalf("origin hits %d relay fetches %d", hits, s.Fetches())
+	}
+	denied := &Server{Dir: t.TempDir(), Token: "peer-token", OriginHosts: []string{"updates.example"}}
+	denySrv := httptest.NewServer(denied.Handler())
+	defer denySrv.Close()
+	req, _ := http.NewRequest(http.MethodGet, denySrv.URL+"/artifacts/"+sum, nil)
+	req.Header.Set("Authorization", "Bearer peer-token")
+	req.Header.Set("X-Zyvor-Artifact-Url", origin.URL+"/os.raucb")
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp.Body.Close()
+	if resp.StatusCode != http.StatusNotFound || hits != 1 {
+		t.Fatalf("status %d hits %d", resp.StatusCode, hits)
+	}
 }
 
 func sha256Hex(s string) string {

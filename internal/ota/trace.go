@@ -34,6 +34,30 @@ type SpanExporter interface {
 	Export(Span)
 }
 
+func (c Config) validateRelay() error {
+	if c.RelayURL == "" {
+		if c.RelayTokenFile != "" {
+			return errors.New("relay_token_file requires relay_url")
+		}
+		return nil
+	}
+	u, err := url.Parse(c.RelayURL)
+	if err != nil || u.User != nil || u.RawQuery != "" || u.Fragment != "" || u.Host == "" {
+		return errors.New("relay_url must be a plain base URL")
+	}
+	local := u.Scheme == "http" && (u.Hostname() == "127.0.0.1" || u.Hostname() == "::1")
+	if u.Scheme != "https" && !local {
+		return errors.New("relay_url must be HTTPS or loopback HTTP")
+	}
+	if u.Path != "" && u.Path != "/" {
+		return errors.New("relay_url path must be empty")
+	}
+	if c.RelayTokenFile == "" {
+		return errors.New("relay_url requires relay_token_file")
+	}
+	return nil
+}
+
 func (c Config) validateOTLP() error {
 	if c.OTLPEndpoint == "" {
 		if c.OTLPTokenFile != "" {

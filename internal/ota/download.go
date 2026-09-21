@@ -94,6 +94,12 @@ func (d Downloader) fetch(ctx context.Context, a Artifact) (string, int64, bool,
 	if CheckArtifact(final, a) == nil {
 		return final, a.Size, false, nil
 	}
+	if d.Config.RelayURL != "" {
+		path, n, ok, relayErr := d.fetchFromRelay(ctx, a)
+		if relayErr != nil || ok {
+			return path, n, false, relayErr
+		}
+	}
 	if err = os.Remove(final); err != nil && !os.IsNotExist(err) {
 		return "", 0, false, err
 	}
@@ -304,6 +310,76 @@ func (b *bpsReader) Read(p []byte) (int, error) {
 	}
 	return n, err
 }
+
+func (d Downloader) fetchFromRelay(ctx context.Context, a Artifact) (string, int64, bool, error) {
+	raw, err := os.ReadFile(d.Config.RelayTokenFile)
+	if err != nil {
+		return "", 0, false, err
+	}
+	token := strings.TrimSpace(string(raw))
+	if token == "" {
+		return "", 0, false, errors.New("empty relay token")
+	}
+	u, err := url.Parse(d.Config.RelayURL)
+	if err != nil {
+		return "", 0, false, err
+	}
+	u.Path = "/artifacts/" + a.SHA256
+	u.RawQuery = ""
+	u.Fragment = ""
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
+	if err != nil {
+		return "", 0, false, err
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Accept-Encoding", "identity")
+	req.Header.Set("X-Zyvor-Artifact-Url", a.URL)
+	client := http.Client{Timeout: 30 * time.Minute, CheckRedirect: func(*http.Request, []*http.Request) error {
+		return errors.New("relay redirects forbidden")
+	}}
+	if d.Client != nil {
+		client = *d.Client
+		client.CheckRedirect = func(*http.Request, []*http.Request) error {
+			return errors.New("relay redirects forbidden")
+		}
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", 0, false, nil
+	}
+	defer resp.Body.Close()
+	switch resp.StatusCode {
+	case http.StatusOK:
+	case http.StatusUnauthorized, http.StatusForbidden:
+		return "", 0, false, errors.New("relay unauthorized")
+	default:
+		return "", 0, false, nil
+	}
+	dir := filepath.Join(d.Config.StateDir, "cache")
+	part := filepath.Join(dir, a.SHA256+".raucb.part")
+	f, err := os.OpenFile(part, os.O_CREATE|os.O_TRUNC|os.O_WRONLY|syscall.O_NOFOLLOW, 0600)
+	if err != nil {
+		return "", 0, false, err
+	}
+	n, copyErr := io.Copy(f, io.LimitReader(resp.Body, a.Size+1))
+	syncErr := f.Sync()
+	closeErr := f.Close()
+	if copyErr != nil || syncErr != nil || closeErr != nil || n != a.Size {
+		os.Remove(part)
+		return "", 0, false, errors.New("relay artifact digest mismatch")
+	}
+	if err = CheckArtifact(part, a); err != nil {
+		os.Remove(part)
+		return "", 0, false, err
+	}
+	final := filepath.Join(dir, a.SHA256+".raucb")
+	if err = os.Rename(part, final); err != nil {
+		os.Remove(part)
+		return "", 0, false, err
+	}
+	return final, n, true, nil
+}
+
 func finishDownload(f *os.File, part, final string) error {
 	if err := f.Sync(); err != nil {
 		return err
