@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- SQLite journal with terminal-job archive, `zyvor-ota backup`, and `zyvor-ota archive`. A legacy `state.json` is imported once.
+- Schema 2 targets (`os.rauc`, `container.oci`, `config.bundle`, `model.oci`) commit or roll back as one set. No shell handlers. MCU firmware is not implemented.
+- Offline campaign export/import, local media, download window, bandwidth cap, jitter, and a site relay client.
+- Optional `trust_dir` metadata: threshold root, delegated target types, snapshot and timestamp binding, signed SBOM, reject list, and an append-only release log. No TPM driver and no conformance claim. A release that requires measured boot is refused unless a quote checker is linked.
+- Operator commands retry a short `engine busy` response. The smoke deploy waits for the demo socket as root.
+- Docs aligned with the journal, schema 2 payloads, relay, and optional trust metadata. The 12 September test census in [docs/TEST-REPORT.md](docs/TEST-REPORT.md) is unchanged.
+
 - Operator CLI is `otactl`. `zyvor-ota` is the same binary, including `dist/zyvor-ota-linux-*`. `otactl status` is the colorful banner; `status json` stays machine-readable. Lab substitute and e2e call `status json`.
 - `make help`, `make ci` (gofmt, vet, race, build), and `make status`.
 

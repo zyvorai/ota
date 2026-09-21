@@ -81,14 +81,17 @@ Do not mark an OS good until essential device and application probes pass.
 
 ## NeedsRecovery
 
-Follow [OPERATIONS.md](OPERATIONS.md#needsrecovery). Never edit `state.json` to
-clear an interlock or lower the anti-replay sequence.
+Follow [OPERATIONS.md](OPERATIONS.md#needsrecovery). Never edit `ota.db` to
+clear an interlock or lower the anti-replay sequence. A legacy `state.json` is
+imported once and then ignored.
 
 ## Key rotation
 
 Provision a new Ed25519 public key alongside the old key via a trusted image or
 config update, restart the agent, sign with the new key ID, then remove the old
-key after the fleet has the new trust configuration.
+key after the fleet has the new trust configuration. When `trust_dir` is set,
+a root update signed by the root threshold can retire a targets key without a
+new OS image. See [SUPPLY-CHAIN.md](SUPPLY-CHAIN.md).
 
 ## Journal retention
 

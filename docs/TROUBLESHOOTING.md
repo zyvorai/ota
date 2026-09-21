@@ -24,9 +24,9 @@ a bug. Follow the exact procedure in
 5. Fix the root cause and issue a newly signed sequence with a new version
    and job ID.
 
-Never hand-edit `state.json` to clear the interlock or lower the accepted
-sequence number — that defeats the anti-replay protection this interlock
-exists to preserve.
+Never hand-edit `ota.db` or a leftover `state.json` to clear the interlock or
+lower the accepted sequence number. That defeats the anti-replay protection
+this interlock exists to preserve.
 
 ## `zyvor-ota gc` refuses to run
 
@@ -49,29 +49,36 @@ contiguous prefix the agent actually emitted. See [LAB.md](LAB.md).
 
 ## Job journal is approaching 10,000 entries
 
-There is no online compaction command in v0.1 by design — the journal is
-deliberately bounded. At that scale, retire/reprovision the device identity
-under an audited maintenance process that retains history and a trusted
-release-sequence baseline. **Do not** delete the journal to reclaim space —
-that invalidates replay protection.
+Terminal jobs above 10,000 move into the SQLite `archive_jobs` table in the
+same transaction. Read them with `zyvor-ota archive`. Copy the live journal
+with `zyvor-ota backup /var/backups/ota.db` (absolute path, and it will not
+overwrite an existing file). Stop the agent before replacing `ota.db`.
+Unacknowledged events are not deleted to make room. **Do not** delete the
+journal to reclaim space — that invalidates replay protection.
 
 ## Rotating the signing key
 
-Provision the new public key alongside the old one through a separately
-trusted configuration/image update, restart the agent to load it, then
-start signing new releases under the new key ID. Only remove the old key
-once the whole fleet has the new trust configuration — removing it early
-causes preinstall jobs signed with the old key to fail their next
-verification step. The private signing key itself must never live on a
-production device; it's a separate trust domain from Cosign build-signing
+Without `trust_dir`, provision the new public key alongside the old one
+through a separately trusted configuration or image update, restart the agent
+to load it, then start signing new releases under the new key ID. Only remove
+the old key once the whole fleet has the new trust configuration — removing it
+early causes preinstall jobs signed with the old key to fail their next
+verification step.
+
+With `trust_dir` set, a later root document signed by the configured threshold
+retires a targets key without a new OS image. The initial root payload must
+match `root_sha256`. The private signing key itself must never live on a
+production device; it is a separate trust domain from Cosign build-signing
 identities.
 
-## A restored `state.json` snapshot causes verification failures
+## A restored journal snapshot causes verification failures
 
-Expected if you restored an older snapshot without also restoring an
-equal-or-higher trusted anti-replay high-water mark — the two must move
-together. Reconcile against RAUC's actual slot state before restarting the
-agent after any manual state recovery.
+The live journal is `ota.db`. A legacy `state.json` is imported once and
+renamed `state.json.migrated`. Restoring an older `ota.db` without its
+anti-replay high-water mark makes the next release look like a replay, or
+lets an old sequence through if the mark moved backward. Stop the agent,
+replace `ota.db` only with a `zyvor-ota backup` copy, and reconcile against
+RAUC's actual slot state before starting again. Do not hand-edit rows.
 
 ## `docs/FLEET.md`'s contract doesn't match my Fleet deployment's API
 

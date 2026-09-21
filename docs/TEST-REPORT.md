@@ -4,8 +4,9 @@ hero:
   title: Verification report — Zyvor OTA v0.1.0
 ---
 
-Recorded 12 September 2026 UTC. This report describes local verification of the
-delivered source. It is not a hardware certification or a GitHub Actions run.
+Recorded 12 September 2026 UTC for the counts below. Later commits added journal,
+relay, campaign, backup, and supply-chain tests; this page does not restate a
+new census. It is not a hardware certification or a GitHub Actions run.
 
 ## Results
 

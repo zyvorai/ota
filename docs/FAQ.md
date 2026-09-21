@@ -17,23 +17,23 @@ dependency) is not relicensed by this project — check its own license
 separately. See the README's [License](https://github.com/zyvorai/ota#license) section.
 
 **What does "Enterprise" mean here?** Operational leverage on top of the same
-agent: Fleet campaign controls, SSO and approvals, site relay, compliance
-evidence, certified board enablement, SLA and LTS. Contact sales@zyvor.dev.
-Rollback, signature verification, the simulator, the QEMU lab recipe, and the
-basic Fleet contract stay in this Apache-2.0 repository. Nothing here requires
-a paid license to update a device safely.
+agent: Fleet campaign controls, SSO and approvals, hosted site-relay
+operations, compliance evidence, certified board enablement, SLA and LTS.
+Contact sales@zyvor.dev. The site relay client, rollback, signature
+verification, the simulator, the QEMU lab recipe, and the basic Fleet
+contract stay in this Apache-2.0 repository. Nothing here requires a paid
+license to update a device safely.
 
 ## Community and enterprise
 
 | Community (this repository) | Enterprise |
 |---|---|
 | Agent, CLI, RAUC backend, simulator, local API | Fleet dashboard and campaign orchestration |
-| Signed releases and rollback | SSO/RBAC, approvals, and immutable audit |
-| QEMU reference recipe | Site Relay operations and offline fleet management |
-| Prometheus metrics | Compliance evidence and fleet analytics |
-| Community board profiles | Certified board enablement |
-| Self-support | SLA, LTS releases, and emergency response |
-| Basic Fleet contract | Multi-tenancy, policy engine, and premium integrations |
+| Signed releases, rollback, schema 2 payloads | SSO/RBAC, approvals, and immutable audit |
+| QEMU reference recipe and the site relay client | Certified board enablement and fleet analytics |
+| Offline campaign, journal backup, Prometheus metrics | Compliance packaging and premium integrations |
+| Optional trust metadata (not a conformance claim) | SLA, LTS releases, and emergency response |
+| Basic Fleet contract | Multi-tenancy and a policy engine |
 
 ## Support
 
@@ -69,12 +69,13 @@ your own Fleet version and TLS trust path before production.
 ## Security
 
 **How are updates verified?** Ed25519-signed release envelopes with pinned
-trust keys and SHA-256 content verification — RAUC is only ever handed a
-bundle after signature verification passes. See
-[`docs/ARCHITECTURE.md`](ARCHITECTURE.md) and [`SECURITY.md`](https://github.com/zyvorai/ota/blob/main/SECURITY.md)
-for the full threat model, including explicit non-claims (e.g. the on-disk
-anti-replay high-water mark is *not* a TPM/RPMB hardware counter — read the
-threat model before assuming a stronger guarantee than is actually made).
+trust keys and SHA-256 content verification. RAUC is only handed a bundle
+after that check. Optional `trust_dir` metadata adds a threshold root,
+delegated target types, and snapshot/timestamp binding. That is not a
+conformance claim, and this binary has no TPM driver. See
+[`docs/ARCHITECTURE.md`](ARCHITECTURE.md), [`docs/SUPPLY-CHAIN.md`](SUPPLY-CHAIN.md),
+and [`SECURITY.md`](https://github.com/zyvorai/ota/blob/main/SECURITY.md).
+The on-disk anti-replay high-water mark is not a TPM or RPMB counter.
 
 **Can it run arbitrary update scripts?** No — "No shell commands or
 arbitrary update scripts are accepted." Install is RAUC D-Bus calls only

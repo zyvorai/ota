@@ -10,12 +10,12 @@ hero:
     - {label: "RAUC A/B"}
   highlights:
     - {value: "2", label: "Bootable A/B rootfs slots per device", footnote: "1"}
-    - {value: "71", label: "Passing Go test/subtest records, 0 failures", footnote: "2"}
+    - {value: "71", label: "Test records in the 12 September report", footnote: "2"}
     - {value: "10,000", label: "Hot jobs before terminal history is archived", footnote: "3"}
     - {value: "0", label: "Shell commands accepted by the install path", footnote: "4"}
   hub_bands:
     - {icon: "📘", title: "15-minute trial", description: "Enroll one device, ship a signed release, and watch commit or rollback.", href: TUTORIAL.md}
-    - {icon: "🗺️", title: "Roadmap", description: "What is in the agent today, and what v1 still has to prove.", href: ROADMAP.md}
+    - {icon: "🗺️", title: "Roadmap", description: "What the agent implements, and which hardware claims stay unsigned.", href: ROADMAP.md}
     - {icon: "📖", title: "User Guide", description: "A single-page reference for the zyvor-ota CLI, the zyvor-otad daemon, and every agent.json field.", href: USER-GUIDE.md}
     - {icon: "🏗️", title: "Architecture", description: "The full job state machine and the invariants that guard it, from acceptance to commit or automatic rollback.", href: ARCHITECTURE.md}
     - {icon: "❓", title: "FAQ", description: "Licensing, support, and production-readiness questions people ask before adopting it.", href: FAQ.md}
@@ -23,7 +23,7 @@ hero:
     - {icon: "🛠️", title: "Troubleshooting", description: "Real operational issues, with the documented fix — not a generic checklist.", href: TROUBLESHOOTING.md}
 footnotes:
   - {marker: "1", text: "Exactly two bootable rootfs slots are supported per device; kernel/DTB partitions are grouped under their rootfs in RAUC.", href: ARCHITECTURE.md, href_label: "See installation and boot."}
-  - {marker: "2", text: "71 passing Go test/subtest records with the race detector (42 top-level tests plus 29 subtests), 0 failures, 1 skipped for an environment limitation.", href: TEST-REPORT.md, href_label: "See the verification report."}
+  - {marker: "2", text: "The 12 September 2026 report counted 71 passing Go test/subtest records with the race detector. Later commits added journal, relay, campaign, and supply-chain tests. See the report for that run; do not treat 71 as a current census.", href: TEST-REPORT.md, href_label: "See the verification report."}
   - {marker: "3", text: "The SQLite journal keeps 10,000 hot jobs. Older terminal jobs are archived in the same transaction. Unacknowledged events are not dropped.", href: ARCHITECTURE.md, href_label: "See persistence."}
   - {marker: "4", text: "Install is RAUC D-Bus calls only (InstallBundle / GetSlotStatus / Mark) — no shell commands or arbitrary update scripts are accepted by OTA.", href: FAQ.md, href_label: "See the security FAQ."}
 ---
@@ -72,6 +72,9 @@ project overview, comparison table, and license details.
 - 🔁 Automatic, health-check-gated rollback
 - 🧯 `NeedsRecovery` interlock for ambiguous post-crash states
 - 🗂️ Durable single-writer SQLite journal (WAL); terminal jobs archive, unacknowledged events stay
-- 📊 Unix-socket operator API, CLI, and Prometheus text metrics
+- 📦 Schema 2 targets for OS, container, config, and model bytes, committed or rolled back as one set
+- 📡 Site relay, offline campaign, and local media, all checked by the same digest
+- 📊 Unix-socket operator API, CLI, backup, archive, and Prometheus text metrics
+- 🔏 Optional threshold root and delegated keys when `trust_dir` is set. Not a conformance claim
 
 </div>

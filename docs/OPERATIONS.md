@@ -49,11 +49,12 @@ slot or perform a maintenance reboot, then let OTA reconcile the actual boot.
 4. If another slot is running or storage is damaged, use the board recovery path.
 5. Fix the cause and issue a newly signed sequence with a new version and job ID.
 
-Never edit `state.json` to clear an interlock or lower the accepted sequence.
-For a journal/storage error, stop the agent, preserve logs and state, repair the
-filesystem, and reconcile against RAUC before restarting. A stale `.ota-*` temp
-file is not authoritative; `state.json` is. Do not restore old state snapshots
-without also restoring an equal-or-higher trusted anti-replay high-water mark.
+Never edit `ota.db` or a leftover `state.json` to clear an interlock or lower
+the accepted sequence. For a journal or storage error, stop the agent, preserve
+logs and state, repair the filesystem, and reconcile against RAUC before
+restarting. A stale `.ota-*` temp file is not authoritative; `ota.db` is.
+Restore it only from a `zyvor-ota backup` copy taken while the agent was
+healthy, and do not move the anti-replay high-water mark backward.
 
 ## Offline campaign
 

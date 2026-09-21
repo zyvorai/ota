@@ -128,9 +128,13 @@ An ARM64 build is not evidence of execution on ARM64 hardware.
 - Recovery interlock when an installation's outcome is ambiguous after a crash.
 - Health confirmation on later normal boots of known installed versions.
 - File, systemd-service and loopback HTTP health probes.
-- Unix-socket operator API, CLI, and Prometheus text metrics.
+- Unix-socket operator API, CLI, and Prometheus text metrics. Optional OpenTelemetry spans when `otlp_endpoint` is set.
 - Outbound Fleet contract with TLS, optional custom CA/mTLS, token-file auth,
   ordered event acknowledgment, retry by polling, and no inbound cloud port.
+- Schema 2 typed targets, offline campaign export/import, local media, download
+  window, bandwidth cap, jitter, and a site relay client.
+- Optional threshold root, delegated target types, snapshot and timestamp
+  binding, signed SBOM, and an append-only release log. No TPM driver.
 - systemd and policy examples, API schema, CI, release build/SBOM/Cosign workflow.
 
 ## Scope and support matrix
@@ -141,12 +145,15 @@ An ARM64 build is not evidence of execution on ARM64 hardware.
 | RAUC D-Bus wire protocol | Implemented; tested against a test service on a real private bus |
 | Real signed RAUC bundles on physical devices | Adapter implemented; board qualification required |
 | Kernel/rootfs/device tree/BSP | Delivered together through a board-built RAUC OS bundle |
-| SWUpdate `.swu` | Not implemented in v0.1 |
-| Standalone model/config/container/MCU updates | Not implemented in v0.1 |
+| Schema 2 side payloads (`container.oci`, `config.bundle`, `model.oci`) | Implemented as verified file copies with the previous digest kept for rollback. No shell handler |
+| SWUpdate `.swu` | Not implemented |
+| MCU firmware | Not implemented. No script handler is accepted |
 | Bootloader update | Not enabled by this project; requires a qualified board recovery design |
-| Fleet integration | Contract and transport implemented; existing Fleet server needs matching endpoints |
+| Fleet integration | Contract and transport implemented; Zyvor Fleet serves the matching endpoints |
+| Site relay and offline campaign | Implemented. Digest check is the same as HTTPS |
+| Optional trust metadata | Implemented when `trust_dir` is set. Not a conformance claim. No TPM driver |
 | QEMU bootable image | Build recipe in [docs/QEMU-LAB.md](docs/QEMU-LAB.md); generic lab HIL is signed, disk is not attached to the GitHub release |
-| Hardware power-loss testing | Not performed in this build environment |
+| Hardware power-loss testing | Generic QEMU lab signed 2026-09-14. Minewing GW1 r1 is unsigned |
 
 ## Device deployment
 

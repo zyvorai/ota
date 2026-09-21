@@ -57,7 +57,9 @@ Run after each product's `deploy-remote.sh` (see [LAB.md](LAB.md)):
 | `fleet_agent_inventory_merge` | Site metadata includes `zyvor.device_agent.*` |
 
 Record host, date, and job IDs next to `evidence/qualification/` when you
-repeat the lab on a new machine.
+repeat the lab on a new machine. Simulator smoke on 2026-09-21 is in
+[`evidence/qualification/lab/20260921-smoke.md`](https://github.com/zyvorai/ota/blob/main/evidence/qualification/lab/20260921-smoke.md).
+That note is not a RAUC or Minewing result.
 
 ## Generic QEMU lab rows — signed (not Minewing)
 
