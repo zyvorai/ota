@@ -46,7 +46,7 @@ vulnerability reporting feature to be enabled by the maintainers first.
 
 ## Production readiness
 
-**Is this production-ready?** Be precise. **v0.1.0 — engineering preview** means:
+**Is this production-ready?** Be precise. **v0.2.0 — engineering preview** means:
 
 - **Yes (software):** Go agent, `otactl` CLI (`zyvor-ota` alias), RAUC D-Bus
   adapter, simulator, CI (`lab-substitute`), and Fleet contract path — see

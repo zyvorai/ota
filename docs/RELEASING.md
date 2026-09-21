@@ -20,7 +20,7 @@ against the exact repository/workflow/tag identity, then the file checksums:
 ```sh
 cosign verify-blob \
   --bundle SHA256SUMS.sigstore.json \
-  --certificate-identity https://github.com/zyvorai/ota/.github/workflows/release.yml@refs/tags/v0.1.0 \
+  --certificate-identity https://github.com/zyvorai/ota/.github/workflows/release.yml@refs/tags/v0.2.0 \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com \
   SHA256SUMS
 sha256sum -c SHA256SUMS

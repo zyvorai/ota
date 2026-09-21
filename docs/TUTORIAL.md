@@ -113,7 +113,7 @@ $OTA -socket ./agent.sock status
 ```
 
 ```json
-{"active":null,"backend":"simulator","device_id":"tutorial-1","event_sequence":0,"high_sequence":0,"pending_events":0,"version":"0.1.0"}
+{"active":null,"backend":"simulator","device_id":"tutorial-1","event_sequence":0,"high_sequence":0,"pending_events":0,"version":"0.2.0"}
 ```
 
 ## 4. Build and sign a release

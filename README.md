@@ -22,7 +22,7 @@
 automatic rollback, offline operation, and verifiable deployment evidence
 without cloud lock-in.
 
-**v0.1.0 — engineering preview, Apache-2.0.** Working Go agent and CLI, native
+**v0.2.0 — engineering preview, Apache-2.0.** Working Go agent and CLI, native
 RAUC D-Bus adapter, simulator, automated tests, and CI lab-substitutes.
 **Generic QEMU RAUC lab HIL is complete** (`zyvor-ota-qemu-lab`); **Minewing
 silicon qualification remains a separate, unsigned gate**. See
@@ -58,7 +58,7 @@ Fleet+OTA combined, and Uptane is a security framework some of the above
 implement, not a competing product — Zyvor OTA does not currently claim
 Uptane conformance.)*
 
-**Maturity, stated honestly**: **v0.1.0 engineering preview** — working agent,
+**Maturity, stated honestly**: **v0.2.0 engineering preview** — working agent,
 CLI, RAUC adapter, simulator, CI, and **generic QEMU RAUC lab HIL**
 ([docs/HIL.md](docs/HIL.md) Track A). **Minewing GW1 r1 silicon** is still
 unsigned ([docs/PRODUCTION.md](docs/PRODUCTION.md)). If you need Minewing

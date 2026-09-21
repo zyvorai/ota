@@ -1,7 +1,7 @@
 ---
 hero:
   eyebrow: TEST REPORT
-  title: Verification report — Zyvor OTA v0.1.0
+  title: Verification report — Zyvor OTA v0.2.0
 ---
 
 Recorded 12 September 2026 UTC for the counts below. Later commits added journal,

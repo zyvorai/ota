@@ -20,6 +20,7 @@ import os
 import pathlib
 import shutil
 import socket
+import sqlite3
 import ssl
 import subprocess
 import sys
@@ -216,19 +217,44 @@ class Runner:
         self.log.close()
 
 
+def force_job_installing(state_dir: pathlib.Path, job_id: str) -> None:
+    """Rewrite the SQLite journal snapshot so the active job is Installing.
+
+    The journal is state/ota.db (JSON body in snapshot id=1), not legacy state.json.
+    """
+    db_path = state_dir / "ota.db"
+    if not db_path.is_file():
+        raise AssertionError(f"missing journal {db_path}")
+    conn = sqlite3.connect(str(db_path))
+    try:
+        conn.execute("PRAGMA busy_timeout=5000")
+        conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+        row = conn.execute("SELECT body FROM snapshot WHERE id = 1").fetchone()
+        if not row:
+            raise AssertionError("empty journal snapshot")
+        db = json.loads(row[0])
+        jobs = db.get("jobs") or {}
+        if job_id not in jobs:
+            raise AssertionError(f"job {job_id} not in journal")
+        if db.get("active") != job_id:
+            raise AssertionError(f"active={db.get('active')!r} expected {job_id}")
+        jobs[job_id]["state"] = "installing"
+        db["jobs"] = jobs
+        body = json.dumps(db, separators=(",", ":")).encode()
+        conn.execute("UPDATE snapshot SET body = ? WHERE id = 1", (body,))
+        conn.commit()
+        conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+    finally:
+        conn.close()
+
+
 def test_crash_during_install(r: Runner) -> str:
     """Stop daemon, force job into Installing, restart → needs_recovery."""
     path, assignment = r.make_assignment(1, "job-crash-1")
     r.retry_busy(lambda: r.command("submit", str(path), api=True))
     r.wait_state(assignment["job_id"], "awaiting_reboot")
     r.stop_daemon()
-    state_path = r.work / "state" / "state.json"
-    db = json.loads(state_path.read_text())
-    job = db["jobs"][assignment["job_id"]]
-    job["state"] = "installing"
-    db["jobs"][assignment["job_id"]] = job
-    # state dir must stay mode 0700 / not group-writable
-    state_path.write_text(json.dumps(db))
+    force_job_installing(r.work / "state", assignment["job_id"])
     r.start_daemon()
     got = r.wait_state(assignment["job_id"], "needs_recovery")
     r.retry_busy(lambda: r.command("recover-abort", api=True))

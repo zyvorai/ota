@@ -27,7 +27,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
-VERSION="0.1.0"
+VERSION="0.2.0"
 GO_VERSION="1.27.1"
 REMOTE_DIR=""
 DEPLOY_PROFILE="full"

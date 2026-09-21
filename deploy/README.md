@@ -75,7 +75,7 @@ against the now-installed daemon. A representative pass looks like:
 
 === Operator socket ===
   [pass] agent socket present: /run/zyvor-ota-demo/agent.sock
-  [pass] status: {"active":null,"backend":"simulator","device_id":"...","event_sequence":9,"high_sequence":...,"pending_events":0,"version":"0.1.0"}
+  [pass] status: {"active":null,"backend":"simulator","device_id":"...","event_sequence":9,"high_sequence":...,"pending_events":0,"version":"0.2.0"}
 
 === Live signed job cycle ===
   [pass] live job cycle ok: selftest-... install -> reboot -> health -> commit -> ack -> gc

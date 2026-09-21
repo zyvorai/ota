@@ -4,7 +4,7 @@ hero:
   title: Signed, recoverable device OS updates
   lead: The safest open OTA runtime for Linux edge fleets — signed updates, automatic rollback, and verifiable evidence, without cloud lock-in.
   swatches:
-    - {label: "v0.1.0 · engineering preview"}
+    - {label: "v0.2.0 · engineering preview"}
     - {label: "Apache-2.0"}
     - {label: "Ed25519 + SHA-256"}
     - {label: "RAUC A/B"}

@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-const Version = "0.1.0"
+const Version = "0.2.0"
 
 var identifier = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9._-]{0,95}$`)
 var digestPattern = regexp.MustCompile(`^[a-f0-9]{64}$`)

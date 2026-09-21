@@ -27,11 +27,11 @@ for path in sorted(root.rglob("*")):
     relationships.append({"spdxElementId": package, "relationshipType": "CONTAINS", "relatedSpdxElement": file_id})
 tree = hashlib.sha256(json.dumps(files, sort_keys=True).encode()).hexdigest()
 sbom = {"spdxVersion": "SPDX-2.3", "dataLicense": "CC0-1.0", "SPDXID": "SPDXRef-DOCUMENT",
-        "name": "zyvor-ota-source-0.1.0", "documentNamespace": f"https://zyvor.dev/spdx/ota/{tree}",
-        "creationInfo": {"creators": ["Tool: zyvor-ota-source-sbom-0.1.0"],
+        "name": "zyvor-ota-source-0.2.0", "documentNamespace": f"https://zyvor.dev/spdx/ota/{tree}",
+        "creationInfo": {"creators": ["Tool: zyvor-ota-source-sbom-0.2.0"],
                          "created": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
         "packages": [
-            {"SPDXID": "SPDXRef-ZyvorOTA", "name": "zyvor-ota", "versionInfo": "0.1.0",
+            {"SPDXID": "SPDXRef-ZyvorOTA", "name": "zyvor-ota", "versionInfo": "0.2.0",
              "downloadLocation": "NOASSERTION", "filesAnalyzed": False, "licenseDeclared": "Apache-2.0"},
             {"SPDXID": "SPDXRef-Godbus", "name": "github.com/godbus/dbus/v5", "versionInfo": "v5.1.0",
              "downloadLocation": "https://github.com/godbus/dbus/tree/v5.1.0",
