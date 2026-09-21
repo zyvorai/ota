@@ -55,26 +55,71 @@ OTA_HIL_SIGN=1 OTA_HIL_SIGN_QEMU_LAB=1 \
 
 ## Track B — Minewing GW1 r1 (open)
 
-Requires a **BSP** QEMU-bootable A/B image with `compatible=minewing-gw1-r1`
-([`boards/minewing-gw1-r1/QEMU.md`](https://github.com/zyvorai/ota/blob/main/boards/minewing-gw1-r1/QEMU.md)),
-or a physical board. Then:
+**Status:** unsigned. A BSP QEMU-bootable A/B image (`compatible=minewing-gw1-r1`)
+or a physical GW1 r1 board is required. This repository does **not** ship a
+prebuilt Minewing disk (not in git, not a GitHub release asset). The generic
+`$HOME/zyvor-qemu-lab/disk.img` is Track A only and must never be passed as a
+Minewing image.
+
+Board profile: [`boards/minewing-gw1-r1/`](https://github.com/zyvorai/ota/tree/main/boards/minewing-gw1-r1)
+([`QEMU.md`](https://github.com/zyvorai/ota/blob/main/boards/minewing-gw1-r1/QEMU.md),
+[`BOARD.md`](https://github.com/zyvorai/ota/blob/main/boards/minewing-gw1-r1/BOARD.md)).
+
+### Operator runbook (bake → HIL → sign)
+
+1. **PARTUUIDs.** Copy `boards/minewing-gw1-r1/board.env.example` → `board.env`
+   and fill UUIDs from the BSP factory layout. Render RAUC config:
+   `scripts/render-board-rauc.sh boards/minewing-gw1-r1 /path/to/etc/rauc`.
+2. **Cross-build.** `make dist` (or `make build` on the target arch).
+3. **Bake.** Install primary CLI `otactl`, compat alias `zyvor-ota`, and
+   `zyvor-otad` into the BSP rootfs:
+   ```bash
+   scripts/bake-rootfs-overlay.sh \
+     --rootfs /path/to/rootfs \
+     --board boards/minewing-gw1-r1 \
+     --agent-config boards/minewing-gw1-r1/agent.json \
+     --arch arm64
+   ```
+4. **Image location.** Point `QUALIFY_QEMU_IMAGE` at the BSP-produced
+   `minewing-ab.img` (suggested lab path: `$HOME/zyvor-minewing-lab/minewing-ab.img`).
+   Do not use the generic qemu-lab disk.
+5. **Boot and smoke.** Boot slot A. Confirm `rauc status` and
+   `otactl status json` over SSH (`zyvor-ota` is the same binary).
+6. **Artifacts.** Serve a signed `.raucb` + OTA assignment (`otactl submit` or
+   `zyvor-fleet-ref`). Capture operator logs for commit, bad signature,
+   power-loss write, power-loss boot selection, NeedsRecovery, and three reboots
+   (`OTA_HIL_LOG_*` env vars — see harness SUMMARY).
+7. **HIL harness (unsigned run first).** Attach logs; leave `OTA_HIL_SIGN` unset
+   until every required row is `pass`.
+8. **Sign only when claimable.** When `minewing_rauc_claimable=true`:
 
 ```bash
 QUALIFY_QEMU_IMAGE=/path/to/minewing-ab.img \
-OTA_HIL_ENV=qemu \   # or physical
+OTA_HIL_ENV=qemu \
 OTA_HIL_MINEWING=1 \
 OTA_HIL_COMPATIBLE=minewing-gw1-r1 \
-OTA_HIL_SSH=root@guest \
+OTA_HIL_SSH='root@guest' \
 OTA_HIL_BUNDLE=/path/to/os.raucb \
-OTA_HIL_LOG_*=… \
+OTA_HIL_LOG_COMMIT=… \
+OTA_HIL_LOG_BADSIG=… \
+OTA_HIL_LOG_PLOSS_WRITE=… \
+OTA_HIL_LOG_PLOSS_BOOT=… \
+OTA_HIL_LOG_NEEDS_RECOVERY=… \
+OTA_HIL_LOG_REBOOTS=… \
 OTA_HIL_SIGN=1 \
 ./scripts/hil/run-rauc-powerloss-hil.sh
 ```
 
+Use `OTA_HIL_ENV=physical` for silicon with the same `OTA_HIL_MINEWING=1` gate.
+
 `OTA_HIL_SIGN=1` updates
 [`evidence/qualification/hardware-checklist.md`](https://github.com/zyvorai/ota/blob/main/evidence/qualification/hardware-checklist.md)
-**only** when `minewing_rauc_claimable=true` (Minewing-compatible image + all required rows pass).
+**only** when `minewing_rauc_claimable=true` (Minewing-compatible image + all
+required rows pass). Commit the new `evidence/qualification/hil/<stamp>/`
+directory with the checklist update. Until that happens, production docs must
+keep Minewing **unsigned**.
 
+Dry-run (`OTA_HIL_ENV=dry-run`) never sets `minewing_rauc_claimable`.
 ## GitHub CI (lab substitute + QEMU soft-smoke)
 
 When neither image is available, CI still runs
@@ -99,7 +144,9 @@ CI substitutes and soft-skips **do not** close Track B (Minewing) hardware claim
 ## Dry-run harness
 
 ```bash
-OTA_HIL_ENV=dry-run ./scripts/hil/run-rauc-powerloss-hil.sh
+OTA_HIL_ENV=dry-run OTA_HIL_SKIP_QUALIFY=1 ./scripts/hil/run-rauc-powerloss-hil.sh
 ```
 
-Power-loss steps are documented in each run’s `POWERLOSS_PROCEDURE.md`.
+Omit `OTA_HIL_SKIP_QUALIFY` to also run `make qualify` (up to five minutes).
+Dry-run never sets `minewing_rauc_claimable`. Power-loss steps are documented in
+each run’s `POWERLOSS_PROCEDURE.md`.

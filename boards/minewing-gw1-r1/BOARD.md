@@ -41,10 +41,14 @@ scripts/bake-rootfs-overlay.sh \
   --arch arm64
 ```
 
+Installs `otactl` (primary), `zyvor-ota` (compat alias), and `zyvor-otad`.
 Then sign real `.raucb` bundles with the board's RAUC cert/key, fill release
 metadata digests, and sign the OTA envelope with the offline Ed25519 key.
 
 ## Qualification
 
 Software-simulatable rows: `make qualify`.
-Hardware / QEMU RAUC rows: [docs/QUALIFICATION.md](../../docs/QUALIFICATION.md).
+Hardware / QEMU RAUC rows: [docs/QUALIFICATION.md](../../docs/QUALIFICATION.md)
+and the Track B operator runbook in [docs/HIL.md](../../docs/HIL.md).
+Minewing stays unsigned until a claimable HIL run signs
+`evidence/qualification/hardware-checklist.md`.

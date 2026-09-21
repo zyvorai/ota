@@ -7,7 +7,7 @@ hero:
 ## Monitor
 
 `otactl status` prints a Cilium-style colorful logo (agent, backend, active job, events, sequence, feature rows). `otactl status json` keeps the raw agent JSON. `zyvor-ota` is the same binary.
-`zyvor-ota job JOB_ID` shows retained job history. `zyvor-ota events` shows ordered
+`otactl job JOB_ID` shows retained job history. `otactl events` shows ordered
 unacknowledged transitions. The socket exposes `/metrics` for local scraping.
 Set `otlp_endpoint` to also export one OpenTelemetry span per job transition
 and per Fleet sync. Leave it empty to keep traces off. A collector failure
@@ -30,7 +30,7 @@ still checks the digest. A relay miss uses the signed URL. A mismatched body doe
 ## Reboot
 
 `auto_reboot: true` authorizes reboot inside the assignment window once the bundle
-is installed. Otherwise use `zyvor-ota reboot`. The intent is persisted before
+is installed. Otherwise use `otactl reboot`. The intent is persisted before
 requesting reboot. If the agent died after recording intent but before invoking
 reboot, reissue the command inside the window. The command checks the observed
 boot ID, slot and idle backend before requesting a reboot again.
@@ -42,9 +42,9 @@ slot or perform a maintenance reboot, then let OTA reconcile the actual boot.
 
 ## NeedsRecovery
 
-1. Inspect `zyvor-ota job JOB_ID` and `rauc status --detailed --output-format=json`.
+1. Inspect `otactl job JOB_ID` and `rauc status --detailed --output-format=json`.
 2. Confirm RAUC is idle. Do not kill a running flash operation.
-3. If the original slot is running, `zyvor-ota recover-abort` marks the ambiguous
+3. If the original slot is running, `otactl recover-abort` marks the ambiguous
    target bad and restores the old slot as the next boot target.
 4. If another slot is running or storage is damaged, use the board recovery path.
 5. Fix the cause and issue a newly signed sequence with a new version and job ID.
@@ -53,7 +53,7 @@ Never edit `ota.db` or a leftover `state.json` to clear an interlock or lower
 the accepted sequence. For a journal or storage error, stop the agent, preserve
 logs and state, repair the filesystem, and reconcile against RAUC before
 restarting. A stale `.ota-*` temp file is not authoritative; `ota.db` is.
-Restore it only from a `zyvor-ota backup` copy taken while the agent was
+Restore it only from a `otactl backup` copy taken while the agent was
 healthy, and do not move the anti-replay high-water mark backward.
 
 ## Offline campaign
@@ -61,30 +61,30 @@ healthy, and do not move the anti-replay high-water mark backward.
 Copy a signed assignment and its digest-named artifacts onto removable media, then onto the device. The signed URLs stay as they are. Set `local_media_dir` to the absolute media directory. When `{sha256}.raucb` is present and matches, the agent uses that file and skips the download window. A file that is present but does not match the signed digest is refused.
 
 ```sh
-zyvor-ota campaign-export assignment.json ./artifacts /media/usb/campaign
-zyvor-ota campaign-import /media/usb/campaign /var/lib/zyvor-ota/media
-zyvor-ota -socket /run/zyvor-ota/agent.sock submit /media/usb/campaign/assignment.json
+otactl campaign-export assignment.json ./artifacts /media/usb/campaign
+otactl campaign-import /media/usb/campaign /var/lib/zyvor-ota/media
+otactl -socket /run/zyvor-ota/agent.sock submit /media/usb/campaign/assignment.json
 ```
 
 `campaign-import` prints the assignment path. Submit that file. Do not edit the envelope to point the URLs at `file://`.
 
 ## Cache and outbox
 
-After a job is terminal, `zyvor-ota gc` removes cached bundles and partial files.
+After a job is terminal, `otactl gc` removes cached bundles and partial files.
 It refuses to run during an active job. This is explicit rather than automatic,
 so a fleet operator can retain a failed artifact for inspection.
 
 Fleet must acknowledge only contiguous event sequences durably stored by its
 server. If operating without Fleet, export `events`, store the export durably,
-then run `zyvor-ota ack LAST_SEQUENCE`. ACK does not erase job history.
+then run `otactl ack LAST_SEQUENCE`. ACK does not erase job history.
 
 The hot journal keeps up to 10,000 jobs. Older terminal jobs move into the
 SQLite archive instead of rejecting the next update. Unacknowledged events are
 still not dropped. If the outbox exceeds 9,000 events, new jobs pause until
-Fleet (or `zyvor-ota ack`) drains them. A corrupt `ota.db` fails startup;
+Fleet (or `otactl ack`) drains them. A corrupt `ota.db` fails startup;
 restore the last `VACUUM INTO` backup. Take that copy while the agent is
-running with `zyvor-ota backup /var/backups/ota.db`. Stop the agent before
-replacing `ota.db`. `zyvor-ota archive` prints terminal jobs that have already
+running with `otactl backup /var/backups/ota.db`. Stop the agent before
+replacing `ota.db`. `otactl archive` prints terminal jobs that have already
 left the hot journal. Do not delete the journal to reset the
 release sequence.
 

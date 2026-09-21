@@ -16,7 +16,7 @@ hero:
   hub_bands:
     - {icon: "📘", title: "15-minute trial", description: "Enroll one device, ship a signed release, and watch commit or rollback.", href: TUTORIAL.md}
     - {icon: "🗺️", title: "Roadmap", description: "What the agent implements, and which hardware claims stay unsigned.", href: ROADMAP.md}
-    - {icon: "📖", title: "User Guide", description: "A single-page reference for the zyvor-ota CLI, the zyvor-otad daemon, and every agent.json field.", href: USER-GUIDE.md}
+    - {icon: "📖", title: "User Guide", description: "A single-page reference for the otactl CLI (zyvor-ota alias), the zyvor-otad daemon, and every agent.json field.", href: USER-GUIDE.md}
     - {icon: "🏗️", title: "Architecture", description: "The full job state machine and the invariants that guard it, from acceptance to commit or automatic rollback.", href: ARCHITECTURE.md}
     - {icon: "❓", title: "FAQ", description: "Licensing, support, and production-readiness questions people ask before adopting it.", href: FAQ.md}
     - {icon: "🧪", title: "Lab stack", description: "Deploy and wire OTA with Fleet, Nodra, Device Agent, and relay-edge on one Linux host.", href: LAB.md}

@@ -5,7 +5,7 @@ VERSION := 0.1.0
 	deploy deploy-remote deploy-remote-quick deploy-remote-preflight \
 	deploy-remote-verify deploy-remote-uninstall deploy-remote-fleet \
 	fmt ci status help measure
-build: ## Build otactl (and the zyvor-ota copy), daemon, and fleet-ref
+build: ## Build primary CLI otactl (+ zyvor-ota alias), daemon, fleet-ref, relay
 	mkdir -p bin
 	$(GO) build -buildvcs=false -trimpath -o bin/otactl ./cmd/zyvor-ota
 	cp -f bin/otactl bin/zyvor-ota
@@ -54,10 +54,10 @@ fmt: ## Fail if cmd/ or internal/ need gofmt
 
 ci: fmt vet race build ## Local gate: gofmt, vet, race tests, build
 
-status: build ## otactl status (daemon socket; zyvor-ota is the same binary)
+status: build ## Primary CLI: otactl status (zyvor-ota is the same binary)
 	./bin/otactl status
 
-help: ## Show targets
+help: ## Show targets (operator CLI is otactl; zyvor-ota is a compat alias)
 	@grep -E '^[a-zA-Z0-9_-]+:.*## ' $(MAKEFILE_LIST) | sort | awk -F':.*## ' '{printf "  \033[36m%-24s\033[0m %s\n", $$1, $$2}'
 
 clean:

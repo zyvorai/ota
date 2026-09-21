@@ -14,7 +14,7 @@
 | Device serial / QEMU ID | |
 | Power supply notes | |
 | RAUC version | |
-| zyvor-ota version | |
+| otactl / zyvor-otad version | |
 
 ## Results
 

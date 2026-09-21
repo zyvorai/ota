@@ -36,9 +36,9 @@ The report is written to the demo work directory and printed at the end. It is t
 1. **Reference image.** Simulator needs none. For RAUC, use `$HOME/zyvor-qemu-lab/disk.img` when that copy is present, or build with `./scripts/hil/build-qemu-rauc-lab.sh /path/to/out` and checksum it. Do not treat that disk as a Minewing image.
 2. **Fleet.** `bin/zyvor-fleet-ref -token lab-secret -devices demo-1 -listen 127.0.0.1:8443` with the TLS material `ota-demo` generates, or use `--serve`.
 3. **Enroll.** One device id and one token file. `ota-demo` writes both.
-4. **Sign a release.** `zyvor-ota keygen` and `zyvor-ota sign`. The private key stays off the device.
+4. **Sign a release.** `otactl keygen` and `otactl sign`. The private key stays off the device.
 5. **Canary.** Put the assignment on that one device. A multi-device wave lives in Zyvor Fleet, not in this agent.
-6. **Watch.** `zyvor-ota status json` moves through download, install, reboot, health, and commit.
+6. **Watch.** `otactl status json` moves through download, install, reboot, health, and commit.
 7. **Break it.** Remove the health file (the failed-health scenario) and confirm `rolled_back`.
 
 Scenarios you can point at after `--serve`:

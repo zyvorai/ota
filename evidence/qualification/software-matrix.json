@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-09-14T12:57:46.634697+00:00",
-  "finished_at": "2026-09-14T12:58:07.538880+00:00",
+  "generated_at": "2026-09-21T18:33:58.395399+00:00",
+  "finished_at": "2026-09-21T18:34:45.700096+00:00",
   "board_profile": "minewing-gw1-r1",
   "host": "Darwin",
   "results": [
@@ -38,6 +38,30 @@
       "id": "openapi_yaml_parse",
       "status": "pass",
       "detail": "",
+      "class": "software"
+    },
+    {
+      "id": "ci_agent_crash_during_install",
+      "status": "pass",
+      "detail": "needs_recovery error='agent restarted during installation; inspect RAUC and use recover-abort'",
+      "class": "software"
+    },
+    {
+      "id": "ci_bad_signature_reject",
+      "status": "pass",
+      "detail": "submit rejected bad signature",
+      "class": "software"
+    },
+    {
+      "id": "ci_fleet_ref_https_commit",
+      "status": "pass",
+      "detail": "fleet-ref HTTPS \u2192 committed on :54117",
+      "class": "software"
+    },
+    {
+      "id": "ci_hil_harness_dry_run",
+      "status": "pass",
+      "detail": "hil dry-run stamp=20260914T132627Z claimable=false",
       "class": "software"
     },
     {

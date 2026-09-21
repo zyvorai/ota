@@ -2,10 +2,20 @@
 
 ## Unreleased
 
+- Primary operator CLI is `otactl`. `zyvor-ota` remains a byte-identical compat
+  alias in `bin/`, `dist/`, packages, bake overlay, and remote smoke-deploy.
+  Docs and lab scripts prefer `otactl`. Daemon stays `zyvor-otad`; paths stay
+  under `/run/zyvor-ota` and `/etc/zyvor-ota`. CI asserts the alias match and
+  that HIL dry-run never sets `minewing_rauc_claimable`.
+- Minewing Track B operator runbook in [docs/HIL.md](docs/HIL.md) and
+  [boards/minewing-gw1-r1/QEMU.md](boards/minewing-gw1-r1/QEMU.md): bake → HIL →
+  sign. No prebuilt Minewing disk; checklist stays unsigned until a claimable
+  operator run.
+
 - Document schema 2 file-copy targets, campaign export and import, and the checked generic QEMU disk path. SWUpdate, MCU handlers, Minewing silicon, and a TPM driver stay out.
 
 - Record the generic QEMU lab disk copy at `$HOME/zyvor-qemu-lab/disk.img` and on lab host `80.79.5.173`, with the 2026-09-21 checksum. The image stays out of git and off the GitHub release. Minewing stays unsigned.
-- SQLite journal with terminal-job archive, `zyvor-ota backup`, and `zyvor-ota archive`. A legacy `state.json` is imported once.
+- SQLite journal with terminal-job archive, `otactl backup`, and `otactl archive`. A legacy `state.json` is imported once.
 - Schema 2 targets (`os.rauc`, `container.oci`, `config.bundle`, `model.oci`) commit or roll back as one set. No shell handlers. MCU firmware is not implemented.
 - Offline campaign export/import, local media, download window, bandwidth cap, jitter, and a site relay client.
 - Optional `trust_dir` metadata: threshold root, delegated target types, snapshot and timestamp binding, signed SBOM, reject list, and an append-only release log. No TPM driver and no conformance claim. A release that requires measured boot is refused unless a quote checker is linked.

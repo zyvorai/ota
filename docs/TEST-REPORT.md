@@ -86,8 +86,8 @@ produce an identity-bound Cosign signature; none is fabricated for this archive.
 
 Use `DEVICE-INTEGRATION.md` / `QUALIFICATION.md` / `HIL.md` on Minewing GW1 r1.
 Generic QEMU lab HIL (`zyvor-ota-qemu-lab`) is **already complete** and does
-**not** replace Minewing silicon sign-off. Drive Minewing rows with
-`OTA_HIL_MINEWING=1` and sign
+**not** replace Minewing silicon sign-off. Drive Minewing rows with the Track B
+operator runbook in [HIL.md](HIL.md) (`OTA_HIL_MINEWING=1`) and sign
 `evidence/qualification/hardware-checklist.md` before claiming board OS OTA.
 SWUpdate and MCU firmware handlers are not implemented. Schema 2 `container.oci`, `config.bundle`, and `model.oci` targets are verified file copies in this repository. A prebuilt Minewing QEMU board image is not included.
 
@@ -98,7 +98,7 @@ SWUpdate and MCU firmware handlers are not implemented. Schema 2 `container.oci`
 | Multi-product simulator lab | Recorded — [LAB.md](LAB.md) (Fleet non-demo, Nodra HTTPS, relay auth) |
 | Generic QEMU RAUC lab HIL | Complete — `qemu_lab_complete=true`, stamp `20260914T192634Z` |
 | CI `lab-substitute` | Green on `main` (never claims Minewing power-loss) |
-| Minewing physical / BSP HIL | Still open |
+| Minewing physical / BSP HIL | Still open — Track B runbook in [HIL.md](HIL.md); no fabricated sign-off |
 | Simulator smoke 2026-09-21 | Two hosts, selftest 5/5 — [lab/20260921-smoke.md](https://github.com/zyvorai/ota/blob/main/evidence/qualification/lab/20260921-smoke.md). Not a RAUC or Minewing result |
 | Generic disk presence 2026-09-21 | `disk.img` present on lab host `80.79.5.173` and copied to `$HOME/zyvor-qemu-lab/disk.img`. Presence check only; the guest was not booted again |
 

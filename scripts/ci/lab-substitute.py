@@ -29,7 +29,7 @@ import time
 from datetime import datetime, timedelta, timezone
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
-CLI = ROOT / "bin/zyvor-ota"
+CLI = ROOT / "bin/otactl"
 DAEMON = ROOT / "bin/zyvor-otad"
 FLEET_REF = ROOT / "bin/zyvor-fleet-ref"
 EVIDENCE = ROOT / "evidence/qualification/ci"

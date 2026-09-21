@@ -18,7 +18,7 @@ import time
 from datetime import datetime, timedelta, timezone
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-CLI = ROOT / "bin/zyvor-ota"
+CLI = ROOT / "bin/otactl"
 DAEMON = ROOT / "bin/zyvor-otad"
 
 

@@ -15,9 +15,10 @@ usage() {
   cat >&2 <<EOF
 usage: $0 --rootfs DIR --board BOARD_DIR --agent-config FILE [--arch amd64|arm64] [--bin-dir DIR]
 
-Copies zyvor-ota / zyvor-otad, systemd unit, D-Bus policy, polkit reboot rules,
-rendered RAUC system.conf (when board.env exists), and agent.json into ROOTFS.
-Creates system user zyvor-ota in /etc/passwd|/etc/group when those files exist.
+Copies otactl (+ zyvor-ota alias) / zyvor-otad, systemd unit, D-Bus policy,
+polkit reboot rules, rendered RAUC system.conf (when board.env exists), and
+agent.json into ROOTFS. Creates system user zyvor-ota in /etc/passwd|/etc/group
+when those files exist.
 EOF
   exit 2
 }
@@ -42,20 +43,36 @@ BOARD=$(cd "$BOARD" && pwd)
 if [[ -z "$BIN_DIR" ]]; then
   if [[ -x "$ROOT/dist/zyvor-otad-linux-$ARCH" ]]; then
     BIN_DIR="$ROOT/dist"
-    CLI="$BIN_DIR/zyvor-ota-linux-$ARCH"
+    if [[ -x "$BIN_DIR/otactl-linux-$ARCH" ]]; then
+      CLI="$BIN_DIR/otactl-linux-$ARCH"
+    else
+      CLI="$BIN_DIR/zyvor-ota-linux-$ARCH"
+    fi
     DAEMON="$BIN_DIR/zyvor-otad-linux-$ARCH"
   elif [[ -x "$ROOT/bin/zyvor-otad" ]]; then
-    CLI="$ROOT/bin/zyvor-ota"
+    if [[ -x "$ROOT/bin/otactl" ]]; then
+      CLI="$ROOT/bin/otactl"
+    else
+      CLI="$ROOT/bin/zyvor-ota"
+    fi
     DAEMON="$ROOT/bin/zyvor-otad"
   else
     echo "build binaries first (make dist or make build)" >&2
     exit 1
   fi
 else
-  CLI="$BIN_DIR/zyvor-ota-linux-$ARCH"
+  if [[ -x "$BIN_DIR/otactl-linux-$ARCH" ]]; then
+    CLI="$BIN_DIR/otactl-linux-$ARCH"
+  else
+    CLI="$BIN_DIR/zyvor-ota-linux-$ARCH"
+  fi
   DAEMON="$BIN_DIR/zyvor-otad-linux-$ARCH"
   [[ -x "$CLI" && -x "$DAEMON" ]] || {
-    CLI="$BIN_DIR/zyvor-ota"
+    if [[ -x "$BIN_DIR/otactl" ]]; then
+      CLI="$BIN_DIR/otactl"
+    else
+      CLI="$BIN_DIR/zyvor-ota"
+    fi
     DAEMON="$BIN_DIR/zyvor-otad"
   }
 fi
@@ -72,6 +89,8 @@ install -d -m 0755 \
   "$ROOTFS/var/lib/rauc" \
   "$ROOTFS/run/zyvor-ota"
 
+install -m 0755 "$CLI" "$ROOTFS/usr/local/bin/otactl"
+# Compat alias: same bytes as otactl.
 install -m 0755 "$CLI" "$ROOTFS/usr/local/bin/zyvor-ota"
 install -m 0755 "$DAEMON" "$ROOTFS/usr/local/bin/zyvor-otad"
 install -m 0644 "$ROOT/packaging/systemd/zyvor-otad.service" "$ROOTFS/etc/systemd/system/zyvor-otad.service"
@@ -97,5 +116,5 @@ if [[ -d "$ROOTFS/etc/systemd/system/multi-user.target.wants" ]]; then
   ln -sfn ../zyvor-otad.service "$ROOTFS/etc/systemd/system/multi-user.target.wants/zyvor-otad.service"
 fi
 
-echo "baked zyvor-ota into $ROOTFS (compatible profile: $BOARD)"
+echo "baked otactl (+ zyvor-ota alias) and zyvor-otad into $ROOTFS (compatible profile: $BOARD)"
 echo "provision trust_keys, fleet.token, and /etc/rauc/trusted-root.pem before flashing"

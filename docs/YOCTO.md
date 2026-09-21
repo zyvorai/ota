@@ -34,4 +34,4 @@ rauc bundle --cert=release-cert.pem --key=release-key.pem bundle-input gateway.r
 sha256sum gateway.raucb
 ```
 
-Sign the OTA envelope separately with `zyvor-ota sign`. Both signatures are required. Qualification is [QUALIFICATION.md](QUALIFICATION.md); the generic QEMU lab does not close Minewing rows.
+Sign the OTA envelope separately with `otactl sign`. Both signatures are required. Qualification is [QUALIFICATION.md](QUALIFICATION.md); the generic QEMU lab does not close Minewing rows.

@@ -98,7 +98,7 @@ OTA requires **HTTPS** Fleet (`fleet_url` rejects `http://`). On the lab host:
 6. `PUT /api/v1/ota/devices/{id}/assignment` with a **signed** envelope whose
    `device_id` matches the agent, `compatible`/`backend` match the config,
    and `sequence` is higher than the journal high-water mark.
-7. Watch `zyvor-ota job JOB_ID` through commit. Simulator `auto_reboot` still
+7. Watch `otactl job JOB_ID` through commit. Simulator `auto_reboot` still
    only flips the JSON slot file.
 8. `DELETE` the assignment after the job is terminal so the agent does not
    keep re-fetching it.
@@ -107,7 +107,7 @@ Fleet ACK of OTA events is **contiguous**. A synthetic `sequence: 1` posted
 before a real job whose events start at `10` leaves a hole; the agent then
 retains its outbox. Either start the Fleet device with `ackedSequence` equal
 to the agent's last acknowledged sequence, or ACK locally with
-`zyvor-ota ack SEQUENCE` only after Fleet has durably stored that prefix.
+`otactl ack SEQUENCE` only after Fleet has durably stored that prefix.
 
 Enable Device Agent `[nodra] enabled = true` only after MQTT is listening,
 then confirm `nodra_connected=true`. Treat Device Agent on this host as

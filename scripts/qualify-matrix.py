@@ -21,7 +21,7 @@ from datetime import datetime, timezone
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 EVIDENCE = ROOT / "evidence" / "qualification"
-CLI = ROOT / "bin" / "zyvor-ota"
+CLI = ROOT / "bin" / "otactl"
 DAEMON = ROOT / "bin" / "zyvor-otad"
 FLEET_REF = ROOT / "bin" / "zyvor-fleet-ref"
 
@@ -89,7 +89,12 @@ def bake_dry_run(results):
             "--agent-config", str(work / "agent.json"),
             "--bin-dir", str(ROOT / "bin"),
         ], timeout=60)
-        ok = proc.returncode == 0 and (rootfs / "usr/local/bin/zyvor-otad").is_file()
+        ok = (
+            proc.returncode == 0
+            and (rootfs / "usr/local/bin/zyvor-otad").is_file()
+            and (rootfs / "usr/local/bin/otactl").is_file()
+            and (rootfs / "usr/local/bin/zyvor-ota").is_file()
+        )
         if ok and (rootfs / "etc/rauc/system.conf").is_file():
             row(results, "bake_rootfs_overlay_minewing", "pass")
             return True

@@ -54,7 +54,8 @@ skip_q = os.environ.get("OTA_HIL_SKIP_QUALIFY", "") in ("1", "true", "yes")
 if skip_q:
     add("host_software_qualify", "pass", "skipped via OTA_HIL_SKIP_QUALIFY (covered by CI verify job)")
 else:
-    r = sh(f"cd {root} && make qualify 2>&1 | tail -20")
+    # make qualify can exceed 60s on a cold machine; keep fail-closed on errors.
+    r = sh(f"cd {root} && make qualify 2>&1 | tail -20", timeout=300)
     (out / "host-qualify.tail.txt").write_text(r.stdout + r.stderr)
     add("host_software_qualify", "pass" if r.returncode == 0 else "fail",
         "make qualify" + ("" if r.returncode == 0 else f" rc={r.returncode}"))
@@ -79,7 +80,7 @@ else:
         add("image_present", "pass", digest.split()[0][:16] + "…")
 
     if ssh:
-        r = sh(f"ssh -o BatchMode=yes -o ConnectTimeout=10 {ssh} 'rauc status; zyvor-ota status || true'")
+        r = sh(f"ssh -o BatchMode=yes -o ConnectTimeout=10 {ssh} 'rauc status; otactl status json || zyvor-ota status json || true'")
         (out / "rauc-status.txt").write_text(r.stdout + r.stderr)
         blob = (r.stdout + r.stderr).lower()
         if r.returncode == 0 and ("compatible" in blob or "slot" in blob or "rauc" in blob):
@@ -134,7 +135,7 @@ else:
 (out / "POWERLOSS_PROCEDURE.md").write_text(
     f"""# Power-loss procedure — Minewing GW1 r1 ({env})
 
-1. Boot slot A; capture `rauc status` and `zyvor-ota status`.
+1. Boot slot A; capture `rauc status` and `otactl status json` (`zyvor-ota` is the same binary).
 2. Start a valid signed install; when RAUC is writing the inactive slot,
    interrupt power (QEMU: kill -9 the qemu PID / `system_powerdown` mid-write).
 3. Restore power; confirm **previous slot still boots** and agent does not

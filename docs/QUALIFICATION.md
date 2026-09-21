@@ -10,7 +10,7 @@ Software rows are automated by `make qualify`. Real-RAUC rows split into two tra
 | Track | Environment | Evidence | Status |
 |---|---|---|---|
 | Generic QEMU lab (`zyvor-ota-qemu-lab`) | **QEMU guest** (KVM/TCG), not silicon | [`qemu-lab/CHECKLIST.md`](https://github.com/zyvorai/ota/blob/main/evidence/qualification/qemu-lab/CHECKLIST.md), HIL `20260914T192634Z` (`qemu_lab_complete=true`) | **Complete** (lab image only) |
-| Minewing GW1 r1 (`minewing-gw1-r1`) | **BSP QEMU or physical silicon** | [`hardware-checklist.md`](https://github.com/zyvorai/ota/blob/main/evidence/qualification/hardware-checklist.md) via `OTA_HIL_MINEWING=1` | **Unsigned** — power-loss not CI-signed |
+| Minewing GW1 r1 (`minewing-gw1-r1`) | **BSP QEMU or physical silicon** | [`hardware-checklist.md`](https://github.com/zyvorai/ota/blob/main/evidence/qualification/hardware-checklist.md) via Track B runbook in [HIL.md](HIL.md) (`OTA_HIL_MINEWING=1`) | **Unsigned** — power-loss not CI-signed |
 
 When neither image is available, GitHub CI job **`lab-substitute`**
 (`make ci-lab`) still proves agent crash→NeedsRecovery, bad signature reject,

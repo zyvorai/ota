@@ -20,7 +20,7 @@
 set -euo pipefail
 
 SOCKET="/run/zyvor-ota-demo/agent.sock"
-CLI="/usr/local/bin/zyvor-ota"
+CLI="/usr/local/bin/otactl"
 KEYS="/etc/zyvor-ota-demo/keys"
 ARTIFACTS="/var/lib/zyvor-ota-demo/artifacts"
 AGENT_CONFIG="/etc/zyvor-ota-demo/agent.json"

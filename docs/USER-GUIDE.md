@@ -4,17 +4,18 @@ hero:
   title: 'User guide: CLI and configuration reference'
 ---
 
-A single-page reference for the `zyvor-ota` operator CLI, the `zyvor-otad`
-daemon, and every `agent.json` field. For a narrated first run, see the
-[Tutorial](TUTORIAL.md). For what each step in the lifecycle actually does,
-see [Architecture](ARCHITECTURE.md); for incident procedures, see
+A single-page reference for the `otactl` operator CLI (`zyvor-ota` is the same
+binary), the `zyvor-otad` daemon, and every `agent.json` field. For a narrated
+first run, see the [Tutorial](TUTORIAL.md). For what each step in the lifecycle
+actually does, see [Architecture](ARCHITECTURE.md); for incident procedures, see
 [Operations](OPERATIONS.md).
 
-## `zyvor-ota` CLI
+## `otactl` CLI
 
 Global flags: `-socket PATH` (default `/run/zyvor-ota/agent.sock`) and the
 demo-only `-simulation-url http://127.0.0.1:PORT` (used by `make demo`, never
-in production — see `cmd/zyvor-ota/main.go`).
+in production — see `cmd/zyvor-ota/main.go`). `zyvor-ota` accepts the same
+commands.
 
 | Command | Effect |
 |---|---|

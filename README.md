@@ -176,16 +176,18 @@ explicitly uses `simulator`. RAUC requires `allow_device_writes: true` and at le
 one local health check. Simulator releases cannot be installed by the RAUC backend.
 
 ```sh
-zyvor-ota keygen ./release-keys
+otactl keygen ./release-keys
 # Fill examples/release.json with the actual artifact URL, SHA-256, size and expiry.
-zyvor-ota sign release.json release-keys/release.key production-1 envelope.json
+otactl sign release.json release-keys/release.key production-1 envelope.json
 # Embed envelope.json as the release field in assignment.json.
-zyvor-ota -socket /run/zyvor-ota/agent.sock submit assignment.json
-zyvor-ota campaign-export assignment.json ./artifacts /media/usb/campaign
-zyvor-ota campaign-import /media/usb/campaign /var/lib/zyvor-ota/media
-zyvor-ota -socket /run/zyvor-ota/agent.sock job job-001
-zyvor-ota -socket /run/zyvor-ota/agent.sock reboot
+otactl -socket /run/zyvor-ota/agent.sock submit assignment.json
+otactl campaign-export assignment.json ./artifacts /media/usb/campaign
+otactl campaign-import /media/usb/campaign /var/lib/zyvor-ota/media
+otactl -socket /run/zyvor-ota/agent.sock job job-001
+otactl -socket /run/zyvor-ota/agent.sock reboot
 ```
+
+`zyvor-ota` is the same binary as `otactl` (compat alias in `bin/`, packages, and baked rootfs).
 
 Keep the signing private key off the device. Examples contain placeholders,
 not working production credentials or pre-signed firmware.

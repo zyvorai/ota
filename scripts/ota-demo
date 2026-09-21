@@ -44,7 +44,7 @@ def main():
 
 
 def run_simulator(serve):
-    cli = ROOT / "bin/zyvor-ota"
+    cli = ROOT / "bin/otactl"
     daemon = ROOT / "bin/zyvor-otad"
     fleet = ROOT / "bin/zyvor-fleet-ref"
     for path in (cli, daemon, fleet):

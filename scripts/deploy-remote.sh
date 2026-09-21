@@ -390,11 +390,12 @@ fi
 
 $SUDO mkdir -p /etc/zyvor-ota-demo /var/lib/zyvor-ota-demo/artifacts
 
-# `zyvor-ota keygen DIR` uses os.Mkdir (not MkdirAll) and refuses to run
+# `otactl keygen DIR` uses os.Mkdir (not MkdirAll) and refuses to run
 # against a directory that already exists, so this must not pre-create it.
+# zyvor-ota is the same binary as otactl.
 if [ ! -f /etc/zyvor-ota-demo/keys/release.pub ]; then
     $SUDO rm -rf /etc/zyvor-ota-demo/keys
-    $SUDO /usr/local/bin/zyvor-ota keygen /etc/zyvor-ota-demo/keys
+    $SUDO /usr/local/bin/otactl keygen /etc/zyvor-ota-demo/keys
 fi
 $SUDO chmod 700 /etc/zyvor-ota-demo/keys
 $SUDO chmod 600 /etc/zyvor-ota-demo/keys/release.key /etc/zyvor-ota-demo/keys/release.pub
@@ -516,7 +517,7 @@ print_deployment_summary() {
     echo ""
     echo "  ssh ${TARGET_USER}@${TARGET_HOST}"
     echo "  systemctl status zyvor-otad-demo"
-    echo "  zyvor-ota -socket /run/zyvor-ota-demo/agent.sock status"
+    echo "  otactl -socket /run/zyvor-ota-demo/agent.sock status"
     echo "  bash ${REMOTE_DIR}/scripts/selftest.sh"
     echo ""
 }

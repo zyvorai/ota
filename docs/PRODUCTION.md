@@ -8,14 +8,15 @@ Companion to [OPERATIONS.md](OPERATIONS.md) for the Minewing GW1 r1 production p
 For a multi-product Linux lab (simulator OTA + Fleet + Nodra + Device Agent),
 see [LAB.md](LAB.md) first — that path does **not** qualify a board image.
 
-## Current maturity (2026-09-15)
+## Current maturity (2026-09-21)
 
 | Claim | Status |
 |---|---|
 | Host software matrix + CI lab-substitute | green (`make qualify`, verify←lab-substitute, CodeQL) |
 | Simulator / Fleet contract path | production-capable for **simulator backend** |
+| Operator CLI | primary name `otactl`; `zyvor-ota` is a byte-identical compat alias |
 | Generic QEMU+RAUC lab (`zyvor-ota-qemu-lab`) | **complete** — KVM SSH, `rauc status`, install, power-loss, 3 reboots; [`qemu-lab/CHECKLIST.md`](https://github.com/zyvorai/ota/blob/main/evidence/qualification/qemu-lab/CHECKLIST.md); HIL `20260914T192634Z` |
-| Minewing / claimable RAUC power-loss HIL | **unsigned** — needs BSP/`OTA_HIL_MINEWING=1` or physical board |
+| Minewing / claimable RAUC power-loss HIL | **unsigned** — needs BSP image or physical board; follow [HIL.md](HIL.md) Track B operator runbook |
 | Hardware checklist (Minewing) | **not signed** — do not claim board OS OTA |
 
 **Sign gates** ([HIL.md](HIL.md)):
@@ -25,7 +26,8 @@ see [LAB.md](LAB.md) first — that path does **not** qualify a board image.
 
 **Verdict:** agent software is **engineering-preview production-hardening**. Generic
 QEMU RAUC lab HIL is **complete** (not Minewing). **Minewing board-production** still
-requires BSP image or physical board + Minewing HIL sign-off.
+requires a BSP-produced `minewing-ab.img` (or physical board) plus the Track B
+operator runbook and a claimable HIL stamp. This repository does not ship that image.
 
 ## Preconditions
 
@@ -97,7 +99,7 @@ new OS image. See [SUPPLY-CHAIN.md](SUPPLY-CHAIN.md).
 
 Terminal jobs above 10,000 move into the SQLite archive in the same transaction.
 Unacknowledged events are not dropped to make room. Copy the live journal with
-`zyvor-ota backup` and read retired jobs with `zyvor-ota archive`. A corrupt
+`otactl backup` and read retired jobs with `otactl archive`. A corrupt
 database fails startup. Stop the agent before replacing `ota.db` with that
 backup. Do not hand-edit rows or delete the journal to reset the release sequence.
 

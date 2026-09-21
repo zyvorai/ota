@@ -2,7 +2,7 @@
 hero:
   eyebrow: ROADMAP
   title: From engine to customer outcome
-  lead: The agent verifies, installs, and rolls back. The trial, Fleet contract, schema 2 payloads, journal, relay, and optional trust metadata are in this repository. Minewing silicon, the five-minute recording, and a TPM driver are not.
+  lead: The agent verifies, installs, and rolls back. The trial, Fleet contract, schema 2 payloads, journal, relay, and optional trust metadata are in this repository. The operator CLI is otactl. Minewing silicon, the five-minute recording, and a TPM driver are not.
 ---
 
 Positioning:
@@ -13,7 +13,7 @@ Zyvor Fleet decides which devices and when. This repository verifies and install
 
 ## Five features
 
-1. **15-minute golden path** — `scripts/ota-demo up` on the simulator, plus a QEMU lab recipe. Minewing GW1 r1 physical qualification stays unsigned until an operator records it.
+1. **15-minute golden path** — `scripts/ota-demo up` on the simulator, plus a QEMU lab recipe. Minewing GW1 r1 physical qualification stays unsigned until an operator records Track B in [HIL.md](HIL.md).
 2. **Safe rollout in Fleet** — canary then wave, pause thresholds, per-device timeline, guided `NeedsRecovery`. Policy is not reimplemented in the agent.
 3. **Typed release graph** — schema 2 targets (`os.rauc`, `container.oci`, `config.bundle`, `model.oci`) commit together or return to the previous consistent set. No shell handlers.
 4. **Supply chain** — optional threshold root, delegated target types, snapshot and timestamp binding, signed SBOM, and an append-only release log. Documented in [SUPPLY-CHAIN.md](SUPPLY-CHAIN.md). No TPM driver. This project does **not** claim Uptane conformance.
@@ -36,6 +36,7 @@ Zyvor Fleet decides which devices and when. This repository verifies and install
 - A TPM or secure-element quote driver. `requires_measured_boot` is refused unless a checker is linked
 - Arbitrary root scripts or MCU firmware handlers
 - Signing Minewing silicon from CI or from the generic QEMU lab
+- A prebuilt Minewing BSP disk image
 - A second cloud scheduler inside the agent
 
 ## Review

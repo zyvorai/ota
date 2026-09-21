@@ -50,8 +50,33 @@ jobs:
           go test -race -coverprofile=coverage.out ./...
       - run: go vet ./...
       - run: make build
+      - name: Primary CLI otactl matches zyvor-ota alias
+        run: |
+          test -x bin/otactl
+          test -x bin/zyvor-ota
+          cmp -s bin/otactl bin/zyvor-ota
+          ./bin/otactl version | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$'
       - run: python3 scripts/e2e.py
       - run: make dist
+      - name: Dist otactl aliases match zyvor-ota builds
+        run: |
+          cmp -s dist/otactl-linux-amd64 dist/zyvor-ota-linux-amd64
+          cmp -s dist/otactl-linux-arm64 dist/zyvor-ota-linux-arm64
+      - name: HIL dry-run never claims Minewing
+        run: |
+          OTA_HIL_ENV=dry-run OTA_HIL_SKIP_QUALIFY=1 ./scripts/hil/run-rauc-powerloss-hil.sh
+          stamp=$(ls -1d evidence/qualification/hil/*/ | sort | tail -1)
+          test -f "$stamp/results.json"
+          python3 - "$stamp" <<'PY'
+          import json, pathlib, sys
+          stamp = pathlib.Path(sys.argv[1])
+          report = json.loads((stamp / "results.json").read_text())
+          if report.get("minewing_rauc_claimable") is not False:
+              sys.exit(f"dry-run must not claim Minewing: {report.get('minewing_rauc_claimable')!r}")
+          if report.get("environment") != "dry-run":
+              sys.exit(f"expected dry-run env, got {report.get('environment')!r}")
+          print("hil dry-run ok: minewing_rauc_claimable=false")
+          PY
       - name: Download lab-substitute evidence
         uses: actions/download-artifact@v8
         with:
@@ -102,6 +127,8 @@ jobs:
       - name: Cross-build and run ARM64 binaries under qemu
         run: |
           make dist
+          cmp -s dist/otactl-linux-arm64 dist/zyvor-ota-linux-arm64
+          qemu-aarch64-static dist/otactl-linux-arm64 version | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$'
           qemu-aarch64-static dist/zyvor-ota-linux-arm64 version | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$'
           qemu-aarch64-static dist/zyvor-fleet-ref-linux-arm64 -h 2>&1 | head -n 1 || true
           echo "arm64 CLI execution ok"

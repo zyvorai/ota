@@ -70,7 +70,7 @@ stat -c %s os.raucb
 ```
 
 Fill the OTA release metadata with that digest, size, compatible and version;
-sign it with `zyvor-ota sign`. The Ed25519 envelope authenticates the OTA policy
+sign it with `otactl sign`. The Ed25519 envelope authenticates the OTA policy
 metadata and artifact digest. RAUC independently verifies the `.raucb` signature
 against its X.509 trust anchor at install time. Both checks are required.
 

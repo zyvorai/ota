@@ -14,21 +14,39 @@ satisfy Minewing claimable rows.
 - Board BSP produces a QEMU-bootable image with A/B slots and RAUC configured
   from this profile (`system.conf` rendered from `system.conf.in`).
 - `compatible=minewing-gw1-r1` on guest and bundles.
-- `rauc` ≥ 1.13 on the guest; `zyvor-otad` baked via `scripts/bake-rootfs-overlay.sh`.
+- `rauc` ≥ 1.13 on the guest; `otactl` + `zyvor-otad` baked via
+  `scripts/bake-rootfs-overlay.sh` (`zyvor-ota` is installed as a compat alias).
 - Lab signing keys (RAUC X.509 + Ed25519) provisioned only in the lab trust store.
+- No prebuilt Minewing disk is in this repository or on GitHub Releases. Place
+  the BSP image at a lab path such as `$HOME/zyvor-minewing-lab/minewing-ab.img`
+  and export `QUALIFY_QEMU_IMAGE` to that path.
 
-## Suggested flow
+## Operator runbook (ordered)
 
-1. Boot slot A; confirm `rauc status` and `zyvor-ota status`.
-2. Serve a signed `.raucb` + OTA assignment (CLI submit or `zyvor-fleet-ref`).
-3. Execute software-adjacent rows (bad signature, digest, network loss) in QEMU.
-4. For power-loss rows, interrupt the QEMU process or cut emulated power at the
-   documented flash / boot-selection points; prove the previous slot remains bootable.
-5. Record image hashes, guest serial, commands, and logs under
-   `evidence/qualification/` and sign with `OTA_HIL_MINEWING=1` only when
+Full Track B checklist (sign gates, log env vars): [docs/HIL.md](../../docs/HIL.md)
+Track B. Summary:
+
+1. Copy `board.env.example` → `board.env`; fill PARTUUIDs from the BSP layout.
+2. `scripts/render-board-rauc.sh boards/minewing-gw1-r1 /path/to/etc/rauc`.
+3. `make dist` then bake into the BSP rootfs:
+   ```sh
+   scripts/bake-rootfs-overlay.sh \
+     --rootfs /path/to/rootfs \
+     --board boards/minewing-gw1-r1 \
+     --agent-config boards/minewing-gw1-r1/agent.json \
+     --arch arm64
+   ```
+4. Boot slot A; confirm `rauc status` and `otactl status json`.
+5. Serve a signed `.raucb` + OTA assignment (`otactl submit` or `zyvor-fleet-ref`).
+6. Run software-adjacent rows (bad signature, digest, network loss) in QEMU.
+7. For power-loss rows, interrupt QEMU or cut emulated power at the documented
+   flash / boot-selection points; prove the previous slot remains bootable.
+8. Attach logs via `OTA_HIL_LOG_*`, set `OTA_HIL_MINEWING=1`, and run
+   `scripts/hil/run-rauc-powerloss-hil.sh`. Use `OTA_HIL_SIGN=1` **only** when
    `minewing_rauc_claimable=true`.
 
-`make qualify` covers **host software** matrix rows only.
+`make qualify` covers **host software** matrix rows only. Dry-run HIL never
+claims Minewing.
 
 ## Generic lab builder (not this SKU)
 

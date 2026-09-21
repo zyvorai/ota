@@ -48,15 +48,17 @@ vulnerability reporting feature to be enabled by the maintainers first.
 
 **Is this production-ready?** Be precise. **v0.1.0 — engineering preview** means:
 
-- **Yes (software):** Go agent, CLI, RAUC D-Bus adapter, simulator, CI
-  (`lab-substitute`), and Fleet contract path — see [TEST-REPORT.md](TEST-REPORT.md)
-  and [PRODUCTION.md](PRODUCTION.md).
+- **Yes (software):** Go agent, `otactl` CLI (`zyvor-ota` alias), RAUC D-Bus
+  adapter, simulator, CI (`lab-substitute`), and Fleet contract path — see
+  [TEST-REPORT.md](TEST-REPORT.md) and [PRODUCTION.md](PRODUCTION.md).
 - **Yes (generic QEMU lab):** real RAUC A/B install, bad-signature reject,
   mid-install power-loss, and three reboots for `zyvor-ota-qemu-lab` —
   [HIL.md](HIL.md) Track A (`qemu_lab_complete=true`).
 - **No (Minewing board OS OTA):** physical / BSP Minewing HIL is still
-  unsigned (`minewing_rauc_claimable=false`). Do not deploy to Minewing
-  production silicon on the strength of the qemu-lab track alone.
+  unsigned (`minewing_rauc_claimable=false`). Follow the Track B operator
+  runbook in [HIL.md](HIL.md) when a BSP image or board is available. Do not
+  deploy to Minewing production silicon on the strength of the qemu-lab track
+  alone.
 
 **Does it work with Zyvor Fleet today?** Yes — Zyvor Fleet (`zyvorai/fleet`)
 implements the server side of [`docs/FLEET.md`](FLEET.md) (`/v1/devices/...`

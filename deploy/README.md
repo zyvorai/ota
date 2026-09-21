@@ -90,10 +90,10 @@ scripts/deploy-remote.sh HOST USER --key --verify-only   # re-run selftest witho
 scripts/deploy-remote.sh HOST USER --key --uninstall     # remove the demo service/binaries/user/keys
 ```
 
-`--uninstall` removes everything it installed (units, `/usr/local/bin/zyvor-ota*`,
-`/etc/zyvor-ota-demo`, `/var/lib/zyvor-ota-demo`, the `zyvor-ota-demo` user, and
-the rsynced staging directory) and leaves every other service on a shared host
-untouched.
+`--uninstall` removes everything it installed (units, `/usr/local/bin/otactl`,
+`/usr/local/bin/zyvor-ota*`, `/etc/zyvor-ota-demo`, `/var/lib/zyvor-ota-demo`,
+the `zyvor-ota-demo` user, and the rsynced staging directory) and leaves every
+other service on a shared host untouched.
 
 ## What this does *not* do
 
