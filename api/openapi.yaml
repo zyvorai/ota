@@ -48,6 +48,10 @@ paths:
           description: Invalid JSON or body exceeds 256 KiB
         '409':
           description: Invalid signature/policy, replay, conflict or busy engine; retry unchanged assignment when busy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /v1/events:
     get:
       operationId: getEvents
@@ -82,6 +86,10 @@ paths:
           description: Invalid body
         '409':
           description: Future acknowledgment or persistence error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /v1/reboot:
     post:
       operationId: requestReboot
@@ -90,6 +98,10 @@ paths:
           description: Reboot intent persisted and request accepted
         '409':
           description: Wrong state, outside window, busy backend or denied reboot
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /v1/recover-abort:
     post:
       operationId: recoverAbort
@@ -98,6 +110,10 @@ paths:
           description: Ambiguous target marked bad and previous slot restored
         '409':
           description: Requires NeedsRecovery, idle backend and original booted slot
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /v1/gc:
     post:
       operationId: cleanCache
@@ -106,6 +122,10 @@ paths:
           description: Cache removed
         '409':
           description: Active job, busy engine or storage error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /metrics:
     get:
       operationId: metrics
@@ -118,6 +138,13 @@ paths:
                 type: string
 components:
   schemas:
+    Error:
+      type: object
+      additionalProperties: false
+      required: [error]
+      properties:
+        error:
+          type: string
     Envelope:
       type: object
       additionalProperties: false
