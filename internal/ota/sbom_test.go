@@ -112,4 +112,3 @@ func TestSBOMByteMismatchDoesNotInstall(t *testing.T) {
 		t.Fatal(h.state())
 	}
 }
-
