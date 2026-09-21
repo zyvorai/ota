@@ -30,6 +30,7 @@ func main() {
 	assignmentFile := flag.String("assignment", "", "optional Assignment JSON delivered to all registered devices")
 	certFile := flag.String("cert", "", "TLS certificate PEM (optional; ephemeral cert if empty)")
 	keyFile := flag.String("key", "", "TLS private key PEM (optional)")
+	writeCA := flag.String("write-ca", "", "write the server certificate PEM (lab)")
 	flag.Parse()
 	if *token == "" || *devices == "" {
 		log.Fatal("usage: zyvor-fleet-ref -token SECRET -devices id1,id2 [-assignment file.json] [-listen addr]")
@@ -65,29 +66,42 @@ func main() {
 		}
 	}
 
-	tlsCert, err := loadOrEphemeralCert(*certFile, *keyFile)
+	tlsCert, certPEM, err := loadOrEphemeralCert(*certFile, *keyFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if *writeCA != "" {
+		if err = os.WriteFile(*writeCA, certPEM, 0644); err != nil {
+			log.Fatal(err)
+		}
+	}
+	ln, err := net.Listen("tcp", *listen)
 	if err != nil {
 		log.Fatal(err)
 	}
 	server := &http.Server{
-		Addr:      *listen,
 		Handler:   ref.Handler(),
 		TLSConfig: &tls.Config{Certificates: []tls.Certificate{tlsCert}, MinVersion: tls.VersionTLS12},
 	}
-	fmt.Fprintf(os.Stderr, "zyvor-fleet-ref listening on https://%s (devices=%s)\n", *listen, *devices)
-	log.Fatal(server.ListenAndServeTLS("", ""))
+	fmt.Fprintf(os.Stderr, "zyvor-fleet-ref listening on https://%s (devices=%s)\n", ln.Addr().String(), *devices)
+	log.Fatal(server.ServeTLS(ln, "", ""))
 }
 
-func loadOrEphemeralCert(certFile, keyFile string) (tls.Certificate, error) {
+func loadOrEphemeralCert(certFile, keyFile string) (tls.Certificate, []byte, error) {
 	if certFile != "" || keyFile != "" {
 		if certFile == "" || keyFile == "" {
-			return tls.Certificate{}, fmt.Errorf("both -cert and -key are required together")
+			return tls.Certificate{}, nil, fmt.Errorf("both -cert and -key are required together")
 		}
-		return tls.LoadX509KeyPair(certFile, keyFile)
+		cert, err := tls.LoadX509KeyPair(certFile, keyFile)
+		if err != nil {
+			return tls.Certificate{}, nil, err
+		}
+		pemBytes, err := os.ReadFile(certFile)
+		return cert, pemBytes, err
 	}
 	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
-		return tls.Certificate{}, err
+		return tls.Certificate{}, nil, err
 	}
 	tmpl := &x509.Certificate{
 		SerialNumber: big.NewInt(1),
@@ -101,13 +115,14 @@ func loadOrEphemeralCert(certFile, keyFile string) (tls.Certificate, error) {
 	}
 	der, err := x509.CreateCertificate(rand.Reader, tmpl, tmpl, &key.PublicKey, key)
 	if err != nil {
-		return tls.Certificate{}, err
+		return tls.Certificate{}, nil, err
 	}
 	certPEM := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: der})
 	keyDER, err := x509.MarshalECPrivateKey(key)
 	if err != nil {
-		return tls.Certificate{}, err
+		return tls.Certificate{}, nil, err
 	}
 	keyPEM := pem.EncodeToMemory(&pem.Block{Type: "EC PRIVATE KEY", Bytes: keyDER})
-	return tls.X509KeyPair(certPEM, keyPEM)
+	cert, err := tls.X509KeyPair(certPEM, keyPEM)
+	return cert, certPEM, err
 }

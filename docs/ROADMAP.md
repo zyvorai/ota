@@ -1,0 +1,43 @@
+---
+hero:
+  eyebrow: ROADMAP
+  title: From engine to customer outcome
+  lead: The agent already verifies, installs, and rolls back. v1 is the trial, the fleet rollout, and the evidence around that — not a second copy of RAUC.
+---
+
+Positioning:
+
+> The safest open OTA runtime for Linux edge fleets—signed updates, automatic rollback, offline operation, and verifiable deployment evidence without cloud lock-in.
+
+Zyvor Fleet decides which devices and when. This repository verifies and installs. Rollback and signature checks stay in the Apache-2.0 agent. Enterprise is operational leverage, not withheld safety. This project does **not** claim Uptane conformance.
+
+## Five features
+
+1. **15-minute golden path** — `scripts/ota-demo up` on the simulator, plus a QEMU lab recipe. Minewing GW1 r1 physical qualification stays unsigned until an operator records it.
+2. **Safe rollout in Fleet** — canary then wave, pause thresholds, per-device timeline, guided `NeedsRecovery`. Policy is not reimplemented in the agent.
+3. **Typed release graph** — schema 2 targets (`os.rauc`, `container.oci`, `config.bundle`, `model.oci`) commit together or return to the previous consistent set. No shell handlers.
+4. **Supply chain, after v1** — threshold signing, TPM or secure-element identity, delegated roles. Documented in [SUPPLY-CHAIN.md](SUPPLY-CHAIN.md). Not claimed as implemented or as Uptane.
+5. **Intermittent networks** — content-addressed cache, download window, bandwidth cap, offline campaign, USB or local media with the same digest check, and Zyvor Relay.
+
+## 90-day exit criteria
+
+| Phase | Delivery | Exit criterion |
+|---|---|---|
+| Weeks 1–3 | Reference path and one-command demo | A new engineer completes a signed update and rollback in about 15 minutes on the simulator or generic QEMU lab |
+| Weeks 2–5 | Fleet OTA canary waves | 100 simulated devices complete a controlled wave, or the rollout pauses on the configured threshold |
+| Weeks 4–7 | SQLite journal, retention, metrics | Long-running retention and a documented corruption restore pass without hand-editing state |
+| Weeks 6–10 | Relay, offline campaigns, bandwidth | 100 clients share one upstream artifact download |
+| Weeks 8–12 | Typed payloads and release DAG | An OS + payload release commits or rolls back as one set |
+| After v1 | Threshold signing, TPM, delegated roles | Threat model and adversarial qualification exist. No conformance claim before that |
+
+## Not v1
+
+- Uptane conformance, or any wording that implies it
+- Offline root, threshold signing, delegated roles, TPM identity, measured-boot gates
+- Arbitrary root scripts or MCU firmware handlers
+- Signing Minewing silicon from CI or from the generic QEMU lab
+- A second cloud scheduler inside the agent
+
+## Review
+
+Pull requests should say whether they claim a capability on this page. If the code does not implement it, the claim does not land. A periodic readiness review compares `main` to this file: README wording, [QUALIFICATION.md](QUALIFICATION.md), Fleet OTA rollouts, the journal, and metrics. It does not auto-merge and it does not widen product scope.

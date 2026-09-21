@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"sync"
@@ -18,6 +19,7 @@ type Engine struct {
 	Downloader   Downloader
 	Health       HealthFunc
 	Now          func() time.Time
+	Stats        Stats
 	mu           sync.Mutex
 	healthySince time.Time
 }
@@ -54,7 +56,7 @@ func (e *Engine) Submit(a Assignment) (Job, error) {
 		if d.Active != "" {
 			return errors.New("another update is active")
 		}
-		if len(d.Jobs) >= 10000 || len(d.Events) > 9000 {
+		if len(d.Events) > hotEventLimit {
 			return errors.New("journal capacity reached; export/ack events or reprovision journal under documented procedure")
 		}
 		if r.Sequence <= d.HighSequence {
@@ -79,6 +81,21 @@ func (e *Engine) save(j Job, state State, message string) error {
 	j.State = state
 	j.Error = message
 	j.Updated = e.Now()
+	if state == Committed {
+		commitSidePayloads(e.Config.StateDir, j.Release)
+	}
+	if state == RolledBack || state == Failed {
+		_ = rollbackSidePayloads(e.Config.StateDir, j.Release)
+	}
+	e.Stats.observeState(j.Updated, state)
+	slog.Info("ota job",
+		"job_id", j.Assignment.JobID,
+		"release_id", j.Release.ID,
+		"device_id", e.Config.DeviceID,
+		"campaign_id", j.Assignment.CampaignID,
+		"state", state,
+		"error", message,
+	)
 	return e.Store.Update(func(d *Database) error {
 		d.Jobs[j.Assignment.JobID] = j
 		if Terminal(state) {
@@ -87,6 +104,39 @@ func (e *Engine) save(j Job, state State, message string) error {
 		return addEvent(d, j, j.Updated)
 	})
 }
+func (e *Engine) noteDeferred(j Job, err error) error {
+	if j.Deferred {
+		return nil
+	}
+	j.Deferred = true
+	return e.save(j, Downloading, err.Error())
+}
+
+func (e *Engine) fetchAll(ctx context.Context, j Job) (int64, bool, error) {
+	var total int64
+	var resumed bool
+	arts := []Artifact{}
+	if j.Release.Artifact.SHA256 != "" {
+		arts = append(arts, j.Release.Artifact)
+	}
+	for _, t := range j.Release.Targets {
+		if t.Artifact.SHA256 == j.Release.Artifact.SHA256 {
+			continue
+		}
+		arts = append(arts, t.Artifact)
+	}
+	for _, a := range arts {
+		path, n, r, err := e.Downloader.fetch(ctx, a)
+		_ = path
+		total += n
+		resumed = resumed || r
+		if err != nil {
+			return total, resumed, err
+		}
+	}
+	return total, resumed, nil
+}
+
 func (e *Engine) current() (Job, bool) { d := e.Store.View(); j, ok := d.Jobs[d.Active]; return j, ok }
 func (e *Engine) Step(ctx context.Context) error {
 	e.mu.Lock()
@@ -112,11 +162,31 @@ func (e *Engine) Step(ctx context.Context) error {
 	case Accepted:
 		return e.save(j, Downloading, "")
 	case Downloading:
-		if _, err := e.Downloader.Fetch(ctx, j.Release.Artifact); err != nil {
+		if err := e.Config.DownloadAllowed(now); err != nil {
+			return e.noteDeferred(j, err)
+		}
+		j.Deferred = false
+		started := time.Now()
+		n, resumed, err := e.fetchAll(ctx, j)
+		e.Stats.addDownload(n, resumed, time.Since(started))
+		if err != nil {
+			if errors.Is(err, ErrDeferred) {
+				return e.noteDeferred(j, err)
+			}
 			return err
 		}
 		return e.save(j, Verified, "")
 	case Verified:
+		if !j.PayloadsApplied && len(j.Release.Targets) > 0 {
+			if err := applySidePayloads(e.Config.StateDir, j.Release, e.Config.Checks); err != nil {
+				_ = rollbackSidePayloads(e.Config.StateDir, j.Release)
+				return e.save(j, Failed, err.Error())
+			}
+			j.PayloadsApplied = true
+		}
+		if !j.Release.HasOS() {
+			return e.save(j, Committed, "")
+		}
 		s, err := e.Backend.Status(ctx)
 		if err != nil {
 			return err
@@ -221,6 +291,12 @@ func (e *Engine) Step(ctx context.Context) error {
 		}
 		if err = e.Health(ctx); err != nil {
 			e.healthySince = time.Time{}
+			var he *HealthError
+			if errors.As(err, &he) {
+				e.Stats.healthFailure(he.Name)
+			} else {
+				e.Stats.healthFailure("health")
+			}
 			return nil
 		}
 		if e.healthySince.IsZero() {
@@ -316,6 +392,7 @@ func (e *Engine) RecoverAbort(ctx context.Context) error {
 	if err = e.Backend.Mark(ctx, "active", j.OldSlot); err != nil {
 		return err
 	}
+	_ = rollbackSidePayloads(e.Config.StateDir, j.Release)
 	return e.save(j, Failed, "operator aborted ambiguous installation; previous slot restored")
 }
 func (e *Engine) Ack(sequence uint64) error {

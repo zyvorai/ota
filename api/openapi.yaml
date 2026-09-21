@@ -17,7 +17,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
+                $ref: '#/components/schemas/Status'
   /v1/jobs/{id}:
     get:
       operationId: getJob
@@ -30,8 +30,16 @@ paths:
       responses:
         '200':
           description: Retained job, signed assignment, release and current state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
         '404':
           description: Job not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /v1/assignments:
     post:
       operationId: submitAssignment
@@ -44,10 +52,22 @@ paths:
       responses:
         '202':
           description: Accepted or identical retained job
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
         '400':
           description: Invalid JSON or body exceeds 256 KiB
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '409':
           description: Invalid signature/policy, replay, conflict or busy engine; retry unchanged assignment when busy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /v1/events:
     get:
       operationId: getEvents
@@ -78,34 +98,70 @@ paths:
       responses:
         '200':
           description: Acknowledged contiguous events through sequence
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ok'
         '400':
           description: Invalid body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '409':
           description: Future acknowledgment or persistence error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /v1/reboot:
     post:
       operationId: requestReboot
       responses:
         '200':
           description: Reboot intent persisted and request accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ok'
         '409':
           description: Wrong state, outside window, busy backend or denied reboot
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /v1/recover-abort:
     post:
       operationId: recoverAbort
       responses:
         '200':
           description: Ambiguous target marked bad and previous slot restored
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ok'
         '409':
           description: Requires NeedsRecovery, idle backend and original booted slot
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /v1/gc:
     post:
       operationId: cleanCache
       responses:
         '200':
           description: Cache removed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ok'
         '409':
           description: Active job, busy engine or storage error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /metrics:
     get:
       operationId: metrics
@@ -154,6 +210,57 @@ components:
         auto_reboot:
           type: boolean
           default: false
+        campaign_id:
+          type: string
+    Error:
+      type: object
+      additionalProperties: false
+      required: [error]
+      properties:
+        error:
+          type: string
+    Ok:
+      type: object
+      additionalProperties: false
+      required: [ok]
+      properties:
+        ok:
+          type: boolean
+    Status:
+      type: object
+      required: [version, device_id, backend, high_sequence, event_sequence, pending_events]
+      properties:
+        version:
+          type: string
+        device_id:
+          type: string
+        backend:
+          type: string
+        active:
+          $ref: '#/components/schemas/Job'
+        high_sequence:
+          type: integer
+        event_sequence:
+          type: integer
+        pending_events:
+          type: integer
+    Job:
+      type: object
+      required: [assignment, release, fingerprint, state, updated]
+      properties:
+        assignment:
+          $ref: '#/components/schemas/Assignment'
+        release:
+          type: object
+        fingerprint:
+          type: string
+        state:
+          type: string
+        error:
+          type: string
+        updated:
+          type: string
+          format: date-time
     Event:
       type: object
       required: [sequence, job_id, state, time]

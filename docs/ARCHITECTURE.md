@@ -6,7 +6,7 @@ hero:
   highlights:
     - {value: "12", label: "States in the job lifecycle machine"}
     - {value: "2", label: "Bootable A/B rootfs slots"}
-    - {value: "10,000", label: "Retained jobs & outbox events, bounded by design"}
+    - {value: "10,000", label: "Hot jobs before terminal history is archived"}
 ---
 
 ```mermaid
@@ -43,22 +43,23 @@ an assignment is accepted, including assignments which later fail. This prevents
 replay after rollback. The last known working slot can still be selected locally
 without accepting an older remote release.
 
-## Persistence choice
+## Persistence
 
-The proposed SQLite layer is implemented as a **single-writer snapshot journal**
-in this version: a bounded JSON database, advisory process lock, temporary file,
-file fsync, atomic rename, and parent-directory fsync. This keeps the runtime
-dependency footprint small while preserving atomic job/event transactions.
+The journal is a single-writer SQLite database (`ota.db`) in WAL mode with
+`synchronous=FULL`. A legacy `state.json` snapshot is imported once and renamed
+to `state.json.migrated`. Schema migrations live in `schema_migrations`.
 
-The local filesystem must honor fsync and rename durability. Use persistent ext4
-or an equivalently qualified local filesystem shared by both slots. Do not use
-tmpfs, overlay ephemeral state, NFS, or a filesystem inside only one OS slot.
-Storage failures poison the in-process store and block further state mutations;
-they do not silently reset the high-water mark. Corrupt or unknown state fails startup.
+Terminal jobs above the hot limit are moved into `archive_jobs` in the same
+transaction. Unacknowledged events are never deleted to make room. Export the
+archive from the store API before you treat history as retired. A corrupt
+database fails startup. Restore by stopping the agent and replacing `ota.db`
+with a `VACUUM INTO` backup. Do not hand-edit rows.
 
-The limits are 10,000 retained jobs and 10,000 unacknowledged events. New jobs are
-rejected when retention reaches its bound, or when the outbox exceeds 9,000 events.
-No unacknowledged event is dropped to make space. See OPERATIONS for retention.
+The filesystem must honor fsync. Use persistent ext4, or an equivalently
+qualified local filesystem, shared by both slots. Do not use tmpfs, an overlay
+ephemeral layer, NFS, or a filesystem that exists in only one OS slot.
+A failed write poisons the process and blocks further mutations. It does not
+reset the release-sequence high-water mark.
 
 ## Installation and boot
 

@@ -18,23 +18,30 @@
 
 </div>
 
+**The safest open OTA runtime for Linux edge fleets** — signed updates,
+automatic rollback, offline operation, and verifiable deployment evidence
+without cloud lock-in.
+
 **v0.1.0 — engineering preview, Apache-2.0.** Working Go agent and CLI, native
 RAUC D-Bus adapter, simulator, automated tests, and CI lab-substitutes.
 **Generic QEMU RAUC lab HIL is complete** (`zyvor-ota-qemu-lab`); **Minewing
 silicon qualification remains a separate, unsigned gate**. See
 [verification evidence](docs/TEST-REPORT.md) and [HIL.md](docs/HIL.md).
+The [roadmap](docs/ROADMAP.md) is what turns this engine into a 15-minute trial.
 
 Fleet decides **which devices and when**. OTA verifies and installs a device OS
 release. RAUC writes the inactive slot and integrates with the board bootloader.
 
 ## Is this for you?
 
-Zyvor OTA is a small, single-purpose, open-source (Apache-2.0) **device-side**
-update agent: it verifies a signed release and installs it via RAUC's A/B slot
-mechanism, with automatic health-check-gated rollback. It is not a fleet
-dashboard, not a targeting/rollout controller, and not a general configuration
-manager — Zyvor Fleet (or whatever system you point it at) decides which
-devices get which release and when; OTA only ever verifies and installs.
+**Zyvor OTA** is the open (Apache-2.0) runtime that makes a Linux edge update
+safe to ship: a signed release, an inactive A/B slot, health-gated commit, and
+automatic rollback, including when the WAN is down. Zyvor Fleet decides which
+devices and when. This repository does not ship a second rollout controller.
+The outcome to look for is a signed update that either commits or returns to
+the previous boot — with evidence. Start with the [15-minute trial](docs/TUTORIAL.md).
+
+<img src="docs/assets/readme/ota-lifecycle.svg" alt="Fleet assigns a signed release; the agent verifies it, installs to the inactive A/B slot, reboots, checks health, then commits or rolls back automatically." width="880"/>
 
 | | **Zyvor OTA** | Mender | SWUpdate | balena | Roll-your-own (dpkg/apt + scripts) |
 |---|---|---|---|---|---|
@@ -66,7 +73,8 @@ covers real operational issues with their documented fix.
 - [Is this for you?](#is-this-for-you)
 - [FAQ](docs/FAQ.md) · [Troubleshooting](docs/TROUBLESHOOTING.md)
 - [Lab stack (Fleet + OTA + Device Agent)](docs/LAB.md)
-- [Tutorial: your first simulator update](docs/TUTORIAL.md)
+- [Roadmap](docs/ROADMAP.md)
+- [15-minute trial](docs/TUTORIAL.md)
 - [User guide: CLI and config reference](docs/USER-GUIDE.md)
 - [Run the complete simulator demonstration](#run-the-complete-simulator-demonstration)
 - [Implemented](#implemented)
@@ -112,7 +120,8 @@ An ARM64 build is not evidence of execution on ARM64 hardware.
   monotonic release sequence, job idempotency, and maintenance windows.
 - HTTPS downloads with host allowlists, safe redirect checks, bounded size,
   disk reserve, resumable ranges, full digest verification, and cache cleanup.
-- Durable single-writer state and event outbox using fsync + atomic rename.
+- Durable single-writer SQLite journal (WAL) and event outbox. Terminal jobs
+  archive instead of bricking the agent; unacknowledged events are not dropped.
 - RAUC `InstallBundle`, `Completed`, `GetSlotStatus`, `GetPrimary`, and `Mark`
   over D-Bus. No shell commands or arbitrary update scripts are accepted by OTA.
 - A/B install, controlled reboot, local health window, mark-good and rollback.
@@ -136,7 +145,7 @@ An ARM64 build is not evidence of execution on ARM64 hardware.
 | Standalone model/config/container/MCU updates | Not implemented in v0.1 |
 | Bootloader update | Not enabled by this project; requires a qualified board recovery design |
 | Fleet integration | Contract and transport implemented; existing Fleet server needs matching endpoints |
-| QEMU bootable image | Not included; board integration examples are templates |
+| QEMU bootable image | Build recipe in [docs/QEMU-LAB.md](docs/QEMU-LAB.md); generic lab HIL is signed, disk is not attached to the GitHub release |
 | Hardware power-loss testing | Not performed in this build environment |
 
 ## Device deployment
@@ -231,5 +240,8 @@ Original Zyvor OTA source is Apache-2.0. Vendored dependencies retain their own 
 
 ### Enterprise
 
-Production support, SLAs, and Zyvor Enterprise products are licensed separately.
-Contact [sales@zyvor.dev](mailto:sales@zyvor.dev) or see [zyvor.dev](https://zyvor.dev).
+Customers pay for operational leverage, not for rollback or signature checks.
+Those stay in the Apache-2.0 agent. Enterprise is the Fleet dashboard, SSO and
+approvals, site relay, compliance evidence, certified board enablement, and
+support. See the [FAQ](docs/FAQ.md#community-and-enterprise). Contact
+[sales@zyvor.dev](mailto:sales@zyvor.dev) or see [zyvor.dev](https://zyvor.dev).

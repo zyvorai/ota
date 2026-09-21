@@ -23,6 +23,21 @@ type Artifact struct {
 	SHA256 string `json:"sha256"`
 	Size   int64  `json:"size"`
 }
+
+// Target is one typed payload inside a schema-2 release. Handlers are fixed;
+// the agent does not run release scripts.
+type Target struct {
+	ID           string   `json:"id"`
+	Type         string   `json:"type"`
+	Artifact     Artifact `json:"artifact"`
+	Reboot       string   `json:"reboot,omitempty"`
+	Health       string   `json:"health,omitempty"`
+	Requires     string   `json:"requires,omitempty"`
+	DependsOn    []string `json:"depends_on,omitempty"`
+	Rollback     string   `json:"rollback,omitempty"`
+	StorageBytes int64    `json:"storage_bytes,omitempty"`
+}
+
 type Release struct {
 	Schema     int       `json:"schema"`
 	ID         string    `json:"id"`
@@ -31,8 +46,12 @@ type Release struct {
 	Backend    string    `json:"backend"`
 	Version    string    `json:"version"`
 	Expires    time.Time `json:"expires"`
-	Artifact   Artifact  `json:"artifact"`
+	Artifact   Artifact  `json:"artifact,omitempty"`
 	SBOMSHA256 string    `json:"sbom_sha256,omitempty"`
+	Targets    []Target  `json:"targets,omitempty"`
+	// Adaptive is refused unless the device config explicitly allows the
+	// board's existing RAUC adaptive mode. This agent does not invent a delta format.
+	Adaptive bool `json:"adaptive,omitempty"`
 }
 
 // Payload contains base64-encoded exact JSON bytes; signatures never depend on reserialization.
@@ -48,10 +67,12 @@ type Assignment struct {
 	NotBefore  time.Time `json:"not_before"`
 	Deadline   time.Time `json:"deadline"`
 	AutoReboot bool      `json:"auto_reboot"`
+	CampaignID string    `json:"campaign_id,omitempty"`
 }
 type Check struct {
 	Kind   string `json:"kind"`
 	Target string `json:"target"`
+	Name   string `json:"name,omitempty"`
 }
 type Config struct {
 	DeviceID             string            `json:"device_id"`
@@ -67,6 +88,12 @@ type Config struct {
 	HealthTimeoutSeconds int               `json:"health_timeout_seconds"`
 	HealthStableSeconds  int               `json:"health_stable_seconds"`
 	Checks               []Check           `json:"checks"`
+	Capabilities         []string          `json:"capabilities,omitempty"`
+	BandwidthBytesPerSec int64             `json:"bandwidth_bytes_per_sec,omitempty"`
+	DownloadWindowStart  string            `json:"download_window_start,omitempty"`
+	DownloadWindowEnd    string            `json:"download_window_end,omitempty"`
+	LocalMediaDir        string            `json:"local_media_dir,omitempty"`
+	AllowAdaptive        bool              `json:"allow_adaptive,omitempty"`
 	FleetURL             string            `json:"fleet_url,omitempty"`
 	FleetTokenFile       string            `json:"fleet_token_file,omitempty"`
 	FleetCA              string            `json:"fleet_ca,omitempty"`
@@ -114,6 +141,23 @@ func (c Config) Validate() error {
 		}
 		return fmt.Errorf("invalid health check: %s", check.Kind)
 	}
+	if c.BandwidthBytesPerSec < 0 {
+		return errors.New("bandwidth_bytes_per_sec must be >= 0")
+	}
+	if (c.DownloadWindowStart == "") != (c.DownloadWindowEnd == "") {
+		return errors.New("download window needs both start and end")
+	}
+	if c.DownloadWindowStart != "" {
+		if _, _, err := parseClock(c.DownloadWindowStart); err != nil {
+			return err
+		}
+		if _, _, err := parseClock(c.DownloadWindowEnd); err != nil {
+			return err
+		}
+	}
+	if c.LocalMediaDir != "" && !filepath.IsAbs(c.LocalMediaDir) {
+		return errors.New("local_media_dir must be absolute")
+	}
 	if c.FleetURL != "" {
 		u, e := url.Parse(c.FleetURL)
 		if e != nil || u.Scheme != "https" || u.Host == "" || u.User != nil || u.RawQuery != "" || u.Fragment != "" {
@@ -125,6 +169,61 @@ func (c Config) Validate() error {
 	}
 	return nil
 }
+
+// ErrDeferred means the download is intentionally waiting, not failed.
+var ErrDeferred = errors.New("deferred: outside download window")
+
+func (c Config) DownloadAllowed(now time.Time) error {
+	if c.DownloadWindowStart == "" {
+		return nil
+	}
+	sh, sm, err := parseClock(c.DownloadWindowStart)
+	if err != nil {
+		return err
+	}
+	eh, em, err := parseClock(c.DownloadWindowEnd)
+	if err != nil {
+		return err
+	}
+	cur := now.Hour()*60 + now.Minute()
+	start := sh*60 + sm
+	end := eh*60 + em
+	inside := false
+	if start <= end {
+		inside = cur >= start && cur < end
+	} else {
+		inside = cur >= start || cur < end
+	}
+	if !inside {
+		return ErrDeferred
+	}
+	return nil
+}
+
+func parseClock(v string) (int, int, error) {
+	var h, m int
+	if _, err := fmt.Sscanf(v, "%d:%d", &h, &m); err != nil || h < 0 || h > 23 || m < 0 || m > 59 || len(v) != 5 {
+		return 0, 0, errors.New("download window must be HH:MM")
+	}
+	return h, m, nil
+}
+
+func (r Release) OSTarget() (Target, bool) {
+	for _, t := range r.Targets {
+		if t.Type == "os.rauc" {
+			return t, true
+		}
+	}
+	return Target{}, false
+}
+
+func (r Release) HasOS() bool {
+	if _, ok := r.OSTarget(); ok {
+		return true
+	}
+	return r.Schema == 1
+}
+
 func StrictJSON(b []byte, v any) error {
 	d := json.NewDecoder(bytes.NewReader(b))
 	d.DisallowUnknownFields()
@@ -168,6 +267,8 @@ type Job struct {
 	BootID          string     `json:"boot_id,omitempty"`
 	HealthStarted   time.Time  `json:"health_started,omitempty"`
 	RebootRequested bool       `json:"reboot_requested"`
+	Deferred        bool       `json:"deferred,omitempty"`
+	PayloadsApplied bool       `json:"payloads_applied,omitempty"`
 	Updated         time.Time  `json:"updated"`
 }
 type Event struct {

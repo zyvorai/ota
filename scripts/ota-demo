@@ -1,0 +1,204 @@
+#!/usr/bin/env python3
+"""One-command simulator trial: enroll, commit, roll back, resume.
+
+Does not touch RAUC or Minewing silicon. --profile qemu only checks that a
+locally built generic lab disk exists and points at docs/QEMU-LAB.md.
+"""
+import argparse
+import functools
+import hashlib
+import http.server
+import json
+import os
+import pathlib
+import socket
+import subprocess
+import tempfile
+import threading
+import time
+from datetime import datetime, timedelta, timezone
+
+ROOT = pathlib.Path(__file__).resolve().parents[1]
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Zyvor OTA 15-minute trial")
+    parser.add_argument("command", choices=["up", "down"])
+    parser.add_argument("--profile", choices=["simulator", "qemu"], default="simulator")
+    parser.add_argument("--serve", action="store_true", help="leave Fleet and the device running")
+    args = parser.parse_args()
+    if args.command == "down":
+        print("ota-demo up runs in the foreground. Stop it with Ctrl-C.")
+        return
+    if args.profile == "qemu":
+        image = os.environ.get("QUALIFY_QEMU_IMAGE", "")
+        print("Generic QEMU lab recipe: ./scripts/hil/build-qemu-rauc-lab.sh /path/to/out")
+        print("Then: sha256sum /path/to/out/disk.img")
+        print("See docs/QEMU-LAB.md. This does not sign Minewing silicon.")
+        if not image or not pathlib.Path(image).is_file():
+            raise SystemExit("QUALIFY_QEMU_IMAGE is not a local disk. Refusing to download one.")
+        print(f"Found {image}. Boot it with the lab script, then re-run without --profile qemu")
+        print("to watch the signed commit and rollback on the simulator, or follow docs/HIL.md.")
+        return
+    run_simulator(args.serve)
+
+
+def run_simulator(serve):
+    cli = ROOT / "bin/zyvor-ota"
+    daemon = ROOT / "bin/zyvor-otad"
+    fleet = ROOT / "bin/zyvor-fleet-ref"
+    for path in (cli, daemon, fleet):
+        if not path.is_file():
+            raise SystemExit("run make build first")
+    work = pathlib.Path(tempfile.mkdtemp(prefix="zyvor-ota-demo-"))
+    assets = work / "assets"
+    assets.mkdir()
+    healthy = work / "healthy"
+    healthy.touch()
+    report = {"work": str(work), "scenarios": []}
+    procs = []
+
+    def command(*args, api=False):
+        argv = [str(cli), "-simulation-url", base] + list(args)
+        result = subprocess.run(argv, text=True, capture_output=True, timeout=35)
+        if result.returncode:
+            raise SystemExit(f"{args}: {result.stdout} {result.stderr}")
+        return json.loads(result.stdout) if api else result.stdout
+
+    def start_daemon():
+        proc = subprocess.Popen(
+            [str(daemon), "-config", str(work / "agent.json"), "-simulation-listen", f"127.0.0.1:{api_port}"],
+            stdout=log, stderr=log,
+        )
+        procs.append(proc)
+        for _ in range(100):
+            if proc.poll() is not None:
+                raise SystemExit("daemon exited")
+            try:
+                command("status", "json", api=True)
+                return proc
+            except SystemExit:
+                time.sleep(0.05)
+        raise SystemExit("daemon did not start")
+
+    def stop_all():
+        for proc in procs:
+            if proc.poll() is None:
+                proc.terminate()
+                proc.wait(timeout=10)
+        log.close()
+
+    handler = functools.partial(http.server.SimpleHTTPRequestHandler, directory=str(assets))
+    files = http.server.ThreadingHTTPServer(("127.0.0.1", 0), handler)
+    threading.Thread(target=files.serve_forever, daemon=True).start()
+    with socket.socket() as probe:
+        probe.bind(("127.0.0.1", 0))
+        api_port = probe.getsockname()[1]
+    base = f"http://127.0.0.1:{api_port}"
+    log = (work / "daemon.log").open("w+")
+    try:
+        subprocess.check_call([str(cli), "keygen", str(work / "keys")], stdout=subprocess.DEVNULL)
+        token = "lab-secret"
+        (work / "fleet.token").write_text(token)
+        fleet_proc = subprocess.Popen([
+            str(fleet), "-listen", "127.0.0.1:0", "-token", token, "-devices", "demo-1",
+            "-write-ca", str(work / "fleet.crt"),
+        ], stderr=subprocess.PIPE, stdout=subprocess.DEVNULL, text=True)
+        procs.append(fleet_proc)
+        line = fleet_proc.stderr.readline()
+        if "listening" not in line:
+            raise SystemExit(f"fleet-ref did not start: {line}")
+        fleet_url = line.split("https://", 1)[1].split()[0]
+        config = {
+            "device_id": "demo-1", "compatible": "qemu-demo", "backend": "simulator",
+            "state_dir": str(work / "state"), "socket": str(work / "agent.sock"),
+            "trust_keys": {"demo": (work / "keys/release.pub").read_text().strip()},
+            "download_hosts": [f"127.0.0.1:{files.server_port}"],
+            "max_artifact_bytes": 1048576, "reserve_bytes": 1048576,
+            "health_timeout_seconds": 4, "health_stable_seconds": 0,
+            "checks": [{"kind": "file", "target": str(healthy)}],
+            "fleet_url": "https://" + fleet_url,
+            "fleet_token_file": str(work / "fleet.token"),
+            "fleet_ca": str(work / "fleet.crt"),
+        }
+        (work / "agent.json").write_text(json.dumps(config))
+        start_daemon()
+
+        def scenario(name, sequence, version, break_health):
+            data = (f"{name} {sequence}\n" * 40).encode()
+            (assets / "os.raucb").write_bytes(data)
+            now = datetime.now(timezone.utc)
+            release = {
+                "schema": 1, "id": f"release-{sequence}", "sequence": sequence,
+                "compatible": "qemu-demo", "backend": "simulator", "version": version,
+                "expires": (now + timedelta(hours=1)).isoformat(),
+                "artifact": {
+                    "url": f"http://127.0.0.1:{files.server_port}/os.raucb",
+                    "size": len(data),
+                    "sha256": hashlib.sha256(data).hexdigest(),
+                },
+            }
+            (work / "release.json").write_text(json.dumps(release))
+            subprocess.check_call([
+                str(cli), "sign", str(work / "release.json"), str(work / "keys/release.key"),
+                "demo", str(work / "envelope.json"),
+            ], stdout=subprocess.DEVNULL)
+            assignment = {
+                "job_id": f"job-{sequence}", "device_id": "demo-1", "campaign_id": "demo",
+                "release": json.loads((work / "envelope.json").read_text()),
+                "not_before": (now - timedelta(minutes=1)).isoformat(),
+                "deadline": (now + timedelta(minutes=10)).isoformat(),
+                "auto_reboot": False,
+            }
+            path = work / "assignment.json"
+            path.write_text(json.dumps(assignment))
+            command("submit", str(path), api=True)
+            wait(command, assignment["job_id"], "awaiting_reboot")
+            if name == "interrupted":
+                procs[-1].terminate()
+                procs[-1].wait(timeout=10)
+                start_daemon()
+                got = command("job", assignment["job_id"], api=True)["state"]
+                if got != "awaiting_reboot":
+                    raise SystemExit(f"interrupted job did not resume, state={got}")
+            if break_health:
+                healthy.unlink()
+            command("reboot", api=True)
+            want = "rolled_back" if break_health else "committed"
+            final = wait(command, assignment["job_id"], want)
+            healthy.touch()
+            report["scenarios"].append({"name": name, "state": final["state"], "job_id": assignment["job_id"]})
+            print(f"{name}: {final['state']}")
+
+        scenario("healthy", 1, "0.1.1", False)
+        scenario("failed-health", 2, "0.1.2", True)
+        scenario("interrupted", 3, "0.1.3", False)
+        proof = work / "proof.json"
+        proof.write_text(json.dumps(report, indent=2))
+        print(f"proof: {proof}")
+        print("Minewing silicon was not qualified by this run.")
+        if serve:
+            print(f"serving. state={work}  Ctrl-C to stop")
+            while True:
+                time.sleep(1)
+    finally:
+        if not serve:
+            stop_all()
+            files.shutdown()
+
+
+def wait(command, job, expected):
+    deadline = time.monotonic() + 35
+    value = {}
+    while time.monotonic() < deadline:
+        value = command("job", job, api=True)
+        if value["state"] == expected:
+            return value
+        if value["state"] in {"failed", "needs_recovery", "rolled_back", "committed"} and value["state"] != expected:
+            raise SystemExit(f"job entered {value['state']}: {value}")
+        time.sleep(0.15)
+    raise SystemExit(f"timeout waiting for {expected}: {value}")
+
+
+if __name__ == "__main__":
+    main()

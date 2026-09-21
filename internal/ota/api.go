@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strconv"
 	"time"
 )
 
@@ -75,7 +74,7 @@ func (e *Engine) Handler() http.Handler {
 	mux.HandleFunc("GET /metrics", func(w http.ResponseWriter, r *http.Request) {
 		d := e.Store.View()
 		w.Header().Set("Content-Type", "text/plain; version=0.0.4")
-		_, _ = io.WriteString(w, "# TYPE zyvor_ota_pending_events gauge\nzyvor_ota_pending_events "+strconv.Itoa(len(d.Events))+"\n# TYPE zyvor_ota_release_sequence gauge\nzyvor_ota_release_sequence "+strconv.FormatUint(d.HighSequence, 10)+"\n")
+		e.WriteMetrics(w, len(d.Events), d.HighSequence)
 	})
 	return mux
 }

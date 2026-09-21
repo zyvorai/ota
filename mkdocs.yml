@@ -1,5 +1,5 @@
 site_name: Zyvor OTA
-site_description: Signed, recoverable device OS updates for the Zyvor Platform.
+site_description: The safest open OTA runtime for Linux edge fleets.
 site_url: https://zyvorai.github.io/ota/
 repo_url: https://github.com/zyvorai/ota
 repo_name: zyvorai/ota
@@ -43,13 +43,19 @@ nav:
   - Home: index.md
   - Getting Started:
       - Tutorial: TUTORIAL.md
+      - Roadmap: ROADMAP.md
       - User Guide: USER-GUIDE.md
       - Lab stack: LAB.md
+      - QEMU lab: QEMU-LAB.md
+      - Demo script: DEMO-VIDEO.md
   - Reference:
       - Architecture: ARCHITECTURE.md
       - Fleet Adapter Contract: FLEET.md
       - Device Integration: DEVICE-INTEGRATION.md
+      - Yocto: YOCTO.md
+      - Buildroot: BUILDROOT.md
       - Qualification: QUALIFICATION.md
+      - Supply chain (not v1): SUPPLY-CHAIN.md
   - Operations:
       - Operator Runbook: OPERATIONS.md
       - Production Runbook: PRODUCTION.md

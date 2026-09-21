@@ -11,6 +11,7 @@ build: ## Build otactl (and the zyvor-ota copy), daemon, and fleet-ref
 	cp -f bin/otactl bin/zyvor-ota
 	$(GO) build -buildvcs=false -trimpath -o bin/zyvor-otad ./cmd/zyvor-otad
 	$(GO) build -buildvcs=false -trimpath -o bin/zyvor-fleet-ref ./cmd/zyvor-fleet-ref
+	$(GO) build -buildvcs=false -trimpath -o bin/zyvor-relay ./cmd/zyvor-relay
 test: ## Unit tests
 	$(GO) test ./...
 race: ## Tests with the race detector
@@ -20,6 +21,8 @@ vet: ## go vet
 check: test race vet build ## Tests, race, vet, and build
 demo: build
 	python3 scripts/e2e.py
+ota-demo: build
+	python3 scripts/ota-demo up
 qualify: build
 	python3 scripts/qualify-matrix.py
 hil:
@@ -35,10 +38,12 @@ dist:
 	cp -f dist/otactl-linux-amd64 dist/zyvor-ota-linux-amd64
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GO) build -buildvcs=false -trimpath -o dist/zyvor-otad-linux-amd64 ./cmd/zyvor-otad
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GO) build -buildvcs=false -trimpath -o dist/zyvor-fleet-ref-linux-amd64 ./cmd/zyvor-fleet-ref
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GO) build -buildvcs=false -trimpath -o dist/zyvor-relay-linux-amd64 ./cmd/zyvor-relay
 	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 $(GO) build -buildvcs=false -trimpath -o dist/otactl-linux-arm64 ./cmd/zyvor-ota
 	cp -f dist/otactl-linux-arm64 dist/zyvor-ota-linux-arm64
 	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 $(GO) build -buildvcs=false -trimpath -o dist/zyvor-otad-linux-arm64 ./cmd/zyvor-otad
 	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 $(GO) build -buildvcs=false -trimpath -o dist/zyvor-fleet-ref-linux-arm64 ./cmd/zyvor-fleet-ref
+	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 $(GO) build -buildvcs=false -trimpath -o dist/zyvor-relay-linux-arm64 ./cmd/zyvor-relay
 	cp LICENSE NOTICE THIRD_PARTY_NOTICES.md dist/
 	cp vendor/github.com/godbus/dbus/v5/LICENSE dist/GODBUS-LICENSE
 	cp "$$($(GO) env GOROOT)/LICENSE" dist/GO-LICENSE

@@ -65,5 +65,9 @@ cannot operate offline. Fleet connectivity can be a separate promotion criterion
 
 ## Deferred capabilities
 
-Fleet push/websocket transport, centrally changing an in-progress deadline,
-bandwidth budgets and staged package dependencies are not implemented in v0.1.
+Fleet push or websocket transport is not in the v1 agent contract. Bandwidth
+limits and download windows are agent settings (`bandwidth_bytes_per_sec`,
+`download_window_start` / `download_window_end`), separate from the assignment
+maintenance window. Staged OS, container, config, and model payloads are schema
+2 targets in the agent. Canary and wave policy for OTA devices lives in Zyvor
+Fleet, not in this repository.

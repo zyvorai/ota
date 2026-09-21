@@ -56,10 +56,12 @@ Fleet must acknowledge only contiguous event sequences durably stored by its
 server. If operating without Fleet, export `events`, store the export durably,
 then run `zyvor-ota ack LAST_SEQUENCE`. ACK does not erase job history.
 
-The job journal is deliberately bounded and has no online compaction command in
-v0.1. At 10,000 jobs, retire/reprovision the device identity under an audited
-maintenance process with retained history and a trusted release-sequence baseline.
-Deleting the journal to regain space invalidates replay protection.
+The hot journal keeps up to 10,000 jobs. Older terminal jobs move into the
+SQLite archive instead of rejecting the next update. Unacknowledged events are
+still not dropped. If the outbox exceeds 9,000 events, new jobs pause until
+Fleet (or `zyvor-ota ack`) drains them. A corrupt `ota.db` fails startup;
+restore the last `VACUUM INTO` backup. Do not delete the journal to reset the
+release sequence.
 
 ## Trust rotation
 

@@ -92,6 +92,12 @@ func (f *Fleet) request(ctx context.Context, method, suffix string, body any) ([
 	return data, resp.StatusCode, nil
 }
 func (f *Fleet) Sync(ctx context.Context, e *Engine) error {
+	started := time.Now()
+	err := f.sync(ctx, e)
+	e.Stats.fleetSync(err == nil, time.Since(started))
+	return err
+}
+func (f *Fleet) sync(ctx context.Context, e *Engine) error {
 	events := e.Store.View().Events
 	if len(events) > 100 {
 		events = events[:100]

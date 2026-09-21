@@ -16,10 +16,24 @@ preserving notices (see [`NOTICE`](https://github.com/zyvorai/ota/blob/main/NOTI
 dependency) is not relicensed by this project — check its own license
 separately. See the README's [License](https://github.com/zyvorai/ota#license) section.
 
-**What does "Enterprise" mean here?** Production support, SLAs, and
-Zyvor's other commercial products are licensed separately from this
-open-source agent. Contact sales@zyvor.dev. Nothing in this repository
-requires it.
+**What does "Enterprise" mean here?** Operational leverage on top of the same
+agent: Fleet campaign controls, SSO and approvals, site relay, compliance
+evidence, certified board enablement, SLA and LTS. Contact sales@zyvor.dev.
+Rollback, signature verification, the simulator, the QEMU lab recipe, and the
+basic Fleet contract stay in this Apache-2.0 repository. Nothing here requires
+a paid license to update a device safely.
+
+## Community and enterprise
+
+| Community (this repository) | Enterprise |
+|---|---|
+| Agent, CLI, RAUC backend, simulator, local API | Fleet dashboard and campaign orchestration |
+| Signed releases and rollback | SSO/RBAC, approvals, and immutable audit |
+| QEMU reference recipe | Site Relay operations and offline fleet management |
+| Prometheus metrics | Compliance evidence and fleet analytics |
+| Community board profiles | Certified board enablement |
+| Self-support | SLA, LTS releases, and emergency response |
+| Basic Fleet contract | Multi-tenancy, policy engine, and premium integrations |
 
 ## Support
 

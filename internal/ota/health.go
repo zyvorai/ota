@@ -41,9 +41,22 @@ func LocalHealth(checks []Check) HealthFunc {
 			}
 			cancel()
 			if err != nil {
-				return fmt.Errorf("%s health check failed", check.Kind)
+				name := check.Name
+				if name == "" {
+					name = check.Kind + ":" + check.Target
+				}
+				return &HealthError{Name: name, Err: fmt.Errorf("%s health check failed", check.Kind)}
 			}
 		}
 		return nil
 	}
 }
+
+// HealthError names the check that failed so metrics can count it.
+type HealthError struct {
+	Name string
+	Err  error
+}
+
+func (e *HealthError) Error() string { return e.Err.Error() }
+func (e *HealthError) Unwrap() error { return e.Err }

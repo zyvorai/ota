@@ -38,11 +38,13 @@ jobs:
           files: |
             dist/**
           fail_on_unmatched_files: true
+          name: Signed rollback you can try in 15 minutes (${{ github.ref_name }})
           generate_release_notes: true
           body: |
-            Zyvor OTA ${{ github.ref_name }}
+            Signed rollback you can try in 15 minutes.
 
-            Verify `SHA256SUMS` with Cosign against this workflow identity, then `sha256sum -c SHA256SUMS`.
-            Board qualification status is tracked in `docs/QUALIFICATION.md` and is not implied by this tag alone.
+            Zyvor OTA ${{ github.ref_name }} is an engineering preview. Verify `SHA256SUMS` with Cosign against this workflow identity, then `sha256sum -c SHA256SUMS`.
+
+            The generic QEMU lab disk is not attached here. Build it with `scripts/hil/build-qemu-rauc-lab.sh` and record the checksum (`docs/QEMU-LAB.md`). Minewing silicon qualification is not implied by this tag.
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

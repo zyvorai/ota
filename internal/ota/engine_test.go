@@ -420,7 +420,7 @@ func TestConfigRejectsUnsafeSettings(t *testing.T) {
 			case "fleet":
 				c.FleetURL = "http://example.com"
 			case "check":
-				c.Checks = []Check{{"http", "http://example.com/health"}}
+				c.Checks = []Check{{Kind: "http", Target: "http://example.com/health"}}
 			}
 			if c.Validate() == nil {
 				t.Fatal("unsafe config accepted")
@@ -462,7 +462,7 @@ func TestNormalBootHealthFailureUsesKnownFallback(t *testing.T) {
 
 func TestJournalWriteFailurePoisonsStore(t *testing.T) {
 	h := newHarness(t)
-	if err := os.Mkdir(filepath.Join(h.e.Config.StateDir, "state.json"), 0700); err != nil {
+	if err := h.s.db.Close(); err != nil {
 		t.Fatal(err)
 	}
 	if err := h.s.Update(func(d *Database) error { d.HighSequence = 5; return nil }); err == nil {

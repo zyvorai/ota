@@ -1,5 +1,10 @@
 ## Problem and resulting behavior
 
+## Roadmap claim
+
+- [ ] This change does not claim a [roadmap](../docs/ROADMAP.md) capability the code does not implement
+- [ ] It does not claim Uptane conformance or a signed Minewing silicon result
+
 ## Verification
 
 - [ ] Unit/protocol/race tests

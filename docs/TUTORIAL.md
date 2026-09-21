@@ -1,21 +1,59 @@
 ---
 hero:
   eyebrow: TUTORIAL
-  title: 'Tutorial: your first simulator update'
+  title: Fifteen-minute trial
+  lead: Download nothing exotic. Start a local Fleet reference, enroll one device, ship a good release, then ship a bad one and watch rollback.
 ---
 
-This walks the exact lifecycle `make demo` automates (`scripts/e2e.py`), one
-command at a time, so you can see what each step actually does. Every command
-below was run against a real build of this repository; every JSON block is
-literal captured output, not a mock-up (timestamps, keys, and hashes will
-differ on your machine).
+You should not need to read RAUC, partition tables, or key ceremonies before the first commit and rollback. Those details are in [DEVICE-INTEGRATION.md](DEVICE-INTEGRATION.md) when you leave the simulator.
 
-**This is the simulator backend only.** It never touches RAUC, D-Bus, or real
-disks — `internal/ota/backend.go`'s `Simulator.Reboot` just rewrites a local
-JSON slot file. For a real board, see [DEVICE-INTEGRATION](DEVICE-INTEGRATION.md)
-instead; this tutorial does not qualify anything on hardware.
+Requirements: Linux, Go 1.27.1 or a newer supported patch, Python 3. The QEMU profile also needs KVM or TCG and a disk you built yourself ([QEMU-LAB.md](QEMU-LAB.md)).
 
-Requirements: Linux, Go 1.27.1 or a newer supported patch, Python 3.
+## One command
+
+```sh
+make build
+./scripts/ota-demo up
+```
+
+That starts a local artifact server, `zyvor-fleet-ref`, and one enrolled simulator device. It then:
+
+1. Signs and uploads a healthy release and waits until the job is `committed`.
+2. Signs a release whose health file is missing and waits until the job is `rolled_back`.
+3. Starts a third release, stops the daemon during download, starts it again, and records either a resume through `committed` or `needs_recovery` with the documented abort path.
+
+The report is written to the demo work directory and printed at the end. It is the downloadable proof for this run. It is not Minewing evidence.
+
+```sh
+./scripts/ota-demo up --profile qemu   # only if the generic lab disk already exists
+./scripts/ota-demo down                 # stop a previous up left in the foreground with --serve
+```
+
+`./scripts/ota-demo up --serve` leaves Fleet and the device running so you can repeat the three examples under `examples/scenarios/` yourself.
+
+## The seven steps, if you run them by hand
+
+1. **Reference image.** Simulator needs none. For RAUC, build the generic lab: `./scripts/hil/build-qemu-rauc-lab.sh /path/to/out` and checksum it. Do not treat that disk as a Minewing image.
+2. **Fleet.** `bin/zyvor-fleet-ref -token lab-secret -devices demo-1 -listen 127.0.0.1:8443` with the TLS material `ota-demo` generates, or use `--serve`.
+3. **Enroll.** One device id and one token file. `ota-demo` writes both.
+4. **Sign a release.** `zyvor-ota keygen` and `zyvor-ota sign`. The private key stays off the device.
+5. **Canary.** Put the assignment on that one device. A multi-device wave lives in Zyvor Fleet, not in this agent.
+6. **Watch.** `zyvor-ota status json` moves through download, install, reboot, health, and commit.
+7. **Break it.** Remove the health file (the failed-health scenario) and confirm `rolled_back`.
+
+Scenarios you can point at after `--serve`:
+
+| Example | What you should see |
+|---|---|
+| [examples/scenarios/healthy](../examples/scenarios/healthy/README.md) | `committed` |
+| [examples/scenarios/failed-health](../examples/scenarios/failed-health/README.md) | `rolled_back` |
+| [examples/scenarios/interrupted](../examples/scenarios/interrupted/README.md) | resume, or `needs_recovery` if you kill the daemon during install |
+
+## Command by command (simulator)
+
+The rest of this page is the same lifecycle `make demo` runs, one command at a time. It never touches RAUC, D-Bus, or real disks.
+
+Requirements match the section above.
 
 ## 1. Build and set up a workspace
 
