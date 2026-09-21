@@ -27,12 +27,14 @@ var (
 // Store is a single-writer SQLite journal (WAL, full synchronous). StateDir must
 // reside on a persistent local filesystem shared by both OS slots, never tmpfs/NFS.
 type Store struct {
-	mu       sync.Mutex
-	dir      string
-	lock     *os.File
-	db       *sql.DB
-	data     Database
-	poisoned bool
+	mu           sync.Mutex
+	dir          string
+	lock         *os.File
+	db           *sql.DB
+	data         Database
+	poisoned     bool
+	beforeCommit func()
+	afterCommit  func()
 }
 
 func OpenStore(dir string) (*Store, error) {
@@ -257,7 +259,16 @@ func (s *Store) persist(d Database, spilled []Job) error {
 			return err
 		}
 	}
-	return tx.Commit()
+	if s.beforeCommit != nil {
+		s.beforeCommit()
+	}
+	if err = tx.Commit(); err != nil {
+		return err
+	}
+	if s.afterCommit != nil {
+		s.afterCommit()
+	}
+	return nil
 }
 
 // Backup writes a consistent copy. The destination must not already exist.

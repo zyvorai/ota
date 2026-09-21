@@ -29,6 +29,8 @@ in production — see `cmd/zyvor-ota/main.go`).
 | `reboot` | Requests reboot into the newly installed slot. Only valid while a job is `awaiting_reboot` and inside its assignment window. |
 | `recover-abort` | Operator-only: marks an ambiguous install target `bad` and restores the original slot as next boot target. Only valid in `needs_recovery`, with the backend idle on the original slot. |
 | `gc` | Deletes cached/partial artifact files. Refused while a job is active. |
+| `backup DEST` | Writes a `VACUUM INTO` copy of the journal to an absolute path that must not already exist. Stop the agent before replacing `ota.db` with that copy. |
+| `archive` | Prints terminal jobs that have left the hot journal. Hot jobs are omitted. |
 
 ## `zyvor-otad` daemon flags
 

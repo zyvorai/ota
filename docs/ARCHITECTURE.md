@@ -63,7 +63,9 @@ The filesystem must honor fsync. Use persistent ext4, or an equivalently
 qualified local filesystem, shared by both slots. Do not use tmpfs, an overlay
 ephemeral layer, NFS, or a filesystem that exists in only one OS slot.
 A failed write poisons the process and blocks further mutations. It does not
-reset the release-sequence high-water mark.
+reset the release-sequence high-water mark. A process exit before the snapshot
+transaction commits leaves the previous snapshot. An exit after that commit
+returns is recovered from the write-ahead log on the next start.
 
 ## Installation and boot
 
