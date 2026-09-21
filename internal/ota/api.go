@@ -2,6 +2,7 @@
 package ota
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -71,6 +72,29 @@ func (e *Engine) Handler() http.Handler {
 	mux.HandleFunc("POST /v1/reboot", func(w http.ResponseWriter, r *http.Request) { apiAction(w, e.RequestReboot(r.Context())) })
 	mux.HandleFunc("POST /v1/recover-abort", func(w http.ResponseWriter, r *http.Request) { apiAction(w, e.RecoverAbort(r.Context())) })
 	mux.HandleFunc("POST /v1/gc", func(w http.ResponseWriter, r *http.Request) { apiAction(w, e.GC()) })
+	mux.HandleFunc("POST /v1/backup", func(w http.ResponseWriter, r *http.Request) {
+		var in struct {
+			Path string `json:"path"`
+		}
+		if err := decodeRequest(w, r, &in); err != nil {
+			JSONResponse(w, 400, map[string]string{"error": err.Error()})
+			return
+		}
+		if !filepath.IsAbs(in.Path) {
+			JSONResponse(w, 400, map[string]string{"error": "backup destination must be absolute"})
+			return
+		}
+		apiAction(w, e.Store.Backup(in.Path))
+	})
+	mux.HandleFunc("GET /v1/archive", func(w http.ResponseWriter, r *http.Request) {
+		var buf bytes.Buffer
+		if err := e.Store.ExportArchive(&buf); err != nil {
+			JSONResponse(w, 409, map[string]string{"error": err.Error()})
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write(buf.Bytes())
+	})
 	mux.HandleFunc("GET /metrics", func(w http.ResponseWriter, r *http.Request) {
 		d := e.Store.View()
 		w.Header().Set("Content-Type", "text/plain; version=0.0.4")

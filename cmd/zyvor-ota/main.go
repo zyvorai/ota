@@ -33,7 +33,7 @@ func run() error {
 	flag.Parse()
 	a := flag.Args()
 	if len(a) == 0 {
-		return errors.New("usage: otactl [-socket PATH] version|keygen DIR|sign RELEASE KEY KEY_ID OUT|campaign-export ASSIGNMENT ARTIFACT_DIR OUT_DIR|campaign-import CAMPAIGN_DIR MEDIA_DIR|status [json]|job ID|submit ASSIGNMENT|events|ack SEQUENCE|reboot|recover-abort|gc  (zyvor-ota is the same binary)")
+		return errors.New("usage: otactl [-socket PATH] version|keygen DIR|sign RELEASE KEY KEY_ID OUT|campaign-export ASSIGNMENT ARTIFACT_DIR OUT_DIR|campaign-import CAMPAIGN_DIR MEDIA_DIR|status [json]|job ID|submit ASSIGNMENT|events|ack SEQUENCE|reboot|recover-abort|gc|backup DEST|archive  (zyvor-ota is the same binary)")
 	}
 	switch a[0] {
 	case "version":
@@ -144,6 +144,19 @@ func run() error {
 	case "reboot", "recover-abort", "gc":
 		method = http.MethodPost
 		path = "/v1/" + a[0]
+	case "backup":
+		if len(a) != 2 || !filepath.IsAbs(a[1]) {
+			return errors.New("backup DEST must be an absolute path")
+		}
+		var err error
+		body, err = json.Marshal(map[string]string{"path": a[1]})
+		if err != nil {
+			return err
+		}
+		method = http.MethodPost
+		path = "/v1/backup"
+	case "archive":
+		path = "/v1/archive"
 	default:
 		return errors.New("unknown command")
 	}

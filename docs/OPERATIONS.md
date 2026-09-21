@@ -81,7 +81,10 @@ The hot journal keeps up to 10,000 jobs. Older terminal jobs move into the
 SQLite archive instead of rejecting the next update. Unacknowledged events are
 still not dropped. If the outbox exceeds 9,000 events, new jobs pause until
 Fleet (or `zyvor-ota ack`) drains them. A corrupt `ota.db` fails startup;
-restore the last `VACUUM INTO` backup. Do not delete the journal to reset the
+restore the last `VACUUM INTO` backup. Take that copy while the agent is
+running with `zyvor-ota backup /var/backups/ota.db`. Stop the agent before
+replacing `ota.db`. `zyvor-ota archive` prints terminal jobs that have already
+left the hot journal. Do not delete the journal to reset the
 release sequence.
 
 ## Trust rotation

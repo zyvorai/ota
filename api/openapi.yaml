@@ -162,6 +162,58 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /v1/backup:
+    post:
+      operationId: backupJournal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [path]
+              properties:
+                path:
+                  type: string
+                  description: Absolute path of a new file. The agent writes a VACUUM INTO copy there.
+      responses:
+        '200':
+          description: Backup written
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ok'
+        '400':
+          description: Path is missing or not absolute
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Destination exists or the journal could not be copied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/archive:
+    get:
+      operationId: exportArchive
+      responses:
+        '200':
+          description: Archived jobs, oldest first. Hot jobs are omitted.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        '409':
+          description: Journal read failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /metrics:
     get:
       operationId: metrics

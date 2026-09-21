@@ -10,6 +10,8 @@
 // operationId: requestReboot
 // operationId: recoverAbort
 // operationId: cleanCache
+// operationId: backupJournal
+// operationId: exportArchive
 // operationId: metrics
 package otaclient
 
@@ -21,6 +23,7 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/zyvorai/ota/internal/ota"
@@ -28,6 +31,8 @@ import (
 
 type Client struct {
 	HTTP *http.Client
+	// Base is the API origin. Empty means the Unix socket client (http://unix).
+	Base string
 }
 
 func Unix(path string) *Client {
@@ -103,8 +108,18 @@ func (c *Client) GC(ctx context.Context) error {
 	return c.do(ctx, http.MethodPost, "/v1/gc", nil, 200, nil)
 }
 
+func (c *Client) Backup(ctx context.Context, path string) error {
+	return c.do(ctx, http.MethodPost, "/v1/backup", map[string]string{"path": path}, 200, nil)
+}
+
+func (c *Client) Archive(ctx context.Context) (json.RawMessage, error) {
+	var out json.RawMessage
+	err := c.do(ctx, http.MethodGet, "/v1/archive", nil, 200, &out)
+	return out, err
+}
+
 func (c *Client) Metrics(ctx context.Context) (string, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "http://unix/metrics", nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.url("/metrics"), nil)
 	if err != nil {
 		return "", err
 	}
@@ -132,7 +147,7 @@ func (c *Client) do(ctx context.Context, method, path string, body any, want int
 		}
 		r = bytes.NewReader(b)
 	}
-	req, err := http.NewRequestWithContext(ctx, method, "http://unix"+path, r)
+	req, err := http.NewRequestWithContext(ctx, method, c.url(path), r)
 	if err != nil {
 		return err
 	}
@@ -155,4 +170,12 @@ func (c *Client) do(ctx context.Context, method, path string, body any, want int
 		return nil
 	}
 	return json.Unmarshal(b, dest)
+}
+
+func (c *Client) url(path string) string {
+	base := c.Base
+	if base == "" {
+		base = "http://unix"
+	}
+	return strings.TrimRight(base, "/") + path
 }

@@ -262,6 +262,10 @@ func (s *Store) persist(d Database, spilled []Job) error {
 
 // Backup writes a consistent copy. The destination must not already exist.
 func (s *Store) Backup(dest string) error {
+	dest = filepath.Clean(dest)
+	if !filepath.IsAbs(dest) {
+		return errors.New("backup destination must be absolute")
+	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if _, err := os.Stat(dest); err == nil {
