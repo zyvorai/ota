@@ -12,6 +12,9 @@
 [![Go Reference](https://img.shields.io/badge/go-1.27.1-00ADD8?logo=go&logoColor=white)](go.mod)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
+[![Book a demo](https://img.shields.io/badge/Book_a_demo-0071e3?style=for-the-badge)](https://zyvor.dev/schedule?utm_source=github&utm_medium=ota&utm_campaign=readme_hero)
+[![30-day PoC](https://img.shields.io/badge/30--day_PoC-1d1d1f?style=for-the-badge)](https://zyvor.dev/poc?utm_source=github&utm_medium=ota&utm_campaign=readme_hero)
+
 <br/>
 
 <img src="docs/assets/readme/ota-lifecycle.svg" alt="Fleet assigns a signed release; the agent verifies it, installs to the inactive A/B slot, reboots, checks health, then commits or rolls back automatically. An ambiguous crash instead leaves the job needing operator recovery." width="880"/>
@@ -255,4 +258,6 @@ Customers pay for operational leverage, not for rollback or signature checks.
 Those stay in the Apache-2.0 agent. Enterprise is the Fleet dashboard, SSO and
 approvals, site relay, compliance evidence, certified board enablement, and
 support. See the [FAQ](docs/FAQ.md#community-and-enterprise). Contact
-[sales@zyvor.dev](mailto:sales@zyvor.dev) or see [zyvor.dev](https://zyvor.dev).
+[sales@zyvor.dev](mailto:sales@zyvor.dev) or see [zyvor.dev](https://zyvor.dev?utm_source=github&utm_medium=ota&utm_campaign=readme_footer).
+
+**Next step:** [Book a demo](https://zyvor.dev/schedule?utm_source=github&utm_medium=ota&utm_campaign=readme_footer) · [30-day PoC](https://zyvor.dev/poc?utm_source=github&utm_medium=ota&utm_campaign=readme_footer)
