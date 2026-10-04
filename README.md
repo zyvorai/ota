@@ -3,13 +3,6 @@
 
 # Zyvor OTA
 
-<img src="docs/social/ota-hero-dark.jpg" alt="Zyvor OTA - Signed A/B updates. Commit or roll back." width="100%">
-
-
-### Signed, recoverable device OS updates for the Zyvor Platform.
-
-[Tutorial](docs/TUTORIAL.md) · [User Guide](docs/USER-GUIDE.md) · [Architecture](docs/ARCHITECTURE.md) · [Operations](docs/OPERATIONS.md)
-
 [![CI](https://github.com/zyvorai/ota/actions/workflows/ci.yml/badge.svg)](https://github.com/zyvorai/ota/actions/workflows/ci.yml)
 [![Release](https://github.com/zyvorai/ota/actions/workflows/release.yml/badge.svg)](https://github.com/zyvorai/ota/actions/workflows/release.yml)
 [![Go Reference](https://img.shields.io/badge/go-1.27.1-00ADD8?logo=go&logoColor=white)](go.mod)
@@ -17,16 +10,21 @@
 
 [![Book a demo](https://img.shields.io/badge/Book_a_demo-0071e3?style=for-the-badge)](https://zyvor.dev/schedule?utm_source=github&utm_medium=ota&utm_campaign=readme_hero)
 [![30-day PoC](https://img.shields.io/badge/30--day_PoC-1d1d1f?style=for-the-badge)](https://zyvor.dev/poc?utm_source=github&utm_medium=ota&utm_campaign=readme_hero)
+[![Quickstart](https://img.shields.io/badge/Quickstart_with_make_demo-66d4cf?style=for-the-badge)](#quickstart)
 
-<br/>
+[Tutorial](docs/TUTORIAL.md) · [User Guide](docs/USER-GUIDE.md) · [Architecture](docs/ARCHITECTURE.md) · [Operations](docs/OPERATIONS.md)
 
-<img src="docs/assets/readme/ota-lifecycle.svg" alt="Fleet assigns a signed release; the agent verifies it, installs to the inactive A/B slot, reboots, checks health, then commits or rolls back automatically. An ambiguous crash instead leaves the job needing operator recovery." width="880"/>
+<img src="docs/social/ota-hero-dark.jpg" alt="Zyvor OTA - Signed A/B updates. Commit or roll back." width="100%">
+
+### Signed, recoverable device OS updates for the Zyvor Platform.
+
+**The safest open OTA runtime for Linux edge fleets** — signed updates, automatic rollback, offline operation, and verifiable deployment evidence without cloud lock-in.
+
+**Ed25519-signed releases** · **RAUC A/B slots** · **Health-gated commit** · **Automatic rollback** · **No inbound cloud port**
 
 </div>
 
-**The safest open OTA runtime for Linux edge fleets** — signed updates,
-automatic rollback, offline operation, and verifiable deployment evidence
-without cloud lock-in.
+---
 
 **v0.2.0 — engineering preview, Apache-2.0.** Working Go agent and CLI, native
 RAUC D-Bus adapter, simulator, automated tests, and CI lab-substitutes.
@@ -37,6 +35,49 @@ The [roadmap](docs/ROADMAP.md) is what turns this engine into a 15-minute trial.
 
 Fleet decides **which devices and when**. OTA verifies and installs a device OS
 release. RAUC writes the inactive slot and integrates with the board bootloader.
+
+## What's new
+
+**v0.2.0 — engineering preview** ([changelog](CHANGELOG.md)):
+
+| Area | What shipped |
+|---|---|
+| Crash-safe journal | SQLite journal with terminal-job archive, `otactl backup` and `otactl archive`; a legacy `state.json` is imported once |
+| Schema 2 targets | `os.rauc`, `container.oci`, `config.bundle` and `model.oci` commit or roll back as one set; no shell handlers |
+| Offline and constrained sites | Offline campaign export/import, local media, download window, bandwidth cap, jitter and a site relay client |
+| Optional trust metadata | `trust_dir`: threshold root, delegated target types, snapshot and timestamp binding, signed SBOM, reject list and an append-only release log (no conformance claim, no TPM driver) |
+| Operator CLI | `otactl` is the primary CLI; `zyvor-ota` stays a byte-identical alias |
+| Lab HIL | Generic QEMU RAUC lab HIL complete (install, power-loss, reboots); Minewing silicon still unsigned |
+
+## Why Zyvor OTA
+
+| When this happens… | Zyvor OTA gives you… |
+|---|---|
+| An update image could be tampered with or replayed | Ed25519-signed exact-byte release envelopes, pinned device trust keys, expiry, a monotonic release sequence, and replay rejection |
+| A bad update bricks devices in the field | Install to the inactive RAUC A/B slot, a local health window, then mark-good or automatic rollback |
+| The agent crashes mid-install and nobody knows the outcome | A durable SQLite (WAL) journal and an explicit `NeedsRecovery` interlock for ambiguous outcomes |
+| Sites have slow, metered or no WAN | Resumable HTTPS downloads, download windows, bandwidth caps, offline campaign media and a site relay |
+| Security won't accept an inbound management port | An outbound-only Fleet contract over TLS or mTLS, polling with ordered event acknowledgment |
+| An auditor asks what was installed and when | Prometheus metrics, optional OpenTelemetry spans, a signed SBOM check and an append-only release log |
+
+![Capabilities at a glance: Verify, Install, Survive, Operate](docs/ux/readme-capabilities.jpg)
+
+---
+
+## Zyvor OTA vs Mender
+
+![Zyvor OTA vs Mender: just the safe install, Fleet does the targeting](docs/ux/readme-vs.jpg)
+
+| | **Zyvor OTA** | **Mender** (OTA client + server) |
+|---|---|---|
+| Scope | Signed A/B install agent only | Device client plus a management server (self-hosted or hosted) |
+| Targeting and rollout | Separate concern — Zyvor Fleet implements [docs/FLEET.md](docs/FLEET.md) | Built into the Mender server |
+| Update mechanism | RAUC-managed A/B slots | A/B or single-partition, plus update modules |
+| Rollback | Automatic, health-check gated, with an explicit `NeedsRecovery` interlock for ambiguous crashes | Automatic in A/B mode |
+| Release trust | Ed25519 envelopes with pinned keys, expiry, monotonic sequence; optional threshold root and signed SBOM | Signed artifacts |
+| Offline | Campaign export/import to local media and a site relay client | Standalone mode for local installs |
+| Licence | Apache-2.0 | Apache-2.0 core + commercial Enterprise |
+| **Choose Mender when** | | You want one product for both the device client and the update server, and don't run Zyvor Fleet |
 
 ## Is this for you?
 
@@ -74,25 +115,27 @@ New here? [`docs/FAQ.md`](docs/FAQ.md) covers licensing, support, and
 production-readiness questions; [`docs/TROUBLESHOOTING.md`](docs/TROUBLESHOOTING.md)
 covers real operational issues with their documented fix.
 
-## Contents
+---
 
-- [Is this for you?](#is-this-for-you)
-- [FAQ](docs/FAQ.md) · [Troubleshooting](docs/TROUBLESHOOTING.md)
-- [Lab stack (Fleet + OTA + Device Agent)](docs/LAB.md)
-- [Roadmap](docs/ROADMAP.md)
-- [15-minute trial](docs/TUTORIAL.md)
-- [User guide: CLI and config reference](docs/USER-GUIDE.md)
-- [Run the complete simulator demonstration](#run-the-complete-simulator-demonstration)
-- [Implemented](#implemented)
-- [Scope and support matrix](#scope-and-support-matrix)
-- [Device deployment](#device-deployment)
-- [Remote smoke-deploy](#remote-smoke-deploy)
-- [Repository guide](#repository-guide)
-- [Contributing](#contributing)
-- [Security](#security)
-- [License](#license)
+## How it fits together
 
-## Run the complete simulator demonstration
+![Fleet picks the devices; OTA makes the update safe](docs/ux/readme-how-it-works.jpg)
+
+Fleet decides **which devices and when**. OTA verifies and installs a device OS
+release. RAUC writes the inactive slot and integrates with the board bootloader.
+There is intentionally no second fleet dashboard or competing application rollout
+controller in this repository. Detail: [architecture](docs/ARCHITECTURE.md) ·
+[Fleet contract](docs/FLEET.md) · [lab stack](docs/LAB.md).
+
+---
+
+## Quickstart
+
+New here? Start with the [15-minute trial](docs/TUTORIAL.md), or run the full simulator demonstration below.
+
+<a id="run-the-complete-simulator-demonstration"></a>
+
+### Run the complete simulator demonstration
 
 Requirements: Linux, Go 1.27.1 or a newer supported patch (Go 1.24 is the language minimum),
 Python 3 for the demo, GCC for race tests, and `dbus-daemon` for protocol tests.
@@ -233,6 +276,34 @@ See [architecture](docs/ARCHITECTURE.md), [Fleet contract](docs/FLEET.md),
 is intentionally no second fleet dashboard or competing application rollout
 controller in this repository.
 
+---
+
+## Maturity
+
+**Maturity, stated honestly**: **v0.2.0 engineering preview** — working agent,
+CLI, RAUC adapter, simulator, CI, and **generic QEMU RAUC lab HIL**
+([docs/HIL.md](docs/HIL.md) Track A). **Minewing GW1 r1 silicon** is still
+unsigned ([docs/PRODUCTION.md](docs/PRODUCTION.md)). Not claimed: physical Minewing
+RAUC/power-loss qualification, Uptane conformance, a TPM driver, SWUpdate `.swu`, MCU firmware
+and bootloader updates. Evidence: [docs/TEST-REPORT.md](docs/TEST-REPORT.md) ·
+[roadmap](docs/ROADMAP.md) · [FAQ](docs/FAQ.md).
+
+---
+
+## Part of the Zyvor stack
+
+| Product | Role next to Zyvor OTA |
+|---|---|
+| **Zyvor OTA** | Signed, health-gated A/B device OS updates with automatic rollback |
+| **[Fleet](https://github.com/zyvorai/zyvorai-fleet)** | Decides which devices and when; serves the `/v1/devices` and `/api/v1/ota` endpoints of the Fleet contract |
+| **[Zyvor Device Agent](https://github.com/zyvorai/zyvor-device-agent)** | Hardware inventory on the same gateway; part of the Fleet + OTA + Device Agent [lab stack](docs/LAB.md) |
+| **[Yard](https://github.com/zyvorai/yard)** | Asset registry; its OTA connector lists campaigns while execution stays in OTA |
+| **[Nodra](https://github.com/zyvorai/nodra)** | Offline-first edge runtime; runs next to OTA in the lab topology |
+
+→ [zyvor.dev](https://zyvor.dev)
+
+---
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md): Apache-2.0 SPDX headers, board profiles
@@ -248,21 +319,26 @@ credentials, or exploitable production details in a public issue.
 
 ## License
 
-Commercial subscriptions and support: see [docs/SUBSCRIPTION-MODEL.md](docs/SUBSCRIPTION-MODEL.md).
-
-### Open source (Apache-2.0)
-
-This repository is licensed under the [Apache License, Version 2.0](LICENSE).
+Zyvor OTA is **free and open source** under the [Apache License, Version 2.0](LICENSE).
 You may use, modify, and run it for personal, lab, and commercial production
 use at no charge, subject to Apache-2.0 (preserve notices / NOTICE where required).
 Original Zyvor OTA source is Apache-2.0. Vendored dependencies retain their own licenses. RAUC is an external runtime dependency and is not relicensed by this project.
 
-### Enterprise
-
-Customers pay for operational leverage, not for rollback or signature checks.
+**Zyvor Enterprise** adds what production teams ask for: supported releases, deployment and upgrade guidance, priority incident triage, a named technical contact and 24x7 critical intake. Customers pay for operational leverage, not for rollback or signature checks.
 Those stay in the Apache-2.0 agent. Enterprise is the Fleet dashboard, SSO and
 approvals, site relay, compliance evidence, certified board enablement, and
-support. See the [FAQ](docs/FAQ.md#community-and-enterprise). Contact
-[sales@zyvor.dev](mailto:sales@zyvor.dev) or see [zyvor.dev](https://zyvor.dev?utm_source=github&utm_medium=ota&utm_campaign=readme_footer).
+support. See the [FAQ](docs/FAQ.md#community-and-enterprise). Plans and terms: [docs/SUBSCRIPTION-MODEL.md](docs/SUBSCRIPTION-MODEL.md) · [Pricing](https://zyvor.dev/pricing?utm_source=github&utm_medium=ota&utm_campaign=readme_license) · [sales@zyvor.dev](mailto:sales@zyvor.dev).
 
-**Next step:** [Book a demo](https://zyvor.dev/schedule?utm_source=github&utm_medium=ota&utm_campaign=readme_footer) · [30-day PoC](https://zyvor.dev/poc?utm_source=github&utm_medium=ota&utm_campaign=readme_footer)
+---
+
+<div align="center">
+
+### Ship device updates that commit or roll back
+
+[![Book a demo](https://img.shields.io/badge/Book_a_demo-0071e3?style=for-the-badge)](https://zyvor.dev/schedule?utm_source=github&utm_medium=ota&utm_campaign=readme_footer)
+[![30-day PoC](https://img.shields.io/badge/Start_a_30--day_PoC-000000?style=for-the-badge)](https://zyvor.dev/poc?utm_source=github&utm_medium=ota&utm_campaign=readme_footer)
+[![Pricing](https://img.shields.io/badge/Pricing-1d1d1f?style=for-the-badge)](https://zyvor.dev/pricing?utm_source=github&utm_medium=ota&utm_campaign=readme_footer)
+[![Contact sales](https://img.shields.io/badge/Contact_sales-2997ff?style=for-the-badge)](mailto:sales@zyvor.dev?subject=Zyvor%20OTA)
+[![Star on GitHub](https://img.shields.io/github/stars/zyvorai/ota?style=for-the-badge&logo=github&label=Star&color=2997ff)](https://github.com/zyvorai/ota)
+
+</div>
