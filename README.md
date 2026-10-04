@@ -3,6 +3,9 @@
 
 # Zyvor OTA
 
+<img src="docs/social/ota-hero-dark.jpg" alt="Zyvor OTA - Signed A/B updates. Commit or roll back." width="100%">
+
+
 ### Signed, recoverable device OS updates for the Zyvor Platform.
 
 [Tutorial](docs/TUTORIAL.md) · [User Guide](docs/USER-GUIDE.md) · [Architecture](docs/ARCHITECTURE.md) · [Operations](docs/OPERATIONS.md)
