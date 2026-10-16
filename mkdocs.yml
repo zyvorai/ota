@@ -1,11 +1,11 @@
 site_name: Zyvor OTA
 site_description: The safest open OTA runtime for Linux edge fleets.
-site_url: https://zyvorai.github.io/ota/
+site_url: https://zyvorai.github.io/ota/docs/
 repo_url: https://github.com/zyvorai/ota
 repo_name: zyvorai/ota
 edit_uri: edit/main/docs/
 docs_dir: docs
-site_dir: site
+site_dir: _docs-site
 theme:
   name: material
   logo: assets/readme/zyvor-logo.svg
@@ -65,6 +65,7 @@ nav:
       - FAQ: FAQ.md
       - Verification Report: TEST-REPORT.md
       - Release Process: RELEASING.md
+  - Support: support.md
 extra:
   social:
     - {icon: fontawesome/brands/github, link: https://github.com/zyvorai/ota}

@@ -7,6 +7,6 @@
 __pycache__/
 .DS_Store
 /.venv-docs/
-/site/
+/_docs-site/
 **/board.env
 boards/**/out/

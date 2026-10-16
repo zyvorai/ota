@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#ffffff" />
+  <title>Zyvor OTA · Signed A/B updates. Commit or roll back.</title>
+  <meta name="description" content="The open OTA runtime for Linux edge fleets: Ed25519-signed releases, RAUC A/B slots, health-gated commit and automatic rollback, with no inbound cloud port. v0.2.0 engineering preview, Apache-2.0." />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="canonical" href="https://zyvorai.github.io/ota/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Zyvor OTA" />
+  <meta property="og:title" content="Zyvor OTA · Signed A/B updates. Commit or roll back." />
+  <meta property="og:description" content="Signed, recoverable device OS updates for Linux edge fleets. RAUC A/B slots, health-gated commit, automatic rollback. Apache-2.0." />
+  <meta property="og:url" content="https://zyvorai.github.io/ota/" />
+  <script src="theme.js"></script>
+  <link rel="stylesheet" href="site.css" />
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Zyvor OTA","applicationCategory":"DeveloperApplication","operatingSystem":"Linux","description":"Signed, recoverable device OS updates for Linux edge fleets (v0.2.0 engineering preview).","codeRepository":"https://github.com/zyvorai/ota","license":"https://www.apache.org/licenses/LICENSE-2.0","url":"https://zyvorai.github.io/ota/"}
+  </script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="bar">
+  <a class="brand" href="./" aria-label="Zyvor OTA home">
+    <svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#0b1220"/><rect x="5" y="6" width="22" height="8" rx="2.5" fill="#5aa9ff"/><rect x="5" y="18" width="22" height="8" rx="2.5" fill="none" stroke="#5eead4" stroke-width="2"/><path d="M16 14.5v3" stroke="#9aa0ad" stroke-width="2" stroke-linecap="round"/></svg><b>ZYVOR OTA</b></a>
+  <nav aria-label="Sections" id="sections">
+    <a href="#why">Why</a><a href="#features">Features</a><a href="#how">How it fits</a><a href="#quickstart">Quickstart</a><a href="#license">License</a><a href="#support">Support</a>
+  </nav>
+  <div class="bar-actions">
+    <button id="theme" class="icon" type="button" aria-label="Switch to dark mode" aria-pressed="false">
+      <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
+    <a class="btn small" href="https://github.com/zyvorai/ota">GitHub</a>
+    <a class="btn small primary" href="docs/">Docs</a>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero">
+    <p class="kicker">Zyvor · device OS updates</p>
+    <h1>Signed A/B updates. <em>Commit or roll back.</em></h1>
+    <p class="lede">The open OTA runtime for Linux edge fleets: <strong>signed updates, automatic rollback, offline operation</strong> and verifiable deployment evidence, without cloud lock-in. Fleet decides which devices and when. OTA verifies and installs. RAUC writes the inactive slot.</p>
+    <p class="cta"><a class="btn primary" href="#quickstart">Run the simulator demo</a><a class="btn" href="docs/TUTORIAL/">15-minute trial</a><a class="link" href="#how">How it fits</a></p>
+    <ul class="chips" aria-label="Highlights"><li class="ok">Apache-2.0</li><li>Ed25519-signed releases</li><li>RAUC A/B slots</li><li>Health-gated commit</li><li>Automatic rollback</li><li>No inbound cloud port</li><li>v0.2.0 engineering preview</li></ul>
+  </section>
+
+  <section id="why">
+    <h2>Why Zyvor OTA</h2>
+    <p class="sub">Each row is a field problem and what the README says the agent does about it.</p>
+    <div class="grid">
+      <div class="card"><span class="when">An update image could be tampered with or replayed</span><p>Ed25519-signed exact-byte release envelopes, pinned device trust keys, expiry, a monotonic release sequence and replay rejection.</p></div>
+      <div class="card"><span class="when">A bad update bricks devices</span><p>Install to the inactive RAUC A/B slot, run a local health window, then mark good or roll back automatically.</p></div>
+      <div class="card"><span class="when">The agent crashes mid-install</span><p>A durable SQLite (WAL) journal and an explicit <code>NeedsRecovery</code> interlock for ambiguous outcomes.</p></div>
+      <div class="card"><span class="when">Sites have slow, metered or no WAN</span><p>Resumable HTTPS downloads, download windows, bandwidth caps, offline campaign media and a site relay client.</p></div>
+      <div class="card"><span class="when">Security won't accept an inbound port</span><p>An outbound-only Fleet contract over TLS or mTLS, polling with ordered event acknowledgment.</p></div>
+      <div class="card"><span class="when">An auditor asks what was installed</span><p>Prometheus metrics, optional OpenTelemetry spans, a signed SBOM check and an append-only release log.</p></div>
+    </div>
+  </section>
+
+  <section id="features">
+    <h2>What it does</h2>
+    <div class="cols">
+      <div class="card"><h3>Verify</h3><ul>
+        <li>Ed25519 envelopes over exact bytes, pinned device keys</li>
+        <li>SHA-256 and signed artifact sizes, exact board and backend compatibility</li>
+        <li>Expiry, monotonic sequence, job idempotency, maintenance windows</li>
+        <li>Optional threshold root, delegated targets, signed SBOM, release log</li>
+      </ul></div>
+      <div class="card"><h3>Install and survive</h3><ul>
+        <li>RAUC <code>InstallBundle</code>, <code>Completed</code>, <code>GetSlotStatus</code>, <code>GetPrimary</code> and <code>Mark</code> over D-Bus</li>
+        <li>Controlled reboot, local health window, mark-good or rollback</li>
+        <li>File, systemd-service and loopback HTTP health probes</li>
+        <li>No shell commands or arbitrary update scripts accepted</li>
+      </ul></div>
+      <div class="card"><h3>Offline and constrained sites</h3><ul>
+        <li>HTTPS downloads with host allowlists, bounded size, disk reserve and resumable ranges</li>
+        <li>Offline campaign export and import, local media, jitter</li>
+        <li>Site relay client</li>
+      </ul></div>
+      <div class="card"><h3>Operate</h3><ul>
+        <li><code>otactl</code> CLI over a Unix-socket operator API (<code>zyvor-ota</code> is an alias)</li>
+        <li>Prometheus text metrics, optional OpenTelemetry spans</li>
+        <li>Schema 2 typed targets (<code>os.rauc</code>, <code>container.oci</code>, <code>config.bundle</code>, <code>model.oci</code>) commit or roll back as one set</li>
+      </ul></div>
+    </div>
+    <div class="tablewrap"><table>
+      <caption class="sub" style="text-align:left;padding:12px 12px 0;caption-side:top">Scope, as the README states it</caption>
+      <thead><tr><th scope="col">Capability</th><th scope="col">Status</th></tr></thead>
+      <tbody>
+        <tr><td>Simulator install, reboot and rollback</td><td>Implemented and software tested</td></tr>
+        <tr><td>RAUC D-Bus wire protocol</td><td>Implemented; tested against a test service on a private bus</td></tr>
+        <tr><td>Real signed RAUC bundles on physical devices</td><td>Adapter implemented; board qualification required</td></tr>
+        <tr><td>Generic QEMU RAUC lab HIL</td><td>Complete</td></tr>
+        <tr><td>Minewing GW1 r1 silicon</td><td>Unsigned</td></tr>
+        <tr><td>SWUpdate <code>.swu</code>, MCU firmware, TPM driver</td><td>Not implemented</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section id="how">
+    <h2>How it fits together</h2>
+    <p class="sub">Fleet decides which devices and when. The agent verifies and installs. RAUC writes the inactive slot and integrates with the board bootloader. There is intentionally no second fleet dashboard or rollout controller in this repository.</p>
+    <figure class="diagram">
+      <svg viewBox="0 0 960 440" role="img" aria-labelledby="dg-t dg-d">
+        <title id="dg-t">Zyvor OTA update lifecycle</title>
+        <desc id="dg-d">Zyvor Fleet assigns a signed release to zyvor-otad over an outbound poll. The agent verifies and downloads it, then asks RAUC to install it into the inactive slot over D-Bus. After a reboot and a local health window, the update is committed, or the device rolls back to the previous slot. An operator can use otactl over a Unix socket.</desc>
+        <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path class="d-arrow" d="M0 0L10 5L0 10z"/></marker></defs>
+        <rect class="d-box d-alt" x="30" y="40" width="230" height="96" rx="14"/>
+        <text class="d-t" x="145" y="70" text-anchor="middle">Zyvor Fleet</text>
+        <text class="d-s" x="145" y="92" text-anchor="middle">decides which devices, when</text>
+        <text class="d-m" x="145" y="116" text-anchor="middle">/v1/devices · /api/v1/ota</text>
+        <path class="d-line" d="M262 88H368" marker-start="url(#ah)" marker-end="url(#ah)"/>
+        <text class="d-m" x="315" y="76" text-anchor="middle">poll</text>
+        <text class="d-m" x="315" y="108" text-anchor="middle">ack</text>
+        <rect class="d-box d-main" x="370" y="30" width="270" height="116" rx="16"/>
+        <text class="d-t" x="505" y="60" text-anchor="middle">zyvor-otad (device agent)</text>
+        <text class="d-s" x="505" y="84" text-anchor="middle">verify signature · SHA-256 · expiry</text>
+        <text class="d-s" x="505" y="106" text-anchor="middle">sequence · replay check · download</text>
+        <text class="d-s" x="505" y="128" text-anchor="middle">SQLite journal · health probes</text>
+        <path class="d-line" d="M642 88H738" marker-end="url(#ah)"/>
+        <text class="d-m" x="690" y="76" text-anchor="middle">D-Bus</text>
+        <rect class="d-box" x="740" y="40" width="190" height="96" rx="14"/>
+        <text class="d-t" x="835" y="70" text-anchor="middle">RAUC</text>
+        <text class="d-s" x="835" y="92" text-anchor="middle">InstallBundle, Mark</text>
+        <text class="d-m" x="835" y="116" text-anchor="middle">external dependency</text>
+        <path class="d-line" d="M835 138V198" marker-end="url(#ah)"/>
+        <text class="d-m" x="847" y="172">writes</text>
+        <rect class="d-box" x="740" y="200" width="190" height="70" rx="14"/>
+        <text class="d-t" x="835" y="228" text-anchor="middle">Inactive slot</text>
+        <text class="d-s" x="835" y="250" text-anchor="middle">new release</text>
+        <path class="d-line" d="M738 235H682" marker-end="url(#ah)"/>
+        <text class="d-m" x="710" y="224" text-anchor="middle">reboot</text>
+        <rect class="d-box d-main" x="450" y="200" width="230" height="70" rx="14"/>
+        <text class="d-t" x="565" y="228" text-anchor="middle">Local health window</text>
+        <text class="d-s" x="565" y="250" text-anchor="middle">file · systemd · HTTP probes</text>
+        <path class="d-line" d="M520 272L440 340" marker-end="url(#ah)"/>
+        <path class="d-line" d="M610 272L690 340" marker-end="url(#ah)"/>
+        <rect class="d-box d-alt" x="290" y="342" width="250" height="70" rx="14"/>
+        <text class="d-t" x="415" y="370" text-anchor="middle">Healthy: commit</text>
+        <text class="d-s" x="415" y="392" text-anchor="middle">mark good</text>
+        <rect class="d-box d-bad" x="590" y="342" width="250" height="70" rx="14"/>
+        <text class="d-t" x="715" y="370" text-anchor="middle">Unhealthy: roll back</text>
+        <text class="d-s" x="715" y="392" text-anchor="middle">previous slot is primary again</text>
+        <rect class="d-box" x="30" y="200" width="230" height="70" rx="14"/>
+        <text class="d-t" x="145" y="228" text-anchor="middle">otactl</text>
+        <text class="d-s" x="145" y="250" text-anchor="middle">Unix-socket operator API</text>
+        <path class="d-line" d="M200 198L400 148" marker-end="url(#ah)"/>
+      </svg>
+      <figcaption>An ambiguous outcome after a crash raises the NeedsRecovery interlock instead of guessing.</figcaption>
+    </figure>
+    <div class="callout"><b>Maturity, stated plainly.</b><p>v0.2.0 is an engineering preview: a working agent, CLI, RAUC adapter, simulator and CI, plus a complete generic QEMU RAUC lab HIL. Minewing silicon qualification is still unsigned. Not claimed: physical Minewing RAUC or power-loss qualification, Uptane conformance, a TPM driver, SWUpdate <code>.swu</code>, MCU firmware or bootloader updates. Evidence is in the <a href="docs/TEST-REPORT/">verification report</a> and the <a href="docs/ROADMAP/">roadmap</a>.</p></div>
+  </section>
+
+  <section id="quickstart">
+    <h2>Quickstart</h2>
+    <p class="sub">Requires Linux, Go 1.27.1 or a newer supported patch (Go 1.24 is the language minimum), Python 3 for the demo, GCC for race tests and <code>dbus-daemon</code> for protocol tests. These are the README's commands.</p>
+    <p class="step">1. Build and run the simulator demonstration</p>
+    <div class="code"><pre><code>make build
+make test
+make demo</code></pre><button class="copy" type="button" aria-label="Copy build and demo commands">Copy</button></div>
+    <p class="sub">The demo starts the real daemon and CLI against a local artifact server, installs two simulated releases, commits the first, rolls back the unhealthy second, and rejects replay. It never writes disks, calls system reboot or contacts a Fleet deployment.</p>
+    <p class="step">2. Sign a release and submit it</p>
+    <div class="code"><pre><code>otactl keygen ./release-keys
+# Fill examples/release.json with the actual artifact URL, SHA-256, size and expiry.
+otactl sign release.json release-keys/release.key production-1 envelope.json
+# Embed envelope.json as the release field in assignment.json.
+otactl -socket /run/zyvor-ota/agent.sock submit assignment.json
+otactl -socket /run/zyvor-ota/agent.sock job job-001</code></pre><button class="copy" type="button" aria-label="Copy sign and submit commands">Copy</button></div>
+    <p class="sub">Keep the signing private key off the device. Before using the RAUC backend on hardware, read <a href="docs/DEVICE-INTEGRATION/">device integration</a>: the image must already provide redundant slots, a bootloader fallback policy and a recovery method. The guided <a href="docs/TUTORIAL/">tutorial</a> walks the 15-minute trial.</p>
+  </section>
+
+  <section id="license">
+    <h2>License</h2>
+    <p class="sub">Zyvor OTA is free and open source under the <a href="https://github.com/zyvorai/ota/blob/main/LICENSE">Apache License, Version 2.0</a>. Use, modify and run it for personal, lab and commercial production use at no charge, subject to Apache-2.0 (preserve notices and the <a href="https://github.com/zyvorai/ota/blob/main/NOTICE">NOTICE</a> file where required).</p>
+    <p class="sub">Original Zyvor OTA source is Apache-2.0. Vendored dependencies retain their own licenses (see <a href="https://github.com/zyvorai/ota/blob/main/THIRD_PARTY_NOTICES.md">THIRD_PARTY_NOTICES.md</a>). RAUC is an external runtime dependency and is not relicensed by this project.</p>
+  </section>
+
+  <section id="support">
+    <h2>Support the project</h2>
+    <div class="support">
+      <p>Free under Apache-2.0. If it helps you, you can donate any amount you like: <a href="https://rzp.io/rzp/utwdYh3">https://rzp.io/rzp/utwdYh3</a>. A donation is voluntary and supports development and maintenance. It is not a purchase: it buys no support, SLA, features, priority or license, and it is not tax-deductible (Zyvor AI Labs Private Limited is a company, not a charity). Zyvor Enterprise (supported releases, SLAs, a named contact and enterprise features) is separate: <a href="mailto:sales@zyvor.dev">sales@zyvor.dev</a>.</p>
+      <p class="cta"><a class="btn primary" href="https://rzp.io/rzp/utwdYh3">Donate any amount</a><a class="link" href="mailto:sales@zyvor.dev">Looking for enterprise support? Contact sales</a></p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p><b>Zyvor OTA</b> · © 2026 Zyvor AI Labs Private Limited · Apache-2.0</p>
+  <nav aria-label="Footer">
+    <a href="https://zyvor.dev">zyvor.dev</a><a href="https://github.com/zyvorai/ota">GitHub</a><a href="docs/">Docs</a><a href="https://github.com/zyvorai/ota/blob/main/SECURITY.md">Security</a><a href="https://github.com/zyvorai/ota/blob/main/CHANGELOG.md">Changelog</a><a href="#support">Support</a>
+  </nav>
+</footer>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+<script src="site.js"></script>
+</body>
+</html>
