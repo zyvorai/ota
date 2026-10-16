@@ -45,9 +45,9 @@ Scenarios you can point at after `--serve`:
 
 | Example | What you should see |
 |---|---|
-| [examples/scenarios/healthy](../examples/scenarios/healthy/README.md) | `committed` |
-| [examples/scenarios/failed-health](../examples/scenarios/failed-health/README.md) | `rolled_back` |
-| [examples/scenarios/interrupted](../examples/scenarios/interrupted/README.md) | resume, or `needs_recovery` if you kill the daemon during install |
+| [examples/scenarios/healthy](https://github.com/zyvorai/ota/blob/main/examples/scenarios/healthy/README.md) | `committed` |
+| [examples/scenarios/failed-health](https://github.com/zyvorai/ota/blob/main/examples/scenarios/failed-health/README.md) | `rolled_back` |
+| [examples/scenarios/interrupted](https://github.com/zyvorai/ota/blob/main/examples/scenarios/interrupted/README.md) | resume, or `needs_recovery` if you kill the daemon during install |
 
 ## Command by command (simulator)
 
