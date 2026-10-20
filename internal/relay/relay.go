@@ -5,6 +5,7 @@ package relay
 
 import (
 	"crypto/sha256"
+	"crypto/subtle"
 	"encoding/hex"
 	"errors"
 	"io"
@@ -43,8 +44,8 @@ func (s *Server) authorize(r *http.Request) bool {
 	if s.Token == "" {
 		return false
 	}
-	got := strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")
-	return got == s.Token
+	got, ok := strings.CutPrefix(r.Header.Get("Authorization"), "Bearer ")
+	return ok && subtle.ConstantTimeCompare([]byte(got), []byte(s.Token)) == 1
 }
 
 func (s *Server) get(w http.ResponseWriter, r *http.Request) {
@@ -53,7 +54,7 @@ func (s *Server) get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	sum := r.PathValue("sha256")
-	if len(sum) != 64 {
+	if !validDigest(sum) {
 		http.Error(w, "bad digest", http.StatusBadRequest)
 		return
 	}
@@ -98,6 +99,7 @@ func (s *Server) get(w http.ResponseWriter, r *http.Request) {
 		h := sha256.New()
 		if _, err = io.Copy(f, io.TeeReader(body, h)); err != nil {
 			f.Close()
+			os.Remove(tmp)
 			http.Error(w, "cache", http.StatusBadGateway)
 			return
 		}
@@ -113,6 +115,18 @@ func (s *Server) get(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	http.ServeFile(w, r, path)
+}
+
+func validDigest(s string) bool {
+	if len(s) != 64 {
+		return false
+	}
+	for _, c := range s {
+		if (c < '0' || c > '9') && (c < 'a' || c > 'f') {
+			return false
+		}
+	}
+	return true
 }
 
 func (s *Server) noteFetch() {

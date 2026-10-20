@@ -106,7 +106,7 @@ func (e *Engine) save(j Job, state State, message string) error {
 	if state == Committed {
 		commitSidePayloads(e.Config.StateDir, j.Release)
 	}
-	if state == RolledBack || state == Failed {
+	if (state == RolledBack || state == Failed) && j.PayloadsApplied {
 		_ = rollbackSidePayloads(e.Config.StateDir, j.Release)
 	}
 	e.Stats.observeState(j.Updated, state)
@@ -253,7 +253,6 @@ func (e *Engine) Step(ctx context.Context) error {
 		}
 		if !j.PayloadsApplied && len(j.Release.Targets) > 0 {
 			if err := applySidePayloads(e.Config.StateDir, j.Release, e.Config.Checks); err != nil {
-				_ = rollbackSidePayloads(e.Config.StateDir, j.Release)
 				return e.save(j, Failed, err.Error())
 			}
 			j.PayloadsApplied = true
@@ -466,7 +465,6 @@ func (e *Engine) RecoverAbort(ctx context.Context) error {
 	if err = e.Backend.Mark(ctx, "active", j.OldSlot); err != nil {
 		return err
 	}
-	_ = rollbackSidePayloads(e.Config.StateDir, j.Release)
 	return e.save(j, Failed, "operator aborted ambiguous installation; previous slot restored")
 }
 func (e *Engine) Ack(sequence uint64) error {

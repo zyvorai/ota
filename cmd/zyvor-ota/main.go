@@ -15,6 +15,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -27,6 +28,16 @@ func main() {
 		os.Exit(1)
 	}
 }
+
+// ackBody builds the ack request body, rejecting anything but an unsigned integer.
+func ackBody(arg string) ([]byte, error) {
+	seq, err := strconv.ParseUint(arg, 10, 64)
+	if err != nil {
+		return nil, errors.New("ack SEQUENCE must be an unsigned integer")
+	}
+	return []byte(`{"sequence":` + strconv.FormatUint(seq, 10) + `}`), nil
+}
+
 func run() error {
 	socket := flag.String("socket", "/run/zyvor-ota/agent.sock", "agent Unix socket")
 	simulationURL := flag.String("simulation-url", "", "simulator-only loopback HTTP URL")
@@ -138,7 +149,10 @@ func run() error {
 		if len(a) != 2 {
 			return errors.New("ack SEQUENCE")
 		}
-		body = []byte(`{"sequence":` + a[1] + `}`)
+		var err error
+		if body, err = ackBody(a[1]); err != nil {
+			return err
+		}
 		method = http.MethodPost
 		path = "/v1/events/ack"
 	case "reboot", "recover-abort", "gc":
