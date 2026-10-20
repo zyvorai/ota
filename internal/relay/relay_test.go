@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"path/filepath"
 	"strings"
 	"sync"
 	"testing"
@@ -111,4 +112,59 @@ func TestRelayFetchesAllowlistedOriginOnce(t *testing.T) {
 func sha256Hex(s string) string {
 	sum := sha256.Sum256([]byte(s))
 	return fmt.Sprintf("%x", sum[:])
+}
+
+func TestRelayRejectsBadAuthAndNonHexDigest(t *testing.T) {
+	s := &Server{Dir: t.TempDir(), Token: "peer-token"}
+	srv := httptest.NewServer(s.Handler())
+	defer srv.Close()
+	good := strings.Repeat("a", 64)
+	for _, tc := range []struct {
+		name, auth, sum string
+		want            int
+	}{
+		{"raw token without Bearer", "peer-token", good, http.StatusUnauthorized},
+		{"non-hex digest", "Bearer peer-token", strings.Repeat("z", 64), http.StatusBadRequest},
+		{"uppercase digest", "Bearer peer-token", strings.Repeat("A", 64), http.StatusBadRequest},
+	} {
+		req, _ := http.NewRequest(http.MethodGet, srv.URL+"/artifacts/"+tc.sum, nil)
+		req.Header.Set("Authorization", tc.auth)
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			t.Fatal(err)
+		}
+		resp.Body.Close()
+		if resp.StatusCode != tc.want {
+			t.Errorf("%s: status %d want %d", tc.name, resp.StatusCode, tc.want)
+		}
+	}
+}
+
+type failingBody struct{ n int }
+
+func (f *failingBody) Read(p []byte) (int, error) {
+	if f.n > 0 {
+		return 0, io.ErrUnexpectedEOF
+	}
+	f.n++
+	return copy(p, "partial"), nil
+}
+func (f *failingBody) Close() error { return nil }
+
+func TestUpstreamCopyFailureLeavesNoPartFile(t *testing.T) {
+	dir := t.TempDir()
+	s := &Server{Dir: dir, Token: "peer-token", Upstream: func(string) (io.ReadCloser, error) { return &failingBody{}, nil }}
+	srv := httptest.NewServer(s.Handler())
+	defer srv.Close()
+	req, _ := http.NewRequest(http.MethodGet, srv.URL+"/artifacts/"+strings.Repeat("a", 64), nil)
+	req.Header.Set("Authorization", "Bearer peer-token")
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp.Body.Close()
+	left, _ := filepath.Glob(filepath.Join(dir, "*"))
+	if len(left) != 0 {
+		t.Fatalf("leftover files: %v", left)
+	}
 }

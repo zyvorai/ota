@@ -49,11 +49,20 @@ func orderedTargets(targets []Target) ([]Target, error) {
 	return out, nil
 }
 
-func applySidePayloads(stateDir string, rel Release, checks []Check) error {
+// applySidePayloads installs every side payload of rel. On failure it restores
+// only the targets it already replaced; targets it never reached keep their
+// committed "current" file.
+func applySidePayloads(stateDir string, rel Release, checks []Check) (err error) {
 	order, err := orderedTargets(rel.Targets)
 	if err != nil {
 		return err
 	}
+	var touched []Target
+	defer func() {
+		if err != nil && len(touched) > 0 {
+			_ = rollbackSidePayloads(stateDir, Release{Targets: touched})
+		}
+	}()
 	for _, t := range order {
 		if t.Type == "os.rauc" {
 			continue
@@ -77,12 +86,13 @@ func applySidePayloads(stateDir string, rel Release, checks []Check) error {
 		}
 		current := filepath.Join(dir, "current")
 		previous := filepath.Join(dir, "previous")
-		if _, err = os.Stat(current); err == nil {
+		if _, statErr := os.Stat(current); statErr == nil {
 			_ = os.Remove(previous)
 			if err = os.Rename(current, previous); err != nil {
 				return err
 			}
 		}
+		touched = append(touched, t)
 		if err = copyFile(src, current); err != nil {
 			return err
 		}
