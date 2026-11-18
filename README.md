@@ -24,6 +24,8 @@
 
 </div>
 
+[Client overview (PDF)](docs/Zyvor-OTA-Client-Overview.pdf)
+
 ---
 
 **v0.2.0 — engineering preview, Apache-2.0.** Working Go agent and CLI, native
