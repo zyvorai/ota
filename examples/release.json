@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "id": "os-001",
+  "sequence": 1,
+  "compatible": "REPLACE_BOARD_REVISION",
+  "backend": "rauc",
+  "version": "1.0.1",
+  "expires": "2030-01-01T00:00:00Z",
+  "artifact": {
+    "url": "https://updates.example.com/os-001.raucb",
+    "sha256": "REPLACE_WITH_64_LOWERCASE_HEX_DIGEST",
+    "size": 123456
+  },
+  "sbom_sha256": ""
+}

@@ -1,0 +1,1 @@
+reboots: direct-kernel boot to multi-user once; three healthy reboots blocked pending SSH/KVM

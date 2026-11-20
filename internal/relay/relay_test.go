@@ -1,0 +1,170 @@
+// SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+package relay
+
+import (
+	"crypto/sha256"
+	"fmt"
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
+	"path/filepath"
+	"strings"
+	"sync"
+	"testing"
+)
+
+func TestOneHundredClientsShareOneUpstreamFetch(t *testing.T) {
+	body := strings.Repeat("a", 128)
+	var fetches int
+	s := &Server{
+		Dir:   t.TempDir(),
+		Token: "peer-token",
+		Upstream: func(sha string) (io.ReadCloser, error) {
+			fetches++
+			return io.NopCloser(strings.NewReader(body)), nil
+		},
+	}
+	// Upstream digest must match the bytes. Compute by a first request through the handler
+	// after we know the hash.
+	sum := sha256Hex(body)
+	srv := httptest.NewServer(s.Handler())
+	defer srv.Close()
+	var wg sync.WaitGroup
+	errCh := make(chan error, 100)
+	for i := 0; i < 100; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			req, _ := http.NewRequest(http.MethodGet, srv.URL+"/artifacts/"+sum, nil)
+			req.Header.Set("Authorization", "Bearer peer-token")
+			resp, err := http.DefaultClient.Do(req)
+			if err != nil {
+				errCh <- err
+				return
+			}
+			defer resp.Body.Close()
+			if resp.StatusCode != 200 {
+				errCh <- fmt.Errorf("status %d", resp.StatusCode)
+			}
+		}()
+	}
+	wg.Wait()
+	close(errCh)
+	for err := range errCh {
+		t.Fatal(err)
+	}
+	if s.Fetches() != 1 {
+		t.Fatalf("upstream fetches=%d", s.Fetches())
+	}
+	unauth, _ := http.Get(srv.URL + "/artifacts/" + sum)
+	if unauth.StatusCode != http.StatusUnauthorized {
+		t.Fatalf("unauthenticated peer status %d", unauth.StatusCode)
+	}
+	unauth.Body.Close()
+}
+
+func TestRelayFetchesAllowlistedOriginOnce(t *testing.T) {
+	body := "origin-bytes"
+	sum := sha256Hex(body)
+	var hits int
+	origin := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		hits++
+		_, _ = w.Write([]byte(body))
+	}))
+	defer origin.Close()
+	ou, _ := url.Parse(origin.URL)
+	s := &Server{Dir: t.TempDir(), Token: "peer-token", OriginHosts: []string{ou.Host}}
+	srv := httptest.NewServer(s.Handler())
+	defer srv.Close()
+	for i := 0; i < 2; i++ {
+		req, _ := http.NewRequest(http.MethodGet, srv.URL+"/artifacts/"+sum, nil)
+		req.Header.Set("Authorization", "Bearer peer-token")
+		req.Header.Set("X-Zyvor-Artifact-Url", origin.URL+"/os.raucb")
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			t.Fatal(err)
+		}
+		resp.Body.Close()
+		if resp.StatusCode != 200 {
+			t.Fatalf("status %d", resp.StatusCode)
+		}
+	}
+	if hits != 1 || s.Fetches() != 1 {
+		t.Fatalf("origin hits %d relay fetches %d", hits, s.Fetches())
+	}
+	denied := &Server{Dir: t.TempDir(), Token: "peer-token", OriginHosts: []string{"updates.example"}}
+	denySrv := httptest.NewServer(denied.Handler())
+	defer denySrv.Close()
+	req, _ := http.NewRequest(http.MethodGet, denySrv.URL+"/artifacts/"+sum, nil)
+	req.Header.Set("Authorization", "Bearer peer-token")
+	req.Header.Set("X-Zyvor-Artifact-Url", origin.URL+"/os.raucb")
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp.Body.Close()
+	if resp.StatusCode != http.StatusNotFound || hits != 1 {
+		t.Fatalf("status %d hits %d", resp.StatusCode, hits)
+	}
+}
+
+func sha256Hex(s string) string {
+	sum := sha256.Sum256([]byte(s))
+	return fmt.Sprintf("%x", sum[:])
+}
+
+func TestRelayRejectsBadAuthAndNonHexDigest(t *testing.T) {
+	s := &Server{Dir: t.TempDir(), Token: "peer-token"}
+	srv := httptest.NewServer(s.Handler())
+	defer srv.Close()
+	good := strings.Repeat("a", 64)
+	for _, tc := range []struct {
+		name, auth, sum string
+		want            int
+	}{
+		{"raw token without Bearer", "peer-token", good, http.StatusUnauthorized},
+		{"non-hex digest", "Bearer peer-token", strings.Repeat("z", 64), http.StatusBadRequest},
+		{"uppercase digest", "Bearer peer-token", strings.Repeat("A", 64), http.StatusBadRequest},
+	} {
+		req, _ := http.NewRequest(http.MethodGet, srv.URL+"/artifacts/"+tc.sum, nil)
+		req.Header.Set("Authorization", tc.auth)
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			t.Fatal(err)
+		}
+		resp.Body.Close()
+		if resp.StatusCode != tc.want {
+			t.Errorf("%s: status %d want %d", tc.name, resp.StatusCode, tc.want)
+		}
+	}
+}
+
+type failingBody struct{ n int }
+
+func (f *failingBody) Read(p []byte) (int, error) {
+	if f.n > 0 {
+		return 0, io.ErrUnexpectedEOF
+	}
+	f.n++
+	return copy(p, "partial"), nil
+}
+func (f *failingBody) Close() error { return nil }
+
+func TestUpstreamCopyFailureLeavesNoPartFile(t *testing.T) {
+	dir := t.TempDir()
+	s := &Server{Dir: dir, Token: "peer-token", Upstream: func(string) (io.ReadCloser, error) { return &failingBody{}, nil }}
+	srv := httptest.NewServer(s.Handler())
+	defer srv.Close()
+	req, _ := http.NewRequest(http.MethodGet, srv.URL+"/artifacts/"+strings.Repeat("a", 64), nil)
+	req.Header.Set("Authorization", "Bearer peer-token")
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp.Body.Close()
+	left, _ := filepath.Glob(filepath.Join(dir, "*"))
+	if len(left) != 0 {
+		t.Fatalf("leftover files: %v", left)
+	}
+}

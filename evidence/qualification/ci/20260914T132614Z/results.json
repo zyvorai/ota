@@ -1,0 +1,33 @@
+{
+  "product": "zyvor-ota",
+  "environment": "github-actions",
+  "stamp": "20260914T132614Z",
+  "finished_at": "2026-09-14T13:26:27.321505+00:00",
+  "minewing_rauc_claimable": false,
+  "counts": {
+    "pass": 4
+  },
+  "rows": [
+    {
+      "id": "ci_agent_crash_during_install",
+      "status": "pass",
+      "detail": "needs_recovery error='agent restarted during installation; inspect RAUC and use recover-abort'"
+    },
+    {
+      "id": "ci_bad_signature_reject",
+      "status": "pass",
+      "detail": "submit rejected bad signature"
+    },
+    {
+      "id": "ci_fleet_ref_https_commit",
+      "status": "pass",
+      "detail": "fleet-ref HTTPS \u2192 committed on :54117"
+    },
+    {
+      "id": "ci_hil_harness_dry_run",
+      "status": "pass",
+      "detail": "hil dry-run stamp=20260914T132627Z claimable=false"
+    }
+  ],
+  "note": "Lab substitute only \u2014 does not close QEMU/physical RAUC power-loss rows"
+}

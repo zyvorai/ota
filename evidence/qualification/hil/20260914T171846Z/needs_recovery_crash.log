@@ -1,0 +1,1 @@
+needs-recovery: covered by CI lab-substitute crash path; qemu guest rauc status blocked (no SSH)

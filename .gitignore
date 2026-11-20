@@ -1,0 +1,12 @@
+/bin/
+/dist/
+/coverage.out
+*.key
+*.pem
+*.part
+__pycache__/
+.DS_Store
+/.venv-docs/
+/_docs-site/
+**/board.env
+boards/**/out/

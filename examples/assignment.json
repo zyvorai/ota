@@ -1,0 +1,12 @@
+{
+  "job_id": "job-001",
+  "device_id": "minewing-pune-001",
+  "release": {
+    "key_id": "production-1",
+    "payload": "REPLACE_WITH_ENVELOPE_PAYLOAD",
+    "signature": "REPLACE_WITH_ENVELOPE_SIGNATURE"
+  },
+  "not_before": "2026-01-01T00:00:00Z",
+  "deadline": "2030-01-01T00:00:00Z",
+  "auto_reboot": false
+}

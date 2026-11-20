@@ -1,0 +1,143 @@
+name: CI
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  lab-substitute:
+    # Covers lab-blocked rows without real RAUC / Minewing silicon.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: '1.27.1'
+          cache: true
+      - run: sudo apt-get update && sudo apt-get install -y openssl
+      - run: make build
+      - name: CI lab substitute (recovery + fleet-ref + HIL dry-run)
+        run: python3 scripts/ci/lab-substitute.py
+      - uses: actions/upload-artifact@v7
+        with:
+          name: qualification-ci-lab-substitute
+          path: evidence/qualification/ci/
+          if-no-files-found: error
+  rauc-qemu-smoke:
+    # Soft-skips when QUALIFY_QEMU_IMAGE / disk.img missing. Never Minewing claim.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - name: QEMU RAUC soft-smoke (skip if no image)
+        run: bash scripts/ci/rauc-qemu-smoke.sh
+  verify:
+    needs: [lab-substitute]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: '1.27.1'
+          cache: true
+      - name: Formatting
+        run: test -z "$(gofmt -l cmd internal)"
+      - name: Unit, protocol and race tests
+        run: |
+          command -v dbus-daemon
+          go test -race -coverprofile=coverage.out ./...
+      - run: go vet ./...
+      - run: make build
+      - name: Primary CLI otactl matches zyvor-ota alias
+        run: |
+          test -x bin/otactl
+          test -x bin/zyvor-ota
+          cmp -s bin/otactl bin/zyvor-ota
+          ./bin/otactl version | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$'
+      - run: python3 scripts/e2e.py
+      - run: make dist
+      - name: Dist otactl aliases match zyvor-ota builds
+        run: |
+          cmp -s dist/otactl-linux-amd64 dist/zyvor-ota-linux-amd64
+          cmp -s dist/otactl-linux-arm64 dist/zyvor-ota-linux-arm64
+      - name: HIL dry-run never claims Minewing
+        run: |
+          OTA_HIL_ENV=dry-run OTA_HIL_SKIP_QUALIFY=1 ./scripts/hil/run-rauc-powerloss-hil.sh
+          stamp=$(ls -1d evidence/qualification/hil/*/ | sort | tail -1)
+          test -f "$stamp/results.json"
+          python3 - "$stamp" <<'PY'
+          import json, pathlib, sys
+          stamp = pathlib.Path(sys.argv[1])
+          report = json.loads((stamp / "results.json").read_text())
+          if report.get("minewing_rauc_claimable") is not False:
+              sys.exit(f"dry-run must not claim Minewing: {report.get('minewing_rauc_claimable')!r}")
+          if report.get("environment") != "dry-run":
+              sys.exit(f"expected dry-run env, got {report.get('environment')!r}")
+          print("hil dry-run ok: minewing_rauc_claimable=false")
+          PY
+      - name: Download lab-substitute evidence
+        uses: actions/download-artifact@v8
+        with:
+          name: qualification-ci-lab-substitute
+          path: evidence/qualification/ci/
+      - name: Software qualification matrix
+        run: make qualify
+      - name: Source SBOM
+        run: python3 scripts/sbom.py
+      - name: OpenAPI / release schema parse
+        run: |
+          python3 - <<'PY'
+          import json, pathlib, sys
+          try:
+              import yaml
+          except ImportError:
+              import subprocess
+              subprocess.check_call([sys.executable, "-m", "pip", "install", "pyyaml", "-q"])
+              import yaml
+          root = pathlib.Path(".")
+          yaml.safe_load((root / "api/openapi.yaml").read_text())
+          json.loads((root / "api/release.schema.json").read_text())
+          print("schemas ok")
+          PY
+      - uses: actions/upload-artifact@v7
+        with:
+          name: test-coverage
+          path: coverage.out
+      - uses: actions/upload-artifact@v7
+        with:
+          name: linux-builds
+          path: dist/
+      - uses: actions/upload-artifact@v7
+        with:
+          name: qualification-software
+          path: evidence/qualification/software-matrix.json
+          if-no-files-found: error
+  arm64-smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: '1.27.1'
+      - name: Install qemu-user for ARM64 execution
+        run: sudo apt-get update && sudo apt-get install -y qemu-user-static
+      - name: Cross-build and run ARM64 binaries under qemu
+        run: |
+          make dist
+          cmp -s dist/otactl-linux-arm64 dist/zyvor-ota-linux-arm64
+          qemu-aarch64-static dist/otactl-linux-arm64 version | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$'
+          qemu-aarch64-static dist/zyvor-ota-linux-arm64 version | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$'
+          qemu-aarch64-static dist/zyvor-fleet-ref-linux-arm64 -h 2>&1 | head -n 1 || true
+          echo "arm64 CLI execution ok"
+  vulnerability-scan:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: '1.27.1'
+      - run: go run golang.org/x/vuln/cmd/govulncheck@v1.8.0 ./...

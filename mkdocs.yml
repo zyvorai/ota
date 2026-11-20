@@ -1,0 +1,71 @@
+site_name: Zyvor OTA
+site_description: The safest OTA runtime for Linux edge fleets.
+site_url: https://zyvorai.github.io/ota/docs/
+repo_url: https://github.com/zyvorai/ota
+repo_name: zyvorai/ota
+edit_uri: edit/main/docs/
+docs_dir: docs
+site_dir: _docs-site
+theme:
+  name: material
+  logo: assets/readme/zyvor-logo.svg
+  favicon: assets/readme/zyvor-logo.png
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue
+      accent: blue
+      toggle: {icon: material/brightness-7, name: Switch to dark mode}
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue
+      accent: blue
+      toggle: {icon: material/brightness-4, name: Switch to light mode}
+  features: [navigation.tabs, navigation.sections, navigation.top, navigation.footer, content.code.copy, search.suggest, search.highlight, toc.follow]
+plugins: [search]
+hooks:
+  - docs/overrides/hooks.py
+extra_css:
+  - stylesheets/apple-glass.css
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - {name: mermaid, class: mermaid, format: !!python/name:pymdownx.superfences.fence_code_format }
+  - pymdownx.tabbed: {alternate_style: true}
+  - pymdownx.tasklist: {custom_checkbox: true}
+  - tables
+  - toc: {permalink: true}
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Tutorial: TUTORIAL.md
+      - Roadmap: ROADMAP.md
+      - User Guide: USER-GUIDE.md
+      - Lab stack: LAB.md
+      - QEMU lab: QEMU-LAB.md
+      - Demo script: DEMO-VIDEO.md
+      - Measurements: BENCHMARKS.md
+  - Reference:
+      - Architecture: ARCHITECTURE.md
+      - Fleet Adapter Contract: FLEET.md
+      - Device Integration: DEVICE-INTEGRATION.md
+      - Yocto: YOCTO.md
+      - Buildroot: BUILDROOT.md
+      - Qualification: QUALIFICATION.md
+      - Supply chain (not v1): SUPPLY-CHAIN.md
+  - Operations:
+      - Operator Runbook: OPERATIONS.md
+      - Production Runbook: PRODUCTION.md
+      - Troubleshooting: TROUBLESHOOTING.md
+  - Project:
+      - FAQ: FAQ.md
+      - Verification Report: TEST-REPORT.md
+      - Release Process: RELEASING.md
+  - Support: support.md
+extra:
+  social:
+    - {icon: fontawesome/brands/github, link: https://github.com/zyvorai/ota}

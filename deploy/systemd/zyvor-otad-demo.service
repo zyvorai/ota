@@ -1,0 +1,37 @@
+[Unit]
+Description=Zyvor OTA device update agent (remote smoke-deploy, simulator backend)
+Documentation=https://github.com/zyvorai/ota/blob/main/deploy/README.md
+After=network.target zyvor-ota-demo-artifacts.service
+Wants=zyvor-ota-demo-artifacts.service
+RequiresMountsFor=/var/lib/zyvor-ota-demo
+
+[Service]
+Type=simple
+User=zyvor-ota-demo
+Group=zyvor-ota-demo
+ExecStart=/usr/local/bin/zyvor-otad -config /etc/zyvor-ota-demo/agent.json
+Restart=on-failure
+RestartSec=5s
+TimeoutStopSec=45s
+StateDirectory=zyvor-ota-demo
+StateDirectoryMode=0700
+RuntimeDirectory=zyvor-ota-demo
+RuntimeDirectoryMode=0700
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictNamespaces=true
+LockPersonality=true
+CapabilityBoundingSet=
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+ReadWritePaths=/var/lib/zyvor-ota-demo /run/zyvor-ota-demo
+
+[Install]
+WantedBy=multi-user.target

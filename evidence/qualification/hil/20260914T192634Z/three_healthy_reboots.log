@@ -1,0 +1,79 @@
+=== reboot 1 2026-09-14T19:24:04Z ===
+=== System Info ===
+Compatible:  zyvor-ota-qemu-lab
+Variant:     
+Booted from: rootfs.0 (/dev/vda2)
+
+=== Bootloader ===
+Activated: rootfs.1 (B)
+
+=== Slot States ===
+[1mx[0m [1m[rootfs.1][0m (/dev/disk/by-partlabel/rootB, ext4, inactive[0m)
+	bootname: [34mB[0m
+	boot status: [32mgood[0m
+
+o [32m[32m[1m[rootfs.0][0m (/dev/disk/by-partlabel/rootA, ext4, [1mbooted[0m)
+	bootname: [34mA[0m
+	boot status: [31mbad[0m
+
+
+ 19:24:04 up 0 min,  0 user,  load average: 0.00, 0.00, 0.00
+=== reboot 2 2026-09-14T19:24:16Z ===
+=== System Info ===
+Compatible:  zyvor-ota-qemu-lab
+Variant:     
+Booted from: rootfs.0 (/dev/vda2)
+
+=== Bootloader ===
+Activated: rootfs.1 (B)
+
+=== Slot States ===
+[1mx[0m [1m[rootfs.1][0m (/dev/disk/by-partlabel/rootB, ext4, inactive[0m)
+	bootname: [34mB[0m
+	boot status: [32mgood[0m
+
+o [32m[32m[1m[rootfs.0][0m (/dev/disk/by-partlabel/rootA, ext4, [1mbooted[0m)
+	bootname: [34mA[0m
+	boot status: [31mbad[0m
+
+
+ 19:24:16 up 0 min,  0 user,  load average: 0.00, 0.00, 0.00
+=== reboot 3 2026-09-14T19:24:29Z ===
+=== System Info ===
+Compatible:  zyvor-ota-qemu-lab
+Variant:     
+Booted from: rootfs.0 (/dev/vda2)
+
+=== Bootloader ===
+Activated: rootfs.1 (B)
+
+=== Slot States ===
+[1mx[0m [1m[rootfs.1][0m (/dev/disk/by-partlabel/rootB, ext4, inactive[0m)
+	bootname: [34mB[0m
+	boot status: [32mgood[0m
+
+o [32m[32m[1m[rootfs.0][0m (/dev/disk/by-partlabel/rootA, ext4, [1mbooted[0m)
+	bootname: [34mA[0m
+	boot status: [31mbad[0m
+
+
+ 19:24:29 up 0 min,  0 user,  load average: 0.32, 0.07, 0.02
+=== System Info ===
+Compatible:  zyvor-ota-qemu-lab
+Variant:     
+Booted from: rootfs.0 (/dev/vda2)
+
+=== Bootloader ===
+Activated: rootfs.1 (B)
+
+=== Slot States ===
+[1mx[0m [1m[rootfs.1][0m (/dev/disk/by-partlabel/rootB, ext4, inactive[0m)
+	bootname: [34mB[0m
+	boot status: [32mgood[0m
+
+o [32m[32m[1m[rootfs.0][0m (/dev/disk/by-partlabel/rootA, ext4, [1mbooted[0m)
+	bootname: [34mA[0m
+	boot status: [31mbad[0m
+
+
+ 19:24:42 up 0 min,  0 user,  load average: 0.00, 0.00, 0.00

@@ -1,0 +1,31 @@
+rauc-Message: 19:18:14.209: Reading bundle: /home/sus/zyvor-qemu-lab/bundle.raucb
+rauc-Message: 19:18:14.212: Verifying bundle signature... 
+rauc-Message: 19:18:14.217: Verified detached signature by 'CN = zyvor-ota-lab-devel'
+Compatible: 	'zyvor-ota-qemu-lab'
+Version:    	'0.1.0-lab'
+Description:	'(null)'
+Build:      	'(null)'
+Hooks:      	''
+Bundle Format: 	plain
+Manifest Hash:	'58e9df1ef4296b69e70657828c7782cdbe4a3b254772f0fa7b5585e11190140f'
+
+
+1 Image:
+  [1m[rootfs][0m
+	Filename:  rootfs.img
+	Checksum:  6c4a528e9cf6436b3dc6ea659578c1df7c218d2ee26f1b51d916b67fa9e159fb
+	Size:      33.6 MB (33,554,432 bytes)
+	Hooks:     
+
+Certificate Chain:
+ 0 Subject: CN = zyvor-ota-lab-devel
+   Issuer: CN = zyvor-ota-lab-ca
+   SPKI sha256: D4:17:C8:0F:1A:19:2B:4F:22:A6:4B:93:48:75:C2:D7:A4:E6:79:B4:76:86:69:C4:5F:44:44:5A:CF:8D:D1:03
+   Not Before: Sep 14 16:30:38 2026 GMT
+   Not After:  Sep 11 16:30:38 2036 GMT
+ 1 Subject: CN = zyvor-ota-lab-ca
+   Issuer: CN = zyvor-ota-lab-ca
+   SPKI sha256: BF:7C:0F:5D:0E:1E:D9:C2:0F:1A:49:99:E4:51:3E:81:D0:B1:4F:84:C1:BE:EB:DB:3D:E5:E8:8F:65:2B:F6:2E
+   Not Before: Sep 14 16:30:37 2026 GMT
+   Not After:  Sep 11 16:30:37 2036 GMT
+

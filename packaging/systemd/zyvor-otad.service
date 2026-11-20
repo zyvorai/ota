@@ -1,0 +1,37 @@
+[Unit]
+Description=Zyvor OTA device update agent
+After=network-online.target rauc.service
+Wants=network-online.target
+Requires=rauc.service
+RequiresMountsFor=/var/lib/zyvor-ota /var/lib/rauc
+
+[Service]
+Type=simple
+User=zyvor-ota
+Group=zyvor-ota
+ExecStart=/usr/local/bin/zyvor-otad -config /etc/zyvor-ota/agent.json
+Restart=on-failure
+RestartSec=5s
+TimeoutStopSec=45s
+StateDirectory=zyvor-ota
+StateDirectoryMode=0700
+RuntimeDirectory=zyvor-ota
+RuntimeDirectoryMode=0700
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictNamespaces=true
+LockPersonality=true
+CapabilityBoundingSet=
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+ReadWritePaths=/var/lib/zyvor-ota /run/zyvor-ota
+
+[Install]
+WantedBy=multi-user.target

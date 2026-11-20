@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 380" role="img" aria-label="Fleet assigns a signed release; the agent verifies it, installs to the inactive A/B slot, reboots, checks health, then either commits or rolls back automatically. A crash at an ambiguous point instead leaves the job needing operator recovery.">
+  <defs>
+    <linearGradient id="ota-accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff5a15"/>
+      <stop offset="1" stop-color="#cc420a"/>
+    </linearGradient>
+    <marker id="ota-arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#94a3b8"/>
+    </marker>
+    <marker id="ota-arrow-warn" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#f87171"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1160" height="380" rx="28" fill="#0f172a"/>
+
+  <!-- nodes -->
+  <g font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif">
+    <g>
+      <rect x="40" y="60" width="170" height="72" rx="14" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
+      <text x="125" y="92" text-anchor="middle" font-size="15" font-weight="600" fill="#f1f5f9">Fleet</text>
+      <text x="125" y="112" text-anchor="middle" font-size="11" fill="#94a3b8">assigns a signed release</text>
+    </g>
+
+    <g>
+      <rect x="258" y="60" width="170" height="72" rx="14" fill="url(#ota-accent)" stroke="#7c2d0a" stroke-width="1.5"/>
+      <text x="343" y="92" text-anchor="middle" font-size="15" font-weight="600" fill="#ffffff">Verify</text>
+      <text x="343" y="112" text-anchor="middle" font-size="11" fill="#ffe4d6">Ed25519 signature + metadata</text>
+    </g>
+
+    <g>
+      <rect x="476" y="60" width="170" height="72" rx="14" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
+      <text x="561" y="92" text-anchor="middle" font-size="15" font-weight="600" fill="#f1f5f9">Install</text>
+      <text x="561" y="112" text-anchor="middle" font-size="11" fill="#94a3b8">write inactive A/B slot</text>
+    </g>
+
+    <g>
+      <rect x="694" y="60" width="170" height="72" rx="14" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
+      <text x="779" y="92" text-anchor="middle" font-size="15" font-weight="600" fill="#f1f5f9">Reboot</text>
+      <text x="779" y="112" text-anchor="middle" font-size="11" fill="#94a3b8">boot into new slot</text>
+    </g>
+
+    <g>
+      <rect x="912" y="60" width="170" height="72" rx="14" fill="#1e293b" stroke="#475569" stroke-width="1.5"/>
+      <text x="997" y="92" text-anchor="middle" font-size="15" font-weight="600" fill="#f1f5f9">Checking health</text>
+      <text x="997" y="112" text-anchor="middle" font-size="11" fill="#94a3b8">file / systemd / HTTP probes</text>
+    </g>
+
+    <!-- terminal outcomes, side by side under Checking health -->
+    <g>
+      <rect x="758" y="250" width="170" height="66" rx="14" fill="#15803d" stroke="#166534" stroke-width="1.5"/>
+      <text x="843" y="280" text-anchor="middle" font-size="15" font-weight="600" fill="#ffffff">Committed</text>
+      <text x="843" y="300" text-anchor="middle" font-size="11" fill="#dcfce7">health held for stable window</text>
+    </g>
+
+    <g>
+      <rect x="960" y="250" width="170" height="66" rx="14" fill="#b45309" stroke="#92400e" stroke-width="1.5"/>
+      <text x="1045" y="280" text-anchor="middle" font-size="15" font-weight="600" fill="#ffffff">Rolled back</text>
+      <text x="1045" y="300" text-anchor="middle" font-size="11" fill="#ffedd5">old slot restored automatically</text>
+    </g>
+
+    <!-- recovery interlock -->
+    <g>
+      <rect x="360" y="250" width="330" height="66" rx="14" fill="#1e293b" stroke="#b91c1c" stroke-width="1.5" stroke-dasharray="6,4"/>
+      <text x="525" y="278" text-anchor="middle" font-size="14" font-weight="600" fill="#fca5a5">needs_recovery</text>
+      <text x="525" y="296" text-anchor="middle" font-size="10.5" fill="#cbd5e1">ambiguous crash — operator runs recover-abort</text>
+    </g>
+  </g>
+
+  <!-- connectors (drawn after nodes so arrowheads sit on top) -->
+  <g font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" fill="#94a3b8">
+    <line x1="210" y1="96" x2="254" y2="96" stroke="#94a3b8" stroke-width="2" marker-end="url(#ota-arrow)"/>
+    <text x="232" y="84" text-anchor="middle">poll or push</text>
+
+    <line x1="428" y1="96" x2="474" y2="96" stroke="#94a3b8" stroke-width="2" marker-end="url(#ota-arrow)"/>
+    <text x="451" y="84" text-anchor="middle">signature + digest OK</text>
+
+    <line x1="646" y1="96" x2="692" y2="96" stroke="#94a3b8" stroke-width="2" marker-end="url(#ota-arrow)"/>
+    <text x="669" y="84" text-anchor="middle">InstallBundle</text>
+
+    <line x1="864" y1="96" x2="910" y2="96" stroke="#94a3b8" stroke-width="2" marker-end="url(#ota-arrow)"/>
+    <text x="887" y="84" text-anchor="middle">boot confirmed</text>
+
+    <line x1="962" y1="132" x2="866" y2="246" stroke="#94a3b8" stroke-width="2" marker-end="url(#ota-arrow)"/>
+    <text x="850" y="196" text-anchor="middle">healthy through<tspan x="850" dy="12">stable window</tspan></text>
+
+    <line x1="1032" y1="132" x2="1038" y2="246" stroke="#94a3b8" stroke-width="2" marker-end="url(#ota-arrow)"/>
+    <text x="1080" y="196" text-anchor="middle">fails or<tspan x="1080" dy="12">times out</tspan></text>
+
+    <line x1="779" y1="132" x2="605" y2="246" stroke="#f87171" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#ota-arrow-warn)"/>
+    <text x="700" y="215" text-anchor="middle" fill="#fca5a5">crash / unclean restart</text>
+  </g>
+</svg>

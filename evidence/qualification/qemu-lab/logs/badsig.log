@@ -1,0 +1,9 @@
+installing
+  0% Installing
+  0% Determining slot states
+ 10% Determining slot states done.
+ 10% Checking bundle
+ 20% Checking bundle failed.
+100% Installing failed.
+LastError: Invalid bundle format: Signature size is 0
+BAD_RC=1

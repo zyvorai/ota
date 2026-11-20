@@ -1,0 +1,3 @@
+127.0.0.1 - - [11/Sep/2026 19:36:44] "GET /os.raucb HTTP/1.1" 200 -
+127.0.0.1 - - [11/Sep/2026 19:36:50] "GET /os.raucb HTTP/1.1" 200 -
+PASS: real daemon/CLI simulator E2E (commit, restart, rollback, replay, events, GC)

@@ -1,0 +1,19 @@
+mkdir -p bin
+go build -buildvcs=false -trimpath -o bin/zyvor-ota ./cmd/zyvor-ota
+go build -buildvcs=false -trimpath -o bin/zyvor-otad ./cmd/zyvor-otad
+go build -buildvcs=false -trimpath -o bin/zyvor-fleet-ref ./cmd/zyvor-fleet-ref
+python3 scripts/qualify-matrix.py
+[PASS] unit_protocol_fleetref — go test internal/ota + internal/fleetref
+[PASS] simulator_e2e_commit_rollback_replay
+[PASS] render_rauc_system_conf
+[PASS] bake_rootfs_overlay_minewing
+[PASS] release_schema_json_parse
+[PASS] openapi_yaml_parse
+[SKIP] qemu_rauc_valid_bundle_commit — run scripts/hil/run-rauc-powerloss-hil.sh + sign — docs/HIL.md
+[SKIP] qemu_rauc_power_loss_during_flash — run scripts/hil/run-rauc-powerloss-hil.sh + sign — docs/HIL.md
+[SKIP] physical_board_power_loss_boot_selection — run scripts/hil/run-rauc-powerloss-hil.sh + sign — docs/HIL.md
+[SKIP] physical_board_watchdog_bad_kernel — run scripts/hil/run-rauc-powerloss-hil.sh + sign — docs/HIL.md
+[SKIP] physical_packaging_dbus_polkit — run scripts/hil/run-rauc-powerloss-hil.sh + sign — docs/HIL.md
+
+wrote /Users/ssahani/tt/tt/zyvor-ota/evidence/qualification/software-matrix.json
+software qualification rows passed; hardware matrix still required for production

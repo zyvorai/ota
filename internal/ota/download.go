@@ -1,0 +1,399 @@
+// SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+package ota
+
+import (
+	"context"
+	"crypto/sha256"
+	"encoding/hex"
+	"errors"
+	"fmt"
+	"io"
+	"net/http"
+	"net/url"
+	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
+	"syscall"
+	"time"
+)
+
+type Downloader struct {
+	Config Config
+	Client *http.Client
+}
+
+func (d Downloader) checkURL(u *url.URL) error {
+	if u.User != nil || u.Fragment != "" || u.Host == "" {
+		return errors.New("invalid artifact URL")
+	}
+	secure := u.Scheme == "https"
+	localDemo := d.Config.Backend == "simulator" && u.Scheme == "http" && (u.Hostname() == "127.0.0.1" || u.Hostname() == "::1")
+	if !secure && !localDemo {
+		return errors.New("artifact requires HTTPS (simulator permits loopback HTTP)")
+	}
+	for _, h := range d.Config.DownloadHosts {
+		if strings.EqualFold(h, u.Host) {
+			return nil
+		}
+	}
+	return errors.New("artifact host not allowlisted")
+}
+func CheckArtifact(path string, a Artifact) error {
+	f, err := os.OpenFile(path, os.O_RDONLY|syscall.O_NOFOLLOW, 0)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	st, err := f.Stat()
+	if err != nil {
+		return err
+	}
+	if !st.Mode().IsRegular() || st.Size() != a.Size {
+		return errors.New("artifact size mismatch")
+	}
+	h := sha256.New()
+	if _, err = io.Copy(h, f); err != nil {
+		return err
+	}
+	if hex.EncodeToString(h.Sum(nil)) != a.SHA256 {
+		return errors.New("artifact digest mismatch")
+	}
+	return nil
+}
+func (d Downloader) Fetch(ctx context.Context, a Artifact) (string, error) {
+	path, _, _, err := d.fetch(ctx, a)
+	return path, err
+}
+
+func (d Downloader) fetch(ctx context.Context, a Artifact) (string, int64, bool, error) {
+	if path, err := d.localMediaFile(a); err != nil {
+		return "", 0, false, err
+	} else if path != "" {
+		return d.stageLocal(a, path)
+	}
+	u, err := url.Parse(a.URL)
+	if err != nil {
+		return "", 0, false, err
+	}
+	if u.Scheme == "file" {
+		return d.fetchFile(a, u)
+	}
+	if err = d.checkURL(u); err != nil {
+		return "", 0, false, err
+	}
+	if !digestPattern.MatchString(a.SHA256) || a.Size <= 0 || a.Size > d.Config.MaxArtifactBytes {
+		return "", 0, false, errors.New("invalid artifact")
+	}
+	dir := filepath.Join(d.Config.StateDir, "cache")
+	if err = os.MkdirAll(dir, 0700); err != nil {
+		return "", 0, false, err
+	}
+	final := filepath.Join(dir, a.SHA256+".raucb")
+	part := final + ".part"
+	if CheckArtifact(final, a) == nil {
+		return final, a.Size, false, nil
+	}
+	if d.Config.RelayURL != "" {
+		path, n, ok, relayErr := d.fetchFromRelay(ctx, a)
+		if relayErr != nil || ok {
+			return path, n, false, relayErr
+		}
+	}
+	if err = os.Remove(final); err != nil && !os.IsNotExist(err) {
+		return "", 0, false, err
+	}
+	f, err := os.OpenFile(part, os.O_CREATE|os.O_RDWR|syscall.O_NOFOLLOW, 0600)
+	if err != nil {
+		return "", 0, false, err
+	}
+	defer f.Close()
+	st, err := f.Stat()
+	if err != nil {
+		return "", 0, false, err
+	}
+	if !st.Mode().IsRegular() {
+		return "", 0, false, errors.New("cache entry is not a regular file")
+	}
+	offset := st.Size()
+	if offset > a.Size {
+		if err = f.Truncate(0); err != nil {
+			return "", 0, false, err
+		}
+		offset = 0
+	}
+	if offset == a.Size {
+		if CheckArtifact(part, a) == nil {
+			if err = finishDownload(f, part, final); err != nil {
+				return "", 0, false, err
+			}
+			return final, a.Size, true, nil
+		}
+		if err = f.Truncate(0); err != nil {
+			return "", 0, false, err
+		}
+		offset = 0
+	}
+	var fs syscall.Statfs_t
+	if err = syscall.Statfs(dir, &fs); err != nil {
+		return "", 0, false, err
+	}
+	if fs.Bavail*uint64(fs.Bsize) < uint64(a.Size-offset)+d.Config.ReserveBytes {
+		return "", 0, false, errors.New("insufficient cache space")
+	}
+	client := http.Client{Timeout: 30 * time.Minute}
+	if d.Client != nil {
+		client = *d.Client
+	}
+	client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+		if len(via) >= 5 {
+			return errors.New("too many redirects")
+		}
+		return d.checkURL(req.URL)
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, a.URL, nil)
+	if err != nil {
+		return "", 0, false, err
+	}
+	req.Header.Set("Accept-Encoding", "identity")
+	resumed := offset > 0
+	if resumed {
+		req.Header.Set("Range", "bytes="+strconv.FormatInt(offset, 10)+"-")
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", 0, resumed, errors.New("artifact request failed")
+	}
+	defer resp.Body.Close()
+	switch resp.StatusCode {
+	case http.StatusOK:
+		if err = f.Truncate(0); err != nil {
+			return "", 0, false, err
+		}
+		offset = 0
+		resumed = false
+	case http.StatusPartialContent:
+		expected := fmt.Sprintf("bytes %d-%d/%d", offset, a.Size-1, a.Size)
+		if resp.Header.Get("Content-Range") != expected {
+			return "", 0, true, errors.New("invalid Content-Range")
+		}
+	default:
+		return "", 0, resumed, fmt.Errorf("artifact HTTP status %d", resp.StatusCode)
+	}
+	if resp.Header.Get("Content-Encoding") != "" && resp.Header.Get("Content-Encoding") != "identity" {
+		return "", 0, resumed, errors.New("unexpected content encoding")
+	}
+	if resp.ContentLength >= 0 && resp.ContentLength != a.Size-offset {
+		return "", 0, resumed, errors.New("artifact Content-Length mismatch")
+	}
+	if _, err = f.Seek(offset, io.SeekStart); err != nil {
+		return "", 0, resumed, err
+	}
+	body := io.Reader(resp.Body)
+	if d.Config.BandwidthBytesPerSec > 0 {
+		body = &bpsReader{r: resp.Body, bps: d.Config.BandwidthBytesPerSec}
+	}
+	n, copyErr := io.Copy(f, io.LimitReader(body, a.Size-offset+1))
+	syncErr := f.Sync()
+	if n > a.Size-offset {
+		_ = f.Truncate(0)
+		return "", n, resumed, errors.New("artifact exceeds signed size")
+	}
+	if copyErr != nil {
+		return "", n, resumed, errors.New("artifact transfer interrupted; partial retained")
+	}
+	if syncErr != nil {
+		return "", n, resumed, syncErr
+	}
+	if n != a.Size-offset {
+		return "", n, resumed, errors.New("artifact transfer truncated; partial retained")
+	}
+	if err = CheckArtifact(part, a); err != nil {
+		_ = f.Truncate(0)
+		return "", n, resumed, err
+	}
+	if err = finishDownload(f, part, final); err != nil {
+		return "", n, resumed, err
+	}
+	return final, n, resumed, nil
+}
+
+func (d Downloader) fetchFile(a Artifact, u *url.URL) (string, int64, bool, error) {
+	if d.Config.LocalMediaDir == "" {
+		return "", 0, false, errors.New("file artifacts require local_media_dir")
+	}
+	path := filepath.Clean(u.Path)
+	rel, err := filepath.Rel(d.Config.LocalMediaDir, path)
+	if err != nil || !filepath.IsAbs(path) || strings.HasPrefix(rel, "..") {
+		return "", 0, false, errors.New("artifact path outside local media")
+	}
+	if err := CheckArtifact(path, a); err != nil {
+		return "", 0, false, err
+	}
+	return d.stageLocal(a, path)
+}
+
+// localMediaFile returns {sha256}.raucb inside local_media_dir when that file
+// matches the signed artifact. A missing file is not an error. A present file
+// with the wrong digest is.
+func (d Downloader) localMediaFile(a Artifact) (string, error) {
+	if d.Config.LocalMediaDir == "" || !digestPattern.MatchString(a.SHA256) {
+		return "", nil
+	}
+	path := filepath.Join(d.Config.LocalMediaDir, a.SHA256+".raucb")
+	f, err := os.OpenFile(path, os.O_RDONLY|syscall.O_NOFOLLOW, 0)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return "", nil
+		}
+		return "", err
+	}
+	f.Close()
+	if err = CheckArtifact(path, a); err != nil {
+		return "", err
+	}
+	return path, nil
+}
+
+func (d Downloader) artifactsLocal(arts []Artifact) (bool, error) {
+	if len(arts) == 0 || d.Config.LocalMediaDir == "" {
+		return false, nil
+	}
+	for _, a := range arts {
+		path, err := d.localMediaFile(a)
+		if err != nil || path == "" {
+			return false, err
+		}
+	}
+	return true, nil
+}
+
+func (d Downloader) stageLocal(a Artifact, path string) (string, int64, bool, error) {
+	dir := filepath.Join(d.Config.StateDir, "cache")
+	if err := os.MkdirAll(dir, 0700); err != nil {
+		return "", 0, false, err
+	}
+	final := filepath.Join(dir, a.SHA256+".raucb")
+	if CheckArtifact(final, a) == nil {
+		return final, a.Size, false, nil
+	}
+	if err := copyFile(path, final); err != nil {
+		return "", 0, false, err
+	}
+	if err := CheckArtifact(final, a); err != nil {
+		return "", 0, false, err
+	}
+	return final, a.Size, false, nil
+}
+
+type bpsReader struct {
+	r    io.Reader
+	bps  int64
+	sent int64
+	t0   time.Time
+}
+
+func (b *bpsReader) Read(p []byte) (int, error) {
+	if b.t0.IsZero() {
+		b.t0 = time.Now()
+	}
+	if b.bps > 0 && int64(len(p)) > b.bps {
+		p = p[:b.bps]
+	}
+	n, err := b.r.Read(p)
+	b.sent += int64(n)
+	if b.bps > 0 && b.sent > 0 {
+		need := time.Duration(float64(b.sent) / float64(b.bps) * float64(time.Second))
+		if wait := need - time.Since(b.t0); wait > 0 {
+			time.Sleep(wait)
+		}
+	}
+	return n, err
+}
+
+func (d Downloader) fetchFromRelay(ctx context.Context, a Artifact) (string, int64, bool, error) {
+	raw, err := os.ReadFile(d.Config.RelayTokenFile)
+	if err != nil {
+		return "", 0, false, err
+	}
+	token := strings.TrimSpace(string(raw))
+	if token == "" {
+		return "", 0, false, errors.New("empty relay token")
+	}
+	u, err := url.Parse(d.Config.RelayURL)
+	if err != nil {
+		return "", 0, false, err
+	}
+	u.Path = "/artifacts/" + a.SHA256
+	u.RawQuery = ""
+	u.Fragment = ""
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
+	if err != nil {
+		return "", 0, false, err
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Accept-Encoding", "identity")
+	req.Header.Set("X-Zyvor-Artifact-Url", a.URL)
+	client := http.Client{Timeout: 30 * time.Minute, CheckRedirect: func(*http.Request, []*http.Request) error {
+		return errors.New("relay redirects forbidden")
+	}}
+	if d.Client != nil {
+		client = *d.Client
+		client.CheckRedirect = func(*http.Request, []*http.Request) error {
+			return errors.New("relay redirects forbidden")
+		}
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", 0, false, nil
+	}
+	defer resp.Body.Close()
+	switch resp.StatusCode {
+	case http.StatusOK:
+	case http.StatusUnauthorized, http.StatusForbidden:
+		return "", 0, false, errors.New("relay unauthorized")
+	default:
+		return "", 0, false, nil
+	}
+	dir := filepath.Join(d.Config.StateDir, "cache")
+	part := filepath.Join(dir, a.SHA256+".raucb.part")
+	f, err := os.OpenFile(part, os.O_CREATE|os.O_TRUNC|os.O_WRONLY|syscall.O_NOFOLLOW, 0600)
+	if err != nil {
+		return "", 0, false, err
+	}
+	n, copyErr := io.Copy(f, io.LimitReader(resp.Body, a.Size+1))
+	syncErr := f.Sync()
+	closeErr := f.Close()
+	if copyErr != nil || syncErr != nil || closeErr != nil || n != a.Size {
+		os.Remove(part)
+		return "", 0, false, errors.New("relay artifact digest mismatch")
+	}
+	if err = CheckArtifact(part, a); err != nil {
+		os.Remove(part)
+		return "", 0, false, err
+	}
+	final := filepath.Join(dir, a.SHA256+".raucb")
+	if err = os.Rename(part, final); err != nil {
+		os.Remove(part)
+		return "", 0, false, err
+	}
+	return final, n, true, nil
+}
+
+func finishDownload(f *os.File, part, final string) error {
+	if err := f.Sync(); err != nil {
+		return err
+	}
+	if err := f.Close(); err != nil {
+		return err
+	}
+	if err := os.Rename(part, final); err != nil {
+		return err
+	}
+	d, err := os.Open(filepath.Dir(final))
+	if err != nil {
+		return err
+	}
+	defer d.Close()
+	return d.Sync()
+}

@@ -1,0 +1,35 @@
+{
+  "device_id": "minewing-gw1-lab-001",
+  "compatible": "minewing-gw1-r1",
+  "state_dir": "/var/lib/zyvor-ota",
+  "socket": "/run/zyvor-ota/agent.sock",
+  "backend": "rauc",
+  "allow_device_writes": true,
+  "trust_keys": {
+    "production-1": "REPLACE_WITH_BASE64_ED25519_PUBLIC_KEY"
+  },
+  "download_hosts": [
+    "updates.example.com"
+  ],
+  "max_artifact_bytes": 4294967296,
+  "reserve_bytes": 268435456,
+  "health_timeout_seconds": 180,
+  "health_stable_seconds": 30,
+  "checks": [
+    {
+      "kind": "systemd",
+      "target": "zyvor-device-agent.service"
+    },
+    {
+      "kind": "http",
+      "target": "http://127.0.0.1:9091/healthz"
+    },
+    {
+      "kind": "file",
+      "target": "/var/lib/zyvor-device/healthy"
+    }
+  ],
+  "fleet_url": "https://fleet.example.com",
+  "fleet_token_file": "/etc/zyvor-ota/fleet.token",
+  "fleet_ca": "/etc/zyvor-ota/fleet-ca.pem"
+}

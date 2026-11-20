@@ -1,0 +1,13 @@
+[update]
+compatible=REPLACE_WITH_BOARD_AND_REVISION
+version=REPLACE_WITH_UNIQUE_VERSION
+description=Zyvor board OS update
+
+[bundle]
+format=verity
+
+[image.rootfs]
+filename=rootfs.ext4
+
+[image.boot]
+filename=boot.vfat

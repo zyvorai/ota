@@ -1,0 +1,92 @@
+installing
+  0% Installing
+  0% Determining slot states
+ 10% Determining slot states done.
+ 10% Checking bundle
+ 10% Verifying signature
+ 20% Verifying signature done.
+ 20% Checking bundle done.
+ 20% Checking manifest contents
+ 30% Checking manifest contents done.
+ 30% Determining target install group
+ 40% Determining target install group done.
+ 40% Updating slots
+ 40% Checking slot rootfs.1
+ 46% Checking slot rootfs.1 done.
+ 46% Copying image to rootfs.1
+ 47% Copying image to rootfs.1
+ 48% Copying image to rootfs.1
+ 49% Copying image to rootfs.1
+ 50% Copying image to rootfs.1
+ 51% Copying image to rootfs.1
+ 52% Copying image to rootfs.1
+ 53% Copying image to rootfs.1
+ 54% Copying image to rootfs.1
+ 55% Copying image to rootfs.1
+ 56% Copying image to rootfs.1
+ 57% Copying image to rootfs.1
+ 58% Copying image to rootfs.1
+ 59% Copying image to rootfs.1
+ 60% Copying image to rootfs.1
+ 61% Copying image to rootfs.1
+ 62% Copying image to rootfs.1
+ 63% Copying image to rootfs.1
+ 64% Copying image to rootfs.1
+ 65% Copying image to rootfs.1
+ 66% Copying image to rootfs.1
+ 67% Copying image to rootfs.1
+ 68% Copying image to rootfs.1
+ 69% Copying image to rootfs.1
+ 70% Copying image to rootfs.1
+ 71% Copying image to rootfs.1
+ 72% Copying image to rootfs.1
+ 73% Copying image to rootfs.1
+ 74% Copying image to rootfs.1
+ 75% Copying image to rootfs.1
+ 76% Copying image to rootfs.1
+ 77% Copying image to rootfs.1
+ 78% Copying image to rootfs.1
+ 79% Copying image to rootfs.1
+ 80% Copying image to rootfs.1
+ 81% Copying image to rootfs.1
+ 82% Copying image to rootfs.1
+ 83% Copying image to rootfs.1
+ 84% Copying image to rootfs.1
+ 85% Copying image to rootfs.1
+ 86% Copying image to rootfs.1
+ 87% Copying image to rootfs.1
+ 88% Copying image to rootfs.1
+ 89% Copying image to rootfs.1
+ 90% Copying image to rootfs.1
+ 91% Copying image to rootfs.1
+ 92% Copying image to rootfs.1
+ 93% Copying image to rootfs.1
+ 94% Copying image to rootfs.1
+ 95% Copying image to rootfs.1
+ 96% Copying image to rootfs.1
+ 97% Copying image to rootfs.1
+ 98% Copying image to rootfs.1
+ 99% Copying image to rootfs.1
+ 99% Copying image to rootfs.1 done.
+ 99% Updating slots done.
+100% Installing done.
+Installing `/tmp/bundle.raucb` succeeded
+INSTALL_RC=0
+=== System Info ===
+Compatible:  zyvor-ota-qemu-lab
+Variant:     
+Booted from: rootfs.0 (/dev/vda2)
+
+=== Bootloader ===
+Activated: rootfs.1 (B)
+
+=== Slot States ===
+[1mx[0m [1m[rootfs.1][0m (/dev/disk/by-partlabel/rootB, ext4, inactive[0m)
+	bootname: [34mB[0m
+	boot status: [32mgood[0m
+
+o [32m[32m[1m[rootfs.0][0m (/dev/disk/by-partlabel/rootA, ext4, [1mbooted[0m)
+	bootname: [34mA[0m
+	boot status: [31mbad[0m
+
+
