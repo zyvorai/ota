@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
 # Soft-skip CI / lab QEMU RAUC smoke — advances beyond lab-substitute when a
 # generic zyvor-ota-qemu-lab disk (or QUALIFY_QEMU_IMAGE) is present.
 #

@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
 # Render with: scripts/render-board-rauc.sh boards/minewing-gw1-r1
 # PARTUUID values are substituted from board.env (never invent them).
 [system]

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
 // Package otaclient is the supported Go client for the local operator API
 // described in api/openapi.yaml.
 //

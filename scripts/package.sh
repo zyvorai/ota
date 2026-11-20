@@ -53,8 +53,7 @@ Name: zyvor-ota
 Version: $version
 Release: 1
 Summary: Signed recoverable OTA agent
-License: Apache-2.0
-BuildArch: $debarch
+License: LicenseRef-Zyvor-Production-1.0BuildArch: $debarch
 
 %description
 Zyvor OTA verifies a signed release and installs it with rollback.
