@@ -19,7 +19,9 @@ separately. See the README's [License](https://github.com/zyvorai/ota#license) s
 **What does "Enterprise" mean here?** Operational leverage on top of the same
 agent: Fleet campaign controls, SSO and approvals, hosted site-relay
 operations, compliance evidence, certified board enablement, SLA and LTS.
-Contact sales@zyvor.dev. The site relay client, rollback, signature
+Prices (per device per year, India in INR incl. GST) are in
+[docs/SUBSCRIPTION-MODEL.md](SUBSCRIPTION-MODEL.md#pricing); buy at
+https://zyvor.dev/buy or contact sales@zyvor.dev. The site relay client, rollback, signature
 verification, the simulator, the QEMU lab recipe, and the basic Fleet
 contract stay in this Apache-2.0 repository. Nothing here requires a paid
 license to update a device safely.
