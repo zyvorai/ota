@@ -10,9 +10,7 @@ better starting point.
 
 ## Licensing & cost
 
-**Is it really free?** Non-production use (evaluation, development, testing, research,
-education) is free under the Zyvor Production License v1.0. Production use
-requires a commercial license from Zyvor AI Labs (sales@zyvor.dev,
+**Do I need a license?** Yes. Running OTA requires a commercial license from Zyvor AI Labs (sales@zyvor.dev,
 https://zyvor.dev/buy; a 30-day trial key is available). Notices must be
 preserved (see [`NOTICE`](https://github.com/zyvorai/ota/blob/main/NOTICE)). RAUC (an external runtime
 dependency) is not relicensed by this project — check its own license
@@ -25,12 +23,11 @@ Prices (per device per year, India in INR incl. GST) are in
 [docs/SUBSCRIPTION-MODEL.md](SUBSCRIPTION-MODEL.md#pricing); buy at
 https://zyvor.dev/buy or contact sales@zyvor.dev. The site relay client, rollback, signature
 verification, the simulator, the QEMU lab recipe, and the basic Fleet
-contract stay in this Zyvor Production License repository. Nothing here requires a paid
-license to update a device safely.
+contract stay in this Zyvor Production License repository.
 
-## Community and enterprise
+## What is included, and what Enterprise adds
 
-| Community (this repository) | Enterprise |
+| Included in the OTA agent | Enterprise adds |
 |---|---|
 | Agent, CLI, RAUC backend, simulator, local API | Fleet dashboard and campaign orchestration |
 | Signed releases, rollback, schema 2 payloads | SSO/RBAC, approvals, and immutable audit |
