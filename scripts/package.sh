@@ -1,4 +1,7 @@
 #!/bin/sh
+# Copyright 2026 Zyvor AI Labs · https://zyvor.dev
+# SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+
 # Build .deb and, when rpmbuild exists, .rpm for the static dist binaries.
 set -eu
 root=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)

@@ -1,3 +1,6 @@
+// Copyright 2026 Zyvor AI Labs · https://zyvor.dev
+// SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+
 // Runs in <head>, before first paint: stored choice, else the OS preference.
 (function () {
   var KEY = "zyvor-site-theme", root = document.documentElement, stored = null;

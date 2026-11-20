@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# Copyright 2026 Zyvor AI Labs · https://zyvor.dev
+# SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+
 """Source-distribution SPDX 2.3 SBOM. Does not claim to inventory the board OS.
 
 Inventories source files and the one vendored dependency. The source tree digest

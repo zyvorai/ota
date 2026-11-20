@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Copyright 2026 Zyvor AI Labs · https://zyvor.dev
+# SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+
 # Wire zyvor-ota + fleet + nodra + device-agent + relay-edge on one host and verify.
 # Run ON the target host as sus (with passwordless sudo).
 set -euo pipefail

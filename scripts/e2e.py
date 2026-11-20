@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# Copyright 2026 Zyvor AI Labs · https://zyvor.dev
+# SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+
 """Run the real daemon and CLI against isolated simulator files, never hardware.
 
 Tests keygen/sign, HTTP download, durable restart before reboot, commit,
