@@ -24,7 +24,6 @@
 
 </div>
 
-[Client overview (PDF)](docs/Zyvor-OTA-Client-Overview.pdf)
 
 ---
 
@@ -66,21 +65,6 @@ release. RAUC writes the inactive slot and integrates with the board bootloader.
 
 ---
 
-## Zyvor OTA vs Mender
-
-![Zyvor OTA vs Mender: just the safe install, Fleet does the targeting](docs/ux/readme-vs.jpg)
-
-| | **Zyvor OTA** | **Mender** (OTA client + server) |
-|---|---|---|
-| Scope | Signed A/B install agent only | Device client plus a management server (self-hosted or hosted) |
-| Targeting and rollout | Separate concern — Zyvor Fleet implements [docs/FLEET.md](docs/FLEET.md) | Built into the Mender server |
-| Update mechanism | RAUC-managed A/B slots | A/B or single-partition, plus update modules |
-| Rollback | Automatic, health-check gated, with an explicit `NeedsRecovery` interlock for ambiguous crashes | Automatic in A/B mode |
-| Release trust | Ed25519 envelopes with pinned keys, expiry, monotonic sequence; optional threshold root and signed SBOM | Signed artifacts |
-| Offline | Campaign export/import to local media and a site relay client | Standalone mode for local installs |
-| Licence | Zyvor Production License 1.0 (free non-production) | Apache-2.0 core + commercial Enterprise |
-| **Choose Mender when** | | You want one product for both the device client and the update server, and don't run Zyvor Fleet |
-
 ## Is this for you?
 
 **Zyvor OTA** is the source-available (Zyvor Production License v1.0) runtime that makes a Linux edge update
@@ -91,21 +75,6 @@ The outcome to look for is a signed update that either commits or returns to
 the previous boot — with evidence. Start with the [15-minute trial](docs/TUTORIAL.md).
 
 <img src="docs/assets/readme/ota-lifecycle.svg" alt="Fleet assigns a signed release; the agent verifies it, installs to the inactive A/B slot, reboots, checks health, then commits or rolls back automatically." width="880"/>
-
-| | **Zyvor OTA** | Mender | SWUpdate | balena | Roll-your-own (dpkg/apt + scripts) |
-|---|---|---|---|---|---|
-| Scope | Signed A/B install agent only | Agent + optional management server | Embedded update framework (daemon only) | Full fleet + container-based OS update, via balenaCloud | Whatever you script |
-| Update mechanism | RAUC-managed A/B slots | A/B or single-partition | A/B, single-copy, or custom | balenaOS + container layer swap | Package manager, no atomicity guarantee |
-| Rollback | Automatic, health-check gated, with an explicit `NeedsRecovery` interlock for ambiguous crashes | Automatic (A/B mode) | Depends on integration | Automatic (balenaOS) | Usually none |
-| License | Zyvor Production License 1.0 (free non-production) | Apache-2.0 core + commercial Enterprise | GPL-2.0 | Apache-2.0 agent + proprietary balenaCloud | N/A |
-| Fleet/targeting | Separate concern — Zyvor Fleet implements `docs/FLEET.md` (`/v1/devices` + `/api/v1/ota`); lab stack in `docs/LAB.md` | Mender server (open or hosted) | Not included — typically paired with hawkBit or a custom backend | balenaCloud (proprietary) | You build it |
-
-*(General characterizations as of writing — verify current licensing/features
-against each project's own docs. Eclipse hawkBit and Uptane are not included
-as direct rows: hawkBit is primarily a fleet/backend component comparable to
-Fleet+OTA combined, and Uptane is a security framework some of the above
-implement, not a competing product — Zyvor OTA does not currently claim
-Uptane conformance.)*
 
 **Maturity, stated honestly**: **v0.2.0 engineering preview** — working agent,
 CLI, RAUC adapter, simulator, CI, and **generic QEMU RAUC lab HIL**

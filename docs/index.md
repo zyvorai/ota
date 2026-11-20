@@ -2,7 +2,7 @@
 hero:
   eyebrow: ZYVOR OTA
   title: Signed, recoverable device OS updates
-  lead: The safest open OTA runtime for Linux edge fleets — signed updates, automatic rollback, and verifiable evidence, without cloud lock-in.
+  lead: The safest OTA runtime for Linux edge fleets — signed updates, automatic rollback, and verifiable evidence, without cloud lock-in.
   swatches:
     - {label: "v0.2.0 · engineering preview"}
     - {label: "Zyvor Production License"}
