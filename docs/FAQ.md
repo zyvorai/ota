@@ -10,8 +10,8 @@ better starting point.
 
 ## Licensing & cost
 
-**Do I need a license?** Yes. Running OTA requires a commercial license from Zyvor AI Labs (sales@zyvor.dev,
-https://zyvor.dev/buy; a 30-day trial key is available). Notices must be
+**Do I need a license?** For production use, yes: it requires a paid commercial license from Zyvor AI Labs (sales@zyvor.dev,
+https://zyvor.dev/pricing; a 30-day trial key is available at https://zyvor.dev/trial/start). Evaluation, development, testing, research, education and other non-production use is free under the Zyvor Production License v1.0. Notices must be
 preserved (see [`NOTICE`](https://github.com/zyvorai/ota/blob/main/NOTICE)). RAUC (an external runtime
 dependency) is not relicensed by this project — check its own license
 separately. See the README's [License](https://github.com/zyvorai/ota#license) section.
