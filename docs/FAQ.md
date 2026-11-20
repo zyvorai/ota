@@ -10,9 +10,11 @@ better starting point.
 
 ## Licensing & cost
 
-**Is it really free?** Yes. Apache-2.0 — use, modify, and run it for
-personal, lab, and commercial production use at no charge, subject to
-preserving notices (see [`NOTICE`](https://github.com/zyvorai/ota/blob/main/NOTICE)). RAUC (an external runtime
+**Is it really free?** Non-production use (evaluation, development, testing, research,
+education) is free under the Zyvor Production License v1.0. Production use
+requires a commercial license from Zyvor AI Labs (sales@zyvor.dev,
+https://zyvor.dev/buy; a 30-day trial key is available). Notices must be
+preserved (see [`NOTICE`](https://github.com/zyvorai/ota/blob/main/NOTICE)). RAUC (an external runtime
 dependency) is not relicensed by this project — check its own license
 separately. See the README's [License](https://github.com/zyvorai/ota#license) section.
 
@@ -23,7 +25,7 @@ Prices (per device per year, India in INR incl. GST) are in
 [docs/SUBSCRIPTION-MODEL.md](SUBSCRIPTION-MODEL.md#pricing); buy at
 https://zyvor.dev/buy or contact sales@zyvor.dev. The site relay client, rollback, signature
 verification, the simulator, the QEMU lab recipe, and the basic Fleet
-contract stay in this Apache-2.0 repository. Nothing here requires a paid
+contract stay in this Zyvor Production License repository. Nothing here requires a paid
 license to update a device safely.
 
 ## Community and enterprise

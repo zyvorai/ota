@@ -5,7 +5,7 @@ hero:
   lead: The safest open OTA runtime for Linux edge fleets — signed updates, automatic rollback, and verifiable evidence, without cloud lock-in.
   swatches:
     - {label: "v0.2.0 · engineering preview"}
-    - {label: "Apache-2.0"}
+    - {label: "Zyvor Production License"}
     - {label: "Ed25519 + SHA-256"}
     - {label: "RAUC A/B"}
   highlights:

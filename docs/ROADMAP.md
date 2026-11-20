@@ -9,7 +9,7 @@ Positioning:
 
 > The safest open OTA runtime for Linux edge fleets—signed updates, automatic rollback, offline operation, and verifiable deployment evidence without cloud lock-in.
 
-Zyvor Fleet decides which devices and when. This repository verifies and installs. Rollback and signature checks stay in the Apache-2.0 agent. Enterprise is operational leverage, not withheld safety. This project does **not** claim Uptane conformance.
+Zyvor Fleet decides which devices and when. This repository verifies and installs. Rollback and signature checks stay in the OTA agent. Enterprise is operational leverage, not withheld safety. This project does **not** claim Uptane conformance.
 
 ## Five features
 

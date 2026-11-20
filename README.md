@@ -6,7 +6,7 @@
 [![CI](https://github.com/zyvorai/ota/actions/workflows/ci.yml/badge.svg)](https://github.com/zyvorai/ota/actions/workflows/ci.yml)
 [![Release](https://github.com/zyvorai/ota/actions/workflows/release.yml/badge.svg)](https://github.com/zyvorai/ota/actions/workflows/release.yml)
 [![Go Reference](https://img.shields.io/badge/go-1.27.1-00ADD8?logo=go&logoColor=white)](go.mod)
-[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-Zyvor_Production_1.0-blue.svg)](LICENSE)
 
 [![Book a demo](https://img.shields.io/badge/Book_a_demo-0071e3?style=for-the-badge)](https://zyvor.dev/schedule?utm_source=github&utm_medium=ota&utm_campaign=readme_hero)
 [![30-day PoC](https://img.shields.io/badge/30--day_PoC-1d1d1f?style=for-the-badge)](https://zyvor.dev/poc?utm_source=github&utm_medium=ota&utm_campaign=readme_hero)
@@ -28,7 +28,7 @@
 
 ---
 
-**v0.2.0 — engineering preview, Apache-2.0.** Working Go agent and CLI, native
+**v0.2.0 — engineering preview, Zyvor Production License v1.0.** Working Go agent and CLI, native
 RAUC D-Bus adapter, simulator, automated tests, and CI lab-substitutes.
 **Generic QEMU RAUC lab HIL is complete** (`zyvor-ota-qemu-lab`); **Minewing
 silicon qualification remains a separate, unsigned gate**. See
@@ -78,12 +78,12 @@ release. RAUC writes the inactive slot and integrates with the board bootloader.
 | Rollback | Automatic, health-check gated, with an explicit `NeedsRecovery` interlock for ambiguous crashes | Automatic in A/B mode |
 | Release trust | Ed25519 envelopes with pinned keys, expiry, monotonic sequence; optional threshold root and signed SBOM | Signed artifacts |
 | Offline | Campaign export/import to local media and a site relay client | Standalone mode for local installs |
-| Licence | Apache-2.0 | Apache-2.0 core + commercial Enterprise |
+| Licence | Zyvor Production License 1.0 (free non-production) | Apache-2.0 core + commercial Enterprise |
 | **Choose Mender when** | | You want one product for both the device client and the update server, and don't run Zyvor Fleet |
 
 ## Is this for you?
 
-**Zyvor OTA** is the open (Apache-2.0) runtime that makes a Linux edge update
+**Zyvor OTA** is the source-available (Zyvor Production License v1.0) runtime that makes a Linux edge update
 safe to ship: a signed release, an inactive A/B slot, health-gated commit, and
 automatic rollback, including when the WAN is down. Zyvor Fleet decides which
 devices and when. This repository does not ship a second rollout controller.
@@ -97,7 +97,7 @@ the previous boot — with evidence. Start with the [15-minute trial](docs/TUTOR
 | Scope | Signed A/B install agent only | Agent + optional management server | Embedded update framework (daemon only) | Full fleet + container-based OS update, via balenaCloud | Whatever you script |
 | Update mechanism | RAUC-managed A/B slots | A/B or single-partition | A/B, single-copy, or custom | balenaOS + container layer swap | Package manager, no atomicity guarantee |
 | Rollback | Automatic, health-check gated, with an explicit `NeedsRecovery` interlock for ambiguous crashes | Automatic (A/B mode) | Depends on integration | Automatic (balenaOS) | Usually none |
-| License | Apache-2.0 | Apache-2.0 core + commercial Enterprise | GPL-2.0 | Apache-2.0 agent + proprietary balenaCloud | N/A |
+| License | Zyvor Production License 1.0 (free non-production) | Apache-2.0 core + commercial Enterprise | GPL-2.0 | Apache-2.0 agent + proprietary balenaCloud | N/A |
 | Fleet/targeting | Separate concern — Zyvor Fleet implements `docs/FLEET.md` (`/v1/devices` + `/api/v1/ota`); lab stack in `docs/LAB.md` | Mender server (open or hosted) | Not included — typically paired with hawkBit or a custom backend | balenaCloud (proprietary) | You build it |
 
 *(General characterizations as of writing — verify current licensing/features
@@ -308,7 +308,7 @@ and bootloader updates. Evidence: [docs/TEST-REPORT.md](docs/TEST-REPORT.md) ·
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md): Apache-2.0 SPDX headers, board profiles
+See [CONTRIBUTING.md](CONTRIBUTING.md): SPDX LicenseRef-Zyvor-Production-1.0 headers, board profiles
 scoped to a tested SKU/revision pair, and required evidence for any change to
 boot selection, slot grouping, signing or recovery behavior. Run `make check`,
 `make demo`, and `make dist` before opening a pull request.
@@ -321,19 +321,16 @@ credentials, or exploitable production details in a public issue.
 
 ## License
 
-Zyvor OTA is **free and open source** under the [Apache License, Version 2.0](LICENSE).
-You may use, modify, and run it for personal, lab, and commercial production
-use at no charge, subject to Apache-2.0 (preserve notices / NOTICE where required).
-Original Zyvor OTA source is Apache-2.0. Vendored dependencies retain their own licenses. RAUC is an external runtime dependency and is not relicensed by this project.
+Zyvor OTA is source-available under the **[Zyvor Production License v1.0](LICENSE)** (SPDX `LicenseRef-Zyvor-Production-1.0`, also in [LICENSES/](LICENSES/LicenseRef-Zyvor-Production-1.0.txt); see [NOTICE](NOTICE)). Non-production use (evaluation, development, testing, research, education) is free. Production use requires a commercial license from Zyvor AI Labs Private Limited ([sales@zyvor.dev](mailto:sales@zyvor.dev), [zyvor.dev/buy](https://zyvor.dev/buy)); a 30-day trial key is available for production evaluation.
 
 **Zyvor Enterprise** adds what production teams ask for: supported releases, deployment and upgrade guidance, priority incident triage, a named technical contact and 24x7 critical intake. Customers pay for operational leverage, not for rollback or signature checks.
-Those stay in the Apache-2.0 agent. Enterprise is the Fleet dashboard, SSO and
+Those stay in the OTA agent. Enterprise is the Fleet dashboard, SSO and
 approvals, site relay, compliance evidence, certified board enablement, and
 support. See the [FAQ](docs/FAQ.md#community-and-enterprise). Plans and terms: [docs/SUBSCRIPTION-MODEL.md](docs/SUBSCRIPTION-MODEL.md) · [Pricing](https://zyvor.dev/pricing?utm_source=github&utm_medium=ota&utm_campaign=readme_license) · [sales@zyvor.dev](mailto:sales@zyvor.dev). Support from USD 8-18 per device per year (INR 793-1,784 incl. GST in India), USD 5,000 (INR 495,600) annual minimum; buy / get a quote at [zyvor.dev/buy](https://zyvor.dev/buy).
 
 ## Support
 
-Free under Apache-2.0. If it helps you, you can donate any amount you like: <https://rzp.io/rzp/utwdYh3>. A donation is voluntary and supports development and maintenance. It is not a purchase: it buys no support, SLA, features, priority or license, and it is not tax-deductible (Zyvor AI Labs Private Limited is a company, not a charity). Zyvor Enterprise (supported releases, SLAs, a named contact and enterprise features) is separate: [sales@zyvor.dev](mailto:sales@zyvor.dev).
+Non-production use is free under the Zyvor Production License v1.0; production use requires a commercial license (sales@zyvor.dev). If it helps you, you can donate any amount you like: <https://rzp.io/rzp/utwdYh3>. A donation is voluntary and supports development and maintenance. It is not a purchase: it buys no support, SLA, features, priority or license, and it is not tax-deductible (Zyvor AI Labs Private Limited is a company, not a charity). Zyvor Enterprise (supported releases, SLAs, a named contact and enterprise features) is separate: [sales@zyvor.dev](mailto:sales@zyvor.dev).
 
 ---
 

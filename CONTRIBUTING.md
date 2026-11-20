@@ -1,6 +1,6 @@
 # Contributing
 
-Use Apache-2.0 SPDX headers in original source files. Keep hardware profiles
+Use SPDX LicenseRef-Zyvor-Production-1.0 headers in original source files. Keep hardware profiles
 specific to tested SKU/revision pairs. Include the board/image evidence when
 changing boot selection, slot grouping, signing or recovery behavior.
 
