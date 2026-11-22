@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+# SPDX-License-Identifier: LicenseRef-Zyvor-Production-2.0
 # ============================================================================
 # selftest.sh — Post-installation verification for the zyvor-ota remote
 # smoke-deploy (deploy/README.md).

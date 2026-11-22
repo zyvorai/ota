@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+# SPDX-License-Identifier: LicenseRef-Zyvor-Production-2.0
 # Build a minimal x86_64 QEMU A/B disk with real RAUC for lab HIL.
 # This is a **generic lab image**, not a Minewing BSP flash image.
 #

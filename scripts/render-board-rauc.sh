@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+# SPDX-License-Identifier: LicenseRef-Zyvor-Production-2.0
 # Render boards/<sku>/{system.conf,manifest.raucm} from *.in + board.env.
 set -euo pipefail
 

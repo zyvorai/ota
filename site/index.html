@@ -6,13 +6,13 @@
   <meta name="color-scheme" content="light dark" />
   <meta name="theme-color" content="#ffffff" />
   <title>Zyvor OTA · Signed A/B updates. Commit or roll back.</title>
-  <meta name="description" content="The OTA runtime for Linux edge fleets: Ed25519-signed releases, RAUC A/B slots, health-gated commit and automatic rollback, with no inbound cloud port. v0.2.0 engineering preview, Zyvor Production License." />
+  <meta name="description" content="The OTA runtime for Linux edge fleets: Ed25519-signed releases, RAUC A/B slots, health-gated commit and automatic rollback, with no inbound cloud port. v0.2.0 engineering preview, Zyvor Production Licence v2.0." />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="canonical" href="https://zyvorai.github.io/ota/" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Zyvor OTA" />
   <meta property="og:title" content="Zyvor OTA · Signed A/B updates. Commit or roll back." />
-  <meta property="og:description" content="Signed, recoverable device OS updates for Linux edge fleets. RAUC A/B slots, health-gated commit, automatic rollback. Zyvor Production License." />
+  <meta property="og:description" content="Signed, recoverable device OS updates for Linux edge fleets. RAUC A/B slots, health-gated commit, automatic rollback. Zyvor Production Licence v2.0." />
   <meta property="og:url" content="https://zyvorai.github.io/ota/" />
   <script src="theme.js"></script>
   <link rel="stylesheet" href="site.css" />
@@ -45,7 +45,7 @@
     <h1>Signed A/B updates. <em>Commit or roll back.</em></h1>
     <p class="lede">The OTA runtime for Linux edge fleets: <strong>signed updates, automatic rollback, offline operation</strong> and verifiable deployment evidence, without cloud lock-in. Fleet decides which devices and when. OTA verifies and installs. RAUC writes the inactive slot.</p>
     <p class="cta"><a class="btn primary" href="#quickstart">Run the simulator demo</a><a class="btn" href="docs/TUTORIAL/">15-minute trial</a><a class="link" href="#how">How it fits</a></p>
-    <ul class="chips" aria-label="Highlights"><li class="ok">Zyvor Production License</li><li>Ed25519-signed releases</li><li>RAUC A/B slots</li><li>Health-gated commit</li><li>Automatic rollback</li><li>No inbound cloud port</li><li>v0.2.0 engineering preview</li></ul>
+    <ul class="chips" aria-label="Highlights"><li class="ok">Zyvor Production Licence v2.0</li><li>Ed25519-signed releases</li><li>RAUC A/B slots</li><li>Health-gated commit</li><li>Automatic rollback</li><li>No inbound cloud port</li><li>v0.2.0 engineering preview</li></ul>
   </section>
 
   <section id="why">
@@ -175,28 +175,28 @@ otactl -socket /run/zyvor-ota/agent.sock job job-001</code></pre><button class="
 
   <section id="pricing">
     <h2>Pricing</h2>
-    <p class="sub">Per device per year, one ladder shared with Fleet, Relay, Device Agent and Nodra: <b>US$18</b> for 1-999 devices, <b>US$12</b> for 1,000-9,999, <b>US$8</b> from 10,000, excl. tax outside India. Annual minimum US$5,000. Evaluation is free for 30 days.</p>
+    <p class="sub">Per device per year, one ladder shared with Fleet, Relay, Device Agent and Nodra: <b>US$18</b> for 1-999 devices, <b>US$12</b> for 1,000-9,999, <b>US$8</b> from 10,000, excl. tax outside India. Annual minimum US$5,000. A 30-day trial is available on request from sales@zyvor.dev (a paid evaluation Order at no charge).</p>
     <p class="cta"><a class="btn primary" href="https://zyvor.dev/buy#edge-fleet-relay-device-agent-ota-nodra" rel="noopener">Buy Zyvor OTA</a><a class="btn" href="https://zyvor.dev/pricing" rel="noopener">All prices</a></p>
     <p class="sub">Orders of US$5,000 or more, which includes every edge order at the minimum, are invoiced in US dollars and paid through Skydo.</p>
   </section>
 
   <section id="license">
     <h2>License</h2>
-    <p class="sub">Zyvor OTA is source-available under the <a href="https://github.com/zyvorai/ota/blob/main/LICENSE">Zyvor Production License v1.0</a>. Non-production use (evaluation, development, testing, research, education) is free. Any production use requires a paid commercial license from Zyvor AI Labs (<a href="https://zyvor.dev/pricing">pricing</a>, <a href="mailto:sales@zyvor.dev">sales@zyvor.dev</a>). Preserve notices and the <a href="https://github.com/zyvorai/ota/blob/main/NOTICE">NOTICE</a> file where required.</p>
-    <p class="sub">Original Zyvor OTA source is Zyvor Production License. Vendored dependencies retain their own licenses (see <a href="https://github.com/zyvorai/ota/blob/main/THIRD_PARTY_NOTICES.md">THIRD_PARTY_NOTICES.md</a>). RAUC is an external runtime dependency and is not relicensed by this project.</p>
+    <p class="sub">Zyvor OTA is source-available under the <a href="https://github.com/zyvorai/ota/blob/main/LICENSE">Zyvor Production Licence v2.0</a>. A 30-day trial is available on request from <a href="mailto:sales@zyvor.dev">sales@zyvor.dev</a> (a paid evaluation Order at no charge); production and any other use needs a paid Order under the Zyvor Production Licence v2.0 (<a href="https://zyvor.dev/pricing">pricing</a>). Preserve notices and the <a href="https://github.com/zyvorai/ota/blob/main/NOTICE">NOTICE</a> file where required.</p>
+    <p class="sub">Original Zyvor OTA source is Zyvor Production Licence v2.0. Vendored dependencies retain their own licenses (see <a href="https://github.com/zyvorai/ota/blob/main/THIRD_PARTY_NOTICES.md">THIRD_PARTY_NOTICES.md</a>). RAUC is an external runtime dependency and is not relicensed by this project.</p>
   </section>
 
   <section id="support">
     <h2>Support the project</h2>
     <div class="support">
-      <p>Free for evaluation, development, testing, research, education and other non-production use; any production use requires a paid commercial license (<a href="https://zyvor.dev/pricing">pricing</a>, <a href="mailto:sales@zyvor.dev">sales@zyvor.dev</a>). A 30-day trial key is available at <a href="https://zyvor.dev/trial/start">zyvor.dev/trial/start</a>. If it helps you, you can donate any amount you like: <a href="https://rzp.io/rzp/utwdYh3">https://rzp.io/rzp/utwdYh3</a>. A donation is voluntary and supports development and maintenance. It is not a purchase: it buys no support, SLA, features, priority or license, and it is not tax-deductible (Zyvor AI Labs Private Limited is a company, not a charity). Zyvor Enterprise (supported releases, SLAs, a named contact and enterprise features) is separate: <a href="mailto:sales@zyvor.dev">sales@zyvor.dev</a>.</p>
+      <p>A 30-day trial is available on request from <a href="mailto:sales@zyvor.dev">sales@zyvor.dev</a> (a paid evaluation Order at no charge); production and any other use needs a paid Order under the Zyvor Production Licence v2.0 (<a href="https://zyvor.dev/pricing">pricing</a>). If it helps you, you can donate any amount you like: <a href="https://rzp.io/rzp/utwdYh3">https://rzp.io/rzp/utwdYh3</a>. A donation is voluntary and supports development and maintenance. It is not a purchase: it buys no support, SLA, features, priority or license, and it is not tax-deductible (Zyvor AI Labs Private Limited is a company, not a charity). Zyvor Enterprise (supported releases, SLAs, a named contact and enterprise features) is separate: <a href="mailto:sales@zyvor.dev">sales@zyvor.dev</a>.</p>
       <p class="cta"><a class="btn primary" href="https://rzp.io/rzp/utwdYh3">Donate any amount</a><a class="link" href="mailto:sales@zyvor.dev">Looking for enterprise support? Contact sales</a></p>
     </div>
   </section>
 </main>
 
 <footer>
-  <p><b>Zyvor OTA</b> · © 2026 Zyvor AI Labs Private Limited · Zyvor Production License</p>
+  <p><b>Zyvor OTA</b> · © 2026 Zyvor AI Labs Private Limited · Zyvor Production Licence v2.0</p>
   <nav aria-label="Footer">
     <a href="https://zyvor.dev">zyvor.dev</a><a href="https://github.com/zyvorai/ota">GitHub</a><a href="docs/">Docs</a><a href="https://github.com/zyvorai/ota/blob/main/SECURITY.md">Security</a><a href="https://github.com/zyvorai/ota/blob/main/CHANGELOG.md">Changelog</a><a href="#support">Support</a>
   </nav>

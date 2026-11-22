@@ -10,8 +10,7 @@ better starting point.
 
 ## Licensing & cost
 
-**Do I need a license?** For production use, yes: it requires a paid commercial license from Zyvor AI Labs (sales@zyvor.dev,
-https://zyvor.dev/pricing; a 30-day trial key is available at https://zyvor.dev/trial/start). Evaluation, development, testing, research, education and other non-production use is free under the Zyvor Production License v1.0. Notices must be
+**Do I need a license?** Yes. A 30-day trial is available on request from sales@zyvor.dev (a paid evaluation Order at no charge); production and any other use needs a paid Order under the Zyvor Production Licence v2.0 (https://zyvor.dev/pricing). Notices must be
 preserved (see [`NOTICE`](https://github.com/zyvorai/ota/blob/main/NOTICE)). RAUC (an external runtime
 dependency) is not relicensed by this project — check its own license
 separately. See the README's [License](https://github.com/zyvorai/ota#license) section.
@@ -23,7 +22,7 @@ Prices (per device per year, India in INR incl. GST) are in
 [docs/SUBSCRIPTION-MODEL.md](SUBSCRIPTION-MODEL.md#pricing); buy at
 https://zyvor.dev/buy or contact sales@zyvor.dev. The site relay client, rollback, signature
 verification, the simulator, the QEMU lab recipe, and the basic Fleet
-contract stay in this Zyvor Production License repository.
+contract stay in this Zyvor Production Licence v2.0 repository.
 
 ## What is included, and what Enterprise adds
 

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+// SPDX-License-Identifier: LicenseRef-Zyvor-Production-2.0
 // Package fleetref implements the proposed Fleet adapter contract (docs/FLEET.md)
 // for lab integration tests and local bring-up. It is not a production fleet
 // scheduler or Zyvor Fleet product deployment.

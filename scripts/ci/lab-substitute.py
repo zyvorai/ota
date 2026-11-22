@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+# SPDX-License-Identifier: LicenseRef-Zyvor-Production-2.0
 """CI substitute for lab-blocked OTA rows (no real RAUC / power-loss hardware).
 
 Covers what GitHub runners can prove without QUALIFY_QEMU_IMAGE:
