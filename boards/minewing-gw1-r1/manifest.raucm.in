@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+# SPDX-License-Identifier: LicenseRef-Zyvor-Production-2.0
 # Bundle version must equal the outer OTA release version for each ship.
 [update]
 compatible=minewing-gw1-r1

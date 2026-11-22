@@ -1,6 +1,6 @@
 #!/bin/sh
 # Copyright 2026 Zyvor AI Labs · https://zyvor.dev
-# SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+# SPDX-License-Identifier: LicenseRef-Zyvor-Production-2.0
 
 # Build .deb and, when rpmbuild exists, .rpm for the static dist binaries.
 set -eu
@@ -56,7 +56,7 @@ Name: zyvor-ota
 Version: $version
 Release: 1
 Summary: Signed recoverable OTA agent
-License: LicenseRef-Zyvor-Production-1.0BuildArch: $debarch
+License: LicenseRef-Zyvor-Production-2.0BuildArch: $debarch
 
 %description
 Zyvor OTA verifies a signed release and installs it with rollback.

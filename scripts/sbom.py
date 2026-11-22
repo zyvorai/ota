@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # Copyright 2026 Zyvor AI Labs · https://zyvor.dev
-# SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+# SPDX-License-Identifier: LicenseRef-Zyvor-Production-2.0
 
 """Source-distribution SPDX 2.3 SBOM. Does not claim to inventory the board OS.
 
@@ -35,7 +35,7 @@ sbom = {"spdxVersion": "SPDX-2.3", "dataLicense": "CC0-1.0", "SPDXID": "SPDXRef-
                          "created": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
         "packages": [
             {"SPDXID": "SPDXRef-ZyvorOTA", "name": "zyvor-ota", "versionInfo": "0.2.0",
-             "downloadLocation": "NOASSERTION", "filesAnalyzed": False, "licenseDeclared": "LicenseRef-Zyvor-Production-1.0"},
+             "downloadLocation": "NOASSERTION", "filesAnalyzed": False, "licenseDeclared": "LicenseRef-Zyvor-Production-2.0"},
             {"SPDXID": "SPDXRef-Godbus", "name": "github.com/godbus/dbus/v5", "versionInfo": "v5.1.0",
              "downloadLocation": "https://github.com/godbus/dbus/tree/v5.1.0",
              "filesAnalyzed": False, "licenseDeclared": "BSD-2-Clause",

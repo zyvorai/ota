@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+// SPDX-License-Identifier: LicenseRef-Zyvor-Production-2.0
 // Package relay is a per-site artifact cache. Peers must present the shared token.
 // It does not sign releases and does not bypass host allowlists on the agent.
 package relay

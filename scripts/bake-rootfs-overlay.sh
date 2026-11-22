@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+# SPDX-License-Identifier: LicenseRef-Zyvor-Production-2.0
 # Install zyvor-ota binaries and packaging into an existing rootfs tree.
 # Does not repartition, flash, or invent PARTUUIDs — BSP owns the image layout.
 set -euo pipefail

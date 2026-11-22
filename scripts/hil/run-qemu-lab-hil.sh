@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+# SPDX-License-Identifier: LicenseRef-Zyvor-Production-2.0
 # Drive QEMU lab RAUC HIL once build-qemu-rauc-lab.sh has produced disk.img.
 # Produces operator logs under OUT/logs/ for run-rauc-powerloss-hil.sh.
 #

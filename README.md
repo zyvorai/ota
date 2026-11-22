@@ -6,7 +6,7 @@
 [![CI](https://github.com/zyvorai/ota/actions/workflows/ci.yml/badge.svg)](https://github.com/zyvorai/ota/actions/workflows/ci.yml)
 [![Release](https://github.com/zyvorai/ota/actions/workflows/release.yml/badge.svg)](https://github.com/zyvorai/ota/actions/workflows/release.yml)
 [![Go Reference](https://img.shields.io/badge/go-1.27.1-00ADD8?logo=go&logoColor=white)](go.mod)
-[![License](https://img.shields.io/badge/license-Zyvor_Production_1.0-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-Zyvor_Production_2.0-blue.svg)](LICENSE)
 
 [![Book a demo](https://img.shields.io/badge/Book_a_demo-0071e3?style=for-the-badge)](https://zyvor.dev/schedule?utm_source=github&utm_medium=ota&utm_campaign=readme_hero)
 [![30-day PoC](https://img.shields.io/badge/30--day_PoC-1d1d1f?style=for-the-badge)](https://zyvor.dev/poc?utm_source=github&utm_medium=ota&utm_campaign=readme_hero)
@@ -27,7 +27,7 @@
 
 ---
 
-**v0.2.0 — engineering preview, Zyvor Production License v1.0.** Working Go agent and CLI, native
+**v0.2.0 — engineering preview, Zyvor Production Licence v2.0.** Working Go agent and CLI, native
 RAUC D-Bus adapter, simulator, automated tests, and CI lab-substitutes.
 **Generic QEMU RAUC lab HIL is complete** (`zyvor-ota-qemu-lab`); **Minewing
 silicon qualification remains a separate, unsigned gate**. See
@@ -67,7 +67,7 @@ release. RAUC writes the inactive slot and integrates with the board bootloader.
 
 ## Is this for you?
 
-**Zyvor OTA** is the source-available (Zyvor Production License v1.0) runtime that makes a Linux edge update
+**Zyvor OTA** is the source-available (Zyvor Production Licence v2.0) runtime that makes a Linux edge update
 safe to ship: a signed release, an inactive A/B slot, health-gated commit, and
 automatic rollback, including when the WAN is down. Zyvor Fleet decides which
 devices and when. This repository does not ship a second rollout controller.
@@ -277,7 +277,7 @@ and bootloader updates. Evidence: [docs/TEST-REPORT.md](docs/TEST-REPORT.md) ·
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md): SPDX LicenseRef-Zyvor-Production-1.0 headers, board profiles
+See [CONTRIBUTING.md](CONTRIBUTING.md): SPDX LicenseRef-Zyvor-Production-2.0 headers, board profiles
 scoped to a tested SKU/revision pair, and required evidence for any change to
 boot selection, slot grouping, signing or recovery behavior. Run `make check`,
 `make demo`, and `make dist` before opening a pull request.
@@ -290,7 +290,7 @@ credentials, or exploitable production details in a public issue.
 
 ## License
 
-Zyvor OTA is source-available under the **[Zyvor Production License v1.0](LICENSE)** (SPDX `LicenseRef-Zyvor-Production-1.0`, also in [LICENSES/](LICENSES/LicenseRef-Zyvor-Production-1.0.txt); see [NOTICE](NOTICE)). Evaluation (evaluation, development, testing, research, education) is free for 30 days per organization. Production use requires a commercial license from Zyvor AI Labs Private Limited ([sales@zyvor.dev](mailto:sales@zyvor.dev), [zyvor.dev/buy](https://zyvor.dev/buy)); a 30-day trial key is available for production evaluation.
+Zyvor OTA is source-available under the **[Zyvor Production Licence v2.0](LICENSE)** (SPDX `LicenseRef-Zyvor-Production-2.0`, also in [LICENSES/](LICENSES/LicenseRef-Zyvor-Production-2.0.txt); see [NOTICE](NOTICE)). A 30-day trial is available on request from sales@zyvor.dev (a paid evaluation Order at no charge); production and any other use needs a paid Order under the Zyvor Production Licence v2.0. Buy: [zyvor.dev/buy](https://zyvor.dev/buy).
 
 **Zyvor Enterprise** adds what production teams ask for: supported releases, deployment and upgrade guidance, priority incident triage, a named technical contact and 24x7 critical intake. Customers pay for operational leverage, not for rollback or signature checks.
 Those stay in the OTA agent. Enterprise is the Fleet dashboard, SSO and
@@ -299,7 +299,7 @@ support. See the [FAQ](docs/FAQ.md#what-is-included-and-what-enterprise-adds). P
 
 ## Support
 
-Free for a 30-day evaluation (development, testing, research, education) under the Zyvor Production License v1.0; any production use requires a paid commercial license ([pricing](https://zyvor.dev/pricing), sales@zyvor.dev). A 30-day trial key is available at [zyvor.dev/trial/start](https://zyvor.dev/trial/start). If it helps you, you can donate any amount you like: <https://rzp.io/rzp/utwdYh3>. A donation is voluntary and supports development and maintenance. It is not a purchase: it buys no support, SLA, features, priority or license, and it is not tax-deductible (Zyvor AI Labs Private Limited is a company, not a charity). Zyvor Enterprise (supported releases, SLAs, a named contact and enterprise features) is separate: [sales@zyvor.dev](mailto:sales@zyvor.dev).
+A 30-day trial is available on request from sales@zyvor.dev (a paid evaluation Order at no charge); production and any other use needs a paid Order under the Zyvor Production Licence v2.0. ([pricing](https://zyvor.dev/pricing)). If it helps you, you can donate any amount you like: <https://rzp.io/rzp/utwdYh3>. A donation is voluntary and supports development and maintenance. It is not a purchase: it buys no support, SLA, features, priority or license, and it is not tax-deductible (Zyvor AI Labs Private Limited is a company, not a charity). Zyvor Enterprise (supported releases, SLAs, a named contact and enterprise features) is separate: [sales@zyvor.dev](mailto:sales@zyvor.dev).
 
 ---
 
